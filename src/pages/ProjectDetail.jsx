@@ -3,9 +3,11 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 const ProjectDetail = () => {
-  const [project, setProject] = useState({});
+  const [project, setProject] = useState({id:1, name:'First Project', description:'This is a test'});
   const { id } = useParams();
 
+    // The followign can be enabled once the rest api is up and running
+  /*
   useEffect(() => {
     const fetchData = async () => {
       const result = await axios(`https://api.example.com/projects/${id}`); // Replace with your API
@@ -14,7 +16,7 @@ const ProjectDetail = () => {
 
     fetchData();
   }, [id]);
-
+  */
   return (
     <div>
       <h1>{project.name}</h1>
