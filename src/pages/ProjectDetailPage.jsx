@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
-const ProjectDetail = () => {
+const ProjectDetailPage = () => {
   const [project, setProject] = useState({id:1, name:'First Project', description:'This is a test'});
   const { id } = useParams();
 
@@ -26,4 +26,4 @@ const ProjectDetail = () => {
   );
 };
 
-export default ProjectDetail;
+export default ProjectDetailPage;

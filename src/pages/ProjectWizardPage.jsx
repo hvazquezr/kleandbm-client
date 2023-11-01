@@ -9,11 +9,16 @@ import {Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from 
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add';
+import {TextField, FormControl, ToggleButtonGroup, ToggleButton, Autocomplete} from '@mui/material';
 
+const supportedDbTypes = [
+    {id:1, label:'Snowflake'},
+    {id:2, label:'Databricks'}
+];
 
-export default function ProjectList() {
-    const [projectInfo, setProjectInfo] = useState([
-        {name: '', projectType:'', dbType:'', questions:'', otherInfo:'', namingRules:''}
+export default function ProjectWizardPage() {
+    const [projects, setProjects] = useState([
+        {id:1, name:'First Project'}
         ]);
 
         // The followign can be enabled once the rest api is up and running
@@ -35,36 +40,64 @@ export default function ProjectList() {
         </Toolbar>
       </AppBar>
       <Box component="main" sx={{p: 10 }}>
-        <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12}>
-                <h1>Project Information</h1>
+        <FormControl>
+            <Grid container spacing={2} alignItems="end" alignContent="flex-end">
+                <Grid item xs={12}>
+                    <h1>Project Information</h1>
+                </Grid>
+                <Grid item xs={4}>
+                    <TextField id="projectName" label="Project Name" variant="outlined" required/>
+                </Grid>
+                <Grid item xs={4}>
+                    <Autocomplete
+                        disablePortal
+                        id="dbType"
+                        options={supportedDbTypes}
+                        renderInput={(params) => <TextField {...params} required label="DB Type" />}
+                        />
+                </Grid>
+                <Grid item xs={4}>
+                    <ToggleButtonGroup
+                        color="primary"
+                        exclusive
+                        aria-label="Project Type"
+                    >
+                        <ToggleButton value="analytical">Analytical</ToggleButton>
+                        <ToggleButton value="transactional">Transactional</ToggleButton>
+                    </ToggleButtonGroup>
+                </Grid>
+                <Grid item xs={6}>
+                    <TextField 
+                        id="questions"
+                        label="Questions the data model should answer"
+                        variant="outlined" 
+                        multiline 
+                        minRows={10}
+                        maxRows={10} 
+                        sx={{width:'100%'}}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    <TextField 
+                        id="additionalInfo"
+                        label="Additional Information"
+                        variant="outlined" 
+                        multiline 
+                        minRows={10}
+                        maxRows={10} 
+                        sx={{width:'100%'}}
+                    />
+                </Grid>
+                <Grid item xs={12} >
+                    <div sx={{width:'100%'}}>
+                        <Box sx={{display:'flex', justifyContent:'space-between'}}>
+                            <Button variant="outlined">Cancel</Button>
+                            <Button variant="contained">Submit</Button>
+                        </Box>
+                    </div>
+                </Grid>
             </Grid>
-        </Grid>
-        <Grid item xs={12}>
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Description</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {projects.map((project) => (
-                            <TableRow
-                            key={project.id}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                            <TableCell component="th" scope="row">
-                            <Link to={`/project/${project.id}`}>{project.name}</Link>
-                            </TableCell>
-                            <TableCell>{project.description}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Grid>
+        </FormControl>
     </Box>
     </Box>
   );
