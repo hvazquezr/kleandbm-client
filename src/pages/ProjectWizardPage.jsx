@@ -12,8 +12,8 @@ import AddIcon from '@mui/icons-material/Add';
 
 
 export default function ProjectList() {
-    const [projects, setProjects] = useState([
-        {id:1, name:'First Project'}
+    const [projectInfo, setProjectInfo] = useState([
+        {name: '', projectType:'', dbType:'', questions:'', otherInfo:'', namingRules:''}
         ]);
 
         // The followign can be enabled once the rest api is up and running
@@ -36,11 +36,8 @@ export default function ProjectList() {
       </AppBar>
       <Box component="main" sx={{p: 10 }}>
         <Grid container spacing={2} alignItems="center">
-            <Grid item xs={10}>
-                <h1>Project List</h1>
-            </Grid>
-            <Grid item xs={2}>
-                <Button sx={{width:200}} variant="outlined" startIcon={<AddIcon/>}>New Project</Button>
+            <Grid item xs={12}>
+                <h1>Project Information</h1>
             </Grid>
         </Grid>
         <Grid item xs={12}>
