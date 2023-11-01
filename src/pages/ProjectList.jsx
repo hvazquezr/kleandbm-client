@@ -32,38 +32,37 @@ export default function ProjectList() {
     <Box sx={{ flexGrow: 1}}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Projects
-          </Typography>
+         <img src={"./images/logo.png"} width="150" height="24"/>
         </Toolbar>
       </AppBar>
       <Box component="main" sx={{ p: 10 }}>
-        <Stack direction="column" spacing={2} alignItems="end">
+        <Box sx={{dispaly:'flex', flexDirection:'row', alignContent: 'space-between'}}>
+            <div>Project List</div>
             <Button sx={{width:200}} variant="outlined" startIcon={<AddIcon/>}>New Project</Button>
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Description</TableCell>
+        </Box>
+        <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Description</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {projects.map((project) => (
+                        <TableRow
+                        key={project.id}
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                        <TableCell component="th" scope="row">
+                        <Link to={`/project/${project.id}`}>{project.name}</Link>
+                        </TableCell>
+                        <TableCell>{project.description}</TableCell>
                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {projects.map((project) => (
-                            <TableRow
-                            key={project.id}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                            <TableCell component="th" scope="row">
-                            <Link to={`/project/${project.id}`}>{project.name}</Link>
-                            </TableCell>
-                            <TableCell>{project.description}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Stack>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
     </Box>
     </Box>
   );
