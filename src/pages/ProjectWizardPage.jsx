@@ -5,10 +5,9 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Grid from '@mui/material/Grid';
-import {Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from '@mui/material';
-import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button'
-import AddIcon from '@mui/icons-material/Add';
+import UploadButton from '../components/UploadButton.jsx';
+
 import {TextField, FormControl, ToggleButtonGroup, ToggleButton, Autocomplete} from '@mui/material';
 
 const supportedDbTypes = [
@@ -45,26 +44,26 @@ export default function ProjectWizardPage() {
                 <Grid item xs={12}>
                     <h1>Project Information</h1>
                 </Grid>
-                <Grid item xs={4}>
-                    <TextField id="projectName" label="Project Name" variant="outlined" required/>
-                </Grid>
-                <Grid item xs={4}>
-                    <Autocomplete
-                        disablePortal
-                        id="dbType"
-                        options={supportedDbTypes}
-                        renderInput={(params) => <TextField {...params} required label="DB Type" />}
-                        />
-                </Grid>
-                <Grid item xs={4}>
-                    <ToggleButtonGroup
-                        color="primary"
-                        exclusive
-                        aria-label="Project Type"
-                    >
-                        <ToggleButton value="analytical">Analytical</ToggleButton>
-                        <ToggleButton value="transactional">Transactional</ToggleButton>
-                    </ToggleButtonGroup>
+                <Grid item xs={12}>
+                    <div sx={{width:'100%'}}>
+                        <Box sx={{display:'flex', justifyContent:'space-between'}}>
+                            <TextField id="projectName" label="Project Name" variant="outlined" required/>
+                            <Autocomplete
+                            disablePortal
+                            id="dbType"
+                            options={supportedDbTypes}
+                            renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Type" />}
+                            />
+                            <ToggleButtonGroup
+                            color="primary"
+                            exclusive
+                            aria-label="Project Type"
+                            >
+                                <ToggleButton value="analytical">Analytical</ToggleButton>
+                                <ToggleButton value="transactional">Transactional</ToggleButton>
+                            </ToggleButtonGroup>
+                        </Box>
+                    </div>
                 </Grid>
                 <Grid item xs={6}>
                     <TextField 
@@ -87,6 +86,9 @@ export default function ProjectWizardPage() {
                         maxRows={10} 
                         sx={{width:'100%'}}
                     />
+                </Grid>
+                <Grid item xs={12} >
+                    <UploadButton />
                 </Grid>
                 <Grid item xs={12} >
                     <div sx={{width:'100%'}}>
