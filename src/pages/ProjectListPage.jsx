@@ -9,9 +9,16 @@ import {Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from 
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add';
+import Modal from '@mui/material/Modal';
+
+import NewProjectInfo from '../components/NewProjectInfo';
 
 
 export default function ProjectListPage() {
+    const [newProjectOpen, setNewProjectOpen] = React.useState(false);
+    const handleNewProjectOpen = () => setNewProjectOpen(true);
+    const handleNewProjectClose = () => setNewProjectOpen(false);
+
     const [projects, setProjects] = useState([
         {id:1, name:'First Project'}
         ]);
@@ -29,46 +36,47 @@ export default function ProjectListPage() {
     */
     return (
     <Box sx={{ flexGrow: 1}}>
-      <AppBar position="static">
-        <Toolbar>
-            <img src={"./images/logo.png"} width="150" height="24"/>
-        </Toolbar>
-      </AppBar>
-      <Box component="main" sx={{p: 10 }}>
-        <Grid container spacing={2} alignItems="center" alignContent="flex-end">
-            <Grid item xs={9}>
-                <h1>Project List</h1>
-            </Grid>
-            <Grid item xs={3}>
-                <Link to="/projectWizard"><Button sx={{width:'100%'}} variant="outlined" startIcon={<AddIcon/>}>New Project</Button></Link>
-            </Grid>
-            <Grid item xs={12}>
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Description</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {projects.map((project) => (
-                                <TableRow
-                                key={project.id}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                >
-                                <TableCell component="th" scope="row">
-                                <Link to={`/project/${project.id}`}>{project.name}</Link>
-                                </TableCell>
-                                <TableCell>{project.description}</TableCell>
+        <AppBar position="static">
+            <Toolbar>
+                <img src={"./images/logo.png"} width="150" height="24"/>
+            </Toolbar>
+        </AppBar>
+        <Box component="main" sx={{p: 10 }}>
+            <Grid container spacing={2} alignItems="center" alignContent="flex-end">
+                <Grid item xs={9}>
+                    <h1>Project List</h1>
+                </Grid>
+                <Grid item xs={3}>
+                    <Button sx={{width:'100%'}} onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
+                </Grid>
+                <Grid item xs={12}>
+                    <TableContainer component={Paper}>
+                        <Table sx={{ minWidth: 650 }}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Description</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                            </TableHead>
+                            <TableBody>
+                                {projects.map((project) => (
+                                    <TableRow
+                                    key={project.id}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                    <TableCell component="th" scope="row">
+                                    <Link to={`/project/${project.id}`}>{project.name}</Link>
+                                    </TableCell>
+                                    <TableCell>{project.description}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Grid>
             </Grid>
-        </Grid>
-    </Box>
+            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} />
+        </Box>
     </Box>
   );
 }
