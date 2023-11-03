@@ -1,19 +1,15 @@
 import React from 'react';
+import { useMemo } from 'react';
 import ReactFlow, { MiniMap, Controls, Panel } from 'reactflow';
 
-import TableNode from './TableNode';
 import ActionMenu from './ActionMenu';
 
 import 'reactflow/dist/style.css';
 
-const nodeTypes = {
-    tableNode: TableNode,
-  };
-
 const proOptions = { hideAttribution: true };
 
 export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, handleAddTable}) {
-
+      
   /* TODO:
     Incorporate ability to define/edit fields for a table
   */
