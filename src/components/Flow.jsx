@@ -1,8 +1,11 @@
 import React from 'react';
-import { useMemo } from 'react';
 import ReactFlow, { MiniMap, Controls, Panel } from 'reactflow';
-
 import ActionMenu from './ActionMenu';
+import TableNode from './TableNode'
+
+const nodeTypes = {
+  tableNode: TableNode,
+};
 
 import 'reactflow/dist/style.css';
 
