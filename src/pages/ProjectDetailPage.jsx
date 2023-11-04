@@ -23,7 +23,9 @@ import MailIcon from '@mui/icons-material/Mail';
 
 import {useNodesState, useEdgesState, addEdge } from 'reactflow';
 
-import Flow from '../components/Flow.jsx'
+import Flow from '../components/Flow.jsx';
+import EditableTitle from '../components/EditableTitle.jsx';
+import TreeNavigator from '../components/TreeNavigator.jsx';
 
 const drawerWidth = 240;
 
@@ -80,6 +82,8 @@ const ProjectDetailPage = () => {
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
+  const [projectName, setProjectName] = useState("Project Name");
+
   const handleAddTable = () => {
     let id = idCount;
     setIdCount(id+1);
@@ -108,6 +112,10 @@ const ProjectDetailPage = () => {
     setOpenDrawer(false);
   };
 
+  const updateProjectName = (e) => {
+    setProjectName(e.target.value);
+  };
+
   // The followign can be enabled once the rest api is up and running
   /*
   useEffect(() => {
@@ -134,7 +142,7 @@ const ProjectDetailPage = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Persistent drawer
+            <EditableTitle value={projectName} onChange={updateProjectName}/>
           </Typography>
         </Toolbar>
       </AppBar>
@@ -157,31 +165,7 @@ const ProjectDetailPage = () => {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+        <TreeNavigator tableList={nodes}/>
       </Drawer>
       <Main open={openDrawer}>
         <DrawerHeader />
