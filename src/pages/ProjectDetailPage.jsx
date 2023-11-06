@@ -14,12 +14,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import {useNodesState, useEdgesState, addEdge } from 'reactflow';
+import {useNodesState, useEdgesState, addEdge} from 'reactflow';
 
 import Flow from '../components/Flow.jsx';
 import EditableTitle from '../components/EditableTitle.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
-import TableNode from '../components/TableNode'
+import TableNode from '../components/TableNode.jsx';
+import TableEditor from '../components/TableEditor.jsx'
 
 import 'reactflow/dist/style.css';
 
@@ -79,8 +80,10 @@ const ProjectDetailPage = () => {
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
   const nodeTypes = useMemo(() => ({ tableNode: TableNode }), []);
+  const [activeTable, setActiveTable] = useState(null);
 
 
+  //Page Handling
   const [projectName, setProjectName] = useState("Project Name");
 
   //Handlers
@@ -98,17 +101,42 @@ const ProjectDetailPage = () => {
       }
     };
     setNodes((nds) => nds.concat(newNode));
-  }
+  };
 
-  const handleEditTable = (tableNode) =>{
-    console.log(tableNode);
-    alert('Editing Table');
-  }
+  const handleEditTable = (nodeId) =>{
+    //const node = getNode(nodeId);
+    const node = nodes.filter((n) => {return n.id === nodeId})[0];
+    console.log(node);
+    setActiveTable(node);
+  };
 
-  const handleDeleteTable = (tableNode) =>{
-    console.log(tableNode);
+  const handleDeleteTable = (nodeId) =>{
+    console.log(nodeId);
     alert('Deleting Table');
-  }
+  };
+
+  const handleTableEditorCancel = () => {
+    setActiveTable(null);
+  };
+
+  const handleTableEditorDone = (data) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === activeTable.id) {
+          // it's important that you create a new object here
+          // in order to notify react flow about the change
+          node.data = {
+            ...node.data,
+            label: data.label,
+          };
+        }
+        return node;
+      }
+    )
+  );
+    setActiveTable(null);
+  };
+  
 
   // Interactivity
   const theme = useTheme();
@@ -140,6 +168,7 @@ const ProjectDetailPage = () => {
 
 
   return (
+    <>
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={openDrawer}>
@@ -179,7 +208,7 @@ const ProjectDetailPage = () => {
         <Divider />
         <TreeNavigator tableList={nodes}/>
       </Drawer>
-      <Main open={openDrawer}>
+      <Main open={openDrawer} sx={{p:1}}>
         <DrawerHeader />
         <Flow
           nodes = {nodes}
@@ -194,6 +223,8 @@ const ProjectDetailPage = () => {
         />
       </Main>
     </Box>
+    {activeTable && <TableEditor table={activeTable} onCancel={handleTableEditorCancel} onDone={handleTableEditorDone}/>}
+    </>
   );
 };
 

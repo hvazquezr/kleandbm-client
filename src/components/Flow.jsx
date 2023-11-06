@@ -39,7 +39,7 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
     Incorporate ability to define/edit fields for a table
   */
   return (
-    <div style={{ width: `calc(100vw - 50px)`, height: `calc(100vh - 112px)` }}>
+    <div style={{ width: `calc(100vw - 30px)`, height: `calc(100vh - 80px)` }}>
         <ReactFlow
         ref={ref}
         nodes={nodes}
