@@ -4,8 +4,13 @@ import { useState, useEffect } from 'react';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+
+import { DataGrid } from '@mui/x-data-grid';
+
+import { columnProperties } from '../config/table-editor-config';
 
 
 const boxStyle = {
@@ -51,6 +56,20 @@ export default function TableEditor({table, onDone, onCancel}) {
             <Box sx={boxStyle}>
                 <Stack spacing={2} direction="row" sx={{width:'100%'}}>
                     <TextField label="Name" variant="standard" value={tableName} onChange={handleEditTableName}/>
+                    <DataGrid
+                        rows={[]}
+                        columns={columnProperties}
+                        initialState={{
+                            pagination: {
+                                paginationModel: {
+                                    pageSize: 5
+                                }
+                            }
+                        }}
+                        pageSizeOptions={[5]}
+                        checkboxSelection
+                        disableRowSelectionOnClick
+                    />
                     <Button variant="outlined" sx={buttonStyle} onClick={onCancel}>Cancel</Button>
                     <Button variant="contained" sx={buttonStyle} onClick={handleDone}>Done</Button>
                 </Stack>
