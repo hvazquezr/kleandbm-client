@@ -21,7 +21,6 @@ import EditableTitle from '../components/EditableTitle.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
 
 import 'reactflow/dist/style.css';
-import '../css/contextMenuStyle.css';
 
 const drawerWidth = 240;
 

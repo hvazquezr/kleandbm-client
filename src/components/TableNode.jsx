@@ -7,7 +7,6 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 
 const style = {
     
@@ -26,14 +25,15 @@ export default memo(({data, isConnectable}) => {
             type="target"
             position={Position.Top}
             style={{ background: '#555' }}
-            onConnect={(params) => console.log('handle onConnect', params)}
             isConnectable={isConnectable}
         />
         <TableContainer sx={style}>
             <Table size="small" aria-label="{data.label}">
                 <TableHead>
                     <TableRow>
-                        <TableCell colSpan={2} sx={{textAlign:'center'}}>{data.label}</TableCell>
+                        <TableCell colSpan={2}>
+                            {data.label}                         
+                        </TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell sx={{fontWeight: 'normal'}} align="right">Name</TableCell>

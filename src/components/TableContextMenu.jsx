@@ -1,23 +1,22 @@
-import React, { useCallback } from 'react';
-import { useReactFlow } from 'reactflow';
+import React from 'react';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 export default function TableContextMenu({
-  id,
-  top,
-  left,
-  right,
-  bottom,
-  ...props
+    id,
+    top,
+    left,
+    ...props
 }) {
 
   return (
-    <div
-      style={{ top, left, right, bottom }}
-      className="context-menu"
-      {...props}
+    <Menu
+        open={true}
+        anchorReference="anchorPosition"
+        anchorPosition={{top: top, left:left}}
     >
-      <button onClick={alert('Editing')}>Edit</button>
-      <button onClick={alert('Deleting')}>Delete</button>
-    </div>
+        <MenuItem onClick={() => {alert('Editing')}}>Edit</MenuItem>
+        <MenuItem onClick={() => {alert('Deleting')}}>Delete</MenuItem>
+    </Menu>
   );
 }
