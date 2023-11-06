@@ -26,8 +26,8 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
       const pane = ref.current.getBoundingClientRect();
       setMenu({
         id: node.id,
-        top: event.clientY < pane.height - 200 && event.clientY,
-        left: event.clientX < pane.width - 200 && event.clientX      });
+        top: event.clientY < pane.height - 100 && event.clientY,
+        left: event.clientX < pane.width - 100 && event.clientX      });
     },
     [setMenu],
   );

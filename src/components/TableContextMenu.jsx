@@ -1,22 +1,33 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-export default function TableContextMenu({
+
+export default function TableContextMenu({onClick,
     id,
     top,
     left,
     ...props
-}) {
+})
+{
 
-  return (
-    <Menu
-        open={true}
-        anchorReference="anchorPosition"
-        anchorPosition={{top: top, left:left}}
-    >
-        <MenuItem onClick={() => {alert('Editing')}}>Edit</MenuItem>
-        <MenuItem onClick={() => {alert('Deleting')}}>Delete</MenuItem>
-    </Menu>
-  );
+    const editNode = useCallback(() => {
+        alert('Editing');
+    }, [id]);
+
+    return (
+        <Menu
+            open={true}
+            anchorReference="anchorPosition"
+            anchorPosition={{top: top, left:left}}
+            onClick={onClick} 
+        >
+            <MenuItem onClick={editNode} disableRipple>
+                Edit
+            </MenuItem>
+            <MenuItem onClick={editNode} disableRipple>
+                Delete
+            </MenuItem>
+        </Menu>
+    );
 }
