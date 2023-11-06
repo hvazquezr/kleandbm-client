@@ -1,20 +1,19 @@
 import React, {useCallback, useState, useRef} from 'react';
 import ReactFlow, { MiniMap, Controls, Panel } from 'reactflow';
 import ActionMenu from './ActionMenu';
-import TableNode from './TableNode'
 import TableContextMenu from './TableContextMenu';
 
-const nodeTypes = {
-  tableNode: TableNode,
-};
+
 
 const proOptions = { hideAttribution: true };
 
 
-export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, handleAddTable}) {
+export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes}) {
 
   const [menu, setMenu] = useState(null);
   const ref = useRef(null);
+
+
 
   const onNodeContextMenu = useCallback(
     (event, node) => {
@@ -27,7 +26,7 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
       setMenu({
         id: node.id,
         top: event.clientY < pane.height - 100 && event.clientY,
-        left: event.clientX < pane.width - 100 && event.clientX      });
+        left: event.clientX < pane.width - 100 && event.clientX});
     },
     [setMenu],
   );
@@ -55,12 +54,12 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
         >
             <Panel position="top-right">
                 <ActionMenu 
-                  handleAddTable = {handleAddTable}
+                  handleAddTable = {onAddTable}
                 />
             </Panel>
             <Controls />
             <MiniMap pannable = 'true' zoomable = 'true' />
-            {menu && <TableContextMenu onClick={onPaneClick} {...menu}/>}
+            {menu && <TableContextMenu onClick={onPaneClick} menuOptions={menu} onDeleteTable={onDeleteTable} onEditTable={onEditTable}/>}
         </ReactFlow>
     </div>
   );

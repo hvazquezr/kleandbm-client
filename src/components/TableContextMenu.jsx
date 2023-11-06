@@ -3,29 +3,26 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
 
-export default function TableContextMenu({onClick,
-    id,
-    top,
-    left,
-    ...props
-})
-{
+export default function TableContextMenu({onClick, menuOptions, onEditTable, onDeleteTable}){
+    const handleEdit = useCallback(() => {
+        onEditTable(menuOptions.id);
+    }, [menuOptions]);
 
-    const editNode = useCallback(() => {
-        alert('Editing');
-    }, [id]);
+    const handleDelete = useCallback(() => {
+        onDeleteTable(menuOptions.id);
+    }, [menuOptions]);
 
     return (
         <Menu
             open={true}
             anchorReference="anchorPosition"
-            anchorPosition={{top: top, left:left}}
+            anchorPosition={{top: menuOptions.top, left: menuOptions.left}}
             onClick={onClick} 
         >
-            <MenuItem onClick={editNode} disableRipple>
+            <MenuItem onClick={handleEdit} disableRipple>
                 Edit
             </MenuItem>
-            <MenuItem onClick={editNode} disableRipple>
+            <MenuItem onClick={handleDelete} disableRipple>
                 Delete
             </MenuItem>
         </Menu>

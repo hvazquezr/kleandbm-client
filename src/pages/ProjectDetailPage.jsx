@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
@@ -19,6 +19,7 @@ import {useNodesState, useEdgesState, addEdge } from 'reactflow';
 import Flow from '../components/Flow.jsx';
 import EditableTitle from '../components/EditableTitle.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
+import TableNode from '../components/TableNode'
 
 import 'reactflow/dist/style.css';
 
@@ -77,8 +78,12 @@ const ProjectDetailPage = () => {
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
+  const nodeTypes = useMemo(() => ({ tableNode: TableNode }), []);
+
+
   const [projectName, setProjectName] = useState("Project Name");
 
+  //Handlers
   const handleAddTable = () => {
     let id = idCount;
     setIdCount(id+1);
@@ -95,7 +100,17 @@ const ProjectDetailPage = () => {
     setNodes((nds) => nds.concat(newNode));
   }
 
-  // 
+  const handleEditTable = (tableNode) =>{
+    console.log(tableNode);
+    alert('Editing Table');
+  }
+
+  const handleDeleteTable = (tableNode) =>{
+    console.log(tableNode);
+    alert('Deleting Table');
+  }
+
+  // Interactivity
   const theme = useTheme();
   const [openDrawer, setOpenDrawer] = React.useState(false);
 
@@ -172,7 +187,10 @@ const ProjectDetailPage = () => {
           onConnect = {onConnect}
           onEdgesChange = {onEdgesChange}
           onNodesChange = {onNodesChange}
-          handleAddTable = {handleAddTable}
+          onAddTable = {handleAddTable}
+          onEditTable = {handleEditTable}
+          onDeleteTable = {handleDeleteTable}
+          nodeTypes = {nodeTypes}
         />
       </Main>
     </Box>
