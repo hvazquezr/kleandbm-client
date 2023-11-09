@@ -97,7 +97,7 @@ const ProjectDetailPage = () => {
       position: {x:0, y:0},
       data:{
         label: 'Table ' +  id.toString(),
-        columns: [{name:'col1', datatype:'varchar'}, {name:'col2', datatype:'int'}]
+        columns: [{id:'1', name:'col1', dataType:'Varchar', primaryKey:true, description: 'Short'}]
       }
     };
     setNodes((nds) => nds.concat(newNode));
@@ -106,7 +106,6 @@ const ProjectDetailPage = () => {
   const handleEditTable = (nodeId) =>{
     //const node = getNode(nodeId);
     const node = nodes.filter((n) => {return n.id === nodeId})[0];
-    console.log(node);
     setActiveTable(node);
   };
 
@@ -125,10 +124,7 @@ const ProjectDetailPage = () => {
         if (node.id === activeTable.id) {
           // it's important that you create a new object here
           // in order to notify react flow about the change
-          node.data = {
-            ...node.data,
-            label: data.label,
-          };
+          node.data = data;
         }
         return node;
       }
