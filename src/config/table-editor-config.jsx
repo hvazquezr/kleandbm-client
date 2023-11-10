@@ -30,7 +30,7 @@ export const columnProperties = [
         field: 'description',
         headerName: 'Description',
         type: 'text',
-        width: 200,
+        width: 500,
         align: 'left',
         headerAlign: 'left',
         editable: true
