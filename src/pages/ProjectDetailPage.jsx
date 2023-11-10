@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+
+import { nanoid } from 'nanoid';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -91,13 +93,13 @@ const ProjectDetailPage = () => {
     let id = idCount;
     setIdCount(id+1);
     const newNode = {
-      id:id.toString(),
+      id:nanoid(),
       type: 'tableNode',
       // we are removing the half of the node width (75) to center the new node
       position: {x:0, y:0},
       data:{
         label: 'Table ' +  id.toString(),
-        columns: [{id:'1', name:'col1', dataType:'Varchar', primaryKey:true, description: 'Short'}]
+        columns: [{id: nanoid(), name:'col1', dataType:'Varchar', primaryKey:true, description: 'Short'}]
       }
     };
     setNodes((nds) => nds.concat(newNode));
