@@ -1,7 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import ProjectListPage from './pages/ProjectListPage';
-import ProjectDetailPage from './pages/ProjectDetailPage';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import DashboardPage from './pages/DashboardPage';
+import ProjectPage from './pages/ProjectPage';
 import LandingPage from './pages/LandingPage';
 
 function App() {
@@ -9,8 +9,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" exact element={<LandingPage />} />
-        <Route path="/dashboard" exact element={<ProjectListPage />} />
-        <Route path="/project/:id" exact element={<ProjectDetailPage />} />
+        <Route path="/dashboard" exact element={<DashboardPage />} />
+        <Route path="/project/:id" exact element={<ProjectPage />} />
       </Routes>
     </Router>
   );

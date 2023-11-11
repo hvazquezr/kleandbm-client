@@ -13,13 +13,16 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
 
-import NewProjectInfo from '../components/NewProjectInfo';
-import LogoutButton from '../components/LogoutButton.jsx'
+import NewProjectInfo from '../components/NewProjectInfo.jsx';
+import UserAvatar from '../components/UserAvatar.jsx';
 
-import { withAuthenticationRequired } from "@auth0/auth0-react";
+import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+
+import LoadingPage from './LoadingPage.jsx';
 
 
-export function ProjectListPage() {
+export function DashboardPage() {
+    const { user, logout } = useAuth0();
     const [newProjectOpen, setNewProjectOpen] = React.useState(false);
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
@@ -46,7 +49,7 @@ export function ProjectListPage() {
         <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
                     <img src={"./images/logo.png"} width="150" height="24"/>
-                    <LogoutButton />                    
+                    <UserAvatar user={user} onLogout={logout} />                  
                 </Stack>
             </Toolbar>
         </AppBar>
@@ -90,6 +93,6 @@ export function ProjectListPage() {
   );
 }
 
-export default withAuthenticationRequired(ProjectListPage, {
-    onRedirecting: () => (<div>Loading...</div>),
+export default withAuthenticationRequired(DashboardPage, {
+    onRedirecting: () => <LoadingPage />
 });

@@ -9,13 +9,11 @@ import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import Stack from '@mui/material/Stack';
 
 
 import {useNodesState, useEdgesState, addEdge} from 'reactflow';
@@ -25,9 +23,12 @@ import EditableTitle from '../components/EditableTitle.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
 import TableNode from '../components/TableNode.jsx';
 import TableEditor from '../components/TableEditor.jsx'
-import LogoutButton from '../components/LogoutButton.jsx'
 
-import { withAuthenticationRequired } from "@auth0/auth0-react";
+import UserAvatar from '../components/UserAvatar.jsx';
+
+import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+
+import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
 
@@ -78,7 +79,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const ProjectDetailPage = () => {
+const ProjectPage = () => {
+  const { user, logout } = useAuth0();
   // ReactFlow
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -185,10 +187,10 @@ const ProjectDetailPage = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Box sx={{width:'100%'}}>
             <EditableTitle value={projectName} onChange={updateProjectName}/>
-          </Typography>
-          <LogoutButton />
+          </Box>
+          <UserAvatar user={user} onLogout={logout} />   
         </Toolbar>
       </AppBar>
       <Drawer
@@ -232,6 +234,6 @@ const ProjectDetailPage = () => {
   );
 };
 
-export default withAuthenticationRequired(ProjectDetailPage, {
-  onRedirecting: () => (<div>Loading...</div>),
+export default withAuthenticationRequired(ProjectPage, {
+  onRedirecting: () => <LoadingPage />
 });

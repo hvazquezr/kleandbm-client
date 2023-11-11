@@ -19,7 +19,6 @@ export default function LandingPage() {
             <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
                     <img src={"./images/logo.png"} width="150" height="24"/>
-                    <Button component={Link} to={'/dashboard'} size="medium" variant="outlined" color="inherit">Link</Button>
                     <LoginButton />                    
                 </Stack>
             </Toolbar>
