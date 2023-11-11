@@ -10,8 +10,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     domain="hvazquez.auth0.com"
     clientId="6XPCQ4ZlyBLWc4MdctGtr7oN3BlOcfKs"
     authorizationParams={{
-      //redirect_uri: window.location.origin
-      redirect_uri: "https://127.0.0.1:5173/dashboard"
+      redirect_uri: window.location.origin
+      //redirect_uri: "https://127.0.0.1:5173/dashboard"
     }}
   >
     <App />

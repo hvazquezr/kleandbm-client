@@ -27,6 +27,8 @@ import TableNode from '../components/TableNode.jsx';
 import TableEditor from '../components/TableEditor.jsx'
 import LogoutButton from '../components/LogoutButton.jsx'
 
+import { withAuthenticationRequired } from "@auth0/auth0-react";
+
 import 'reactflow/dist/style.css';
 
 const drawerWidth = 240;
@@ -186,6 +188,7 @@ const ProjectDetailPage = () => {
           <Typography variant="h6" noWrap component="div">
             <EditableTitle value={projectName} onChange={updateProjectName}/>
           </Typography>
+          <LogoutButton />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -229,4 +232,6 @@ const ProjectDetailPage = () => {
   );
 };
 
-export default ProjectDetailPage;
+export default withAuthenticationRequired(ProjectDetailPage, {
+  onRedirecting: () => (<div>Loading...</div>),
+});

@@ -11,10 +11,10 @@ import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CssBaseline from '@mui/material/CssBaseline';
 
 import NewProjectInfo from '../components/NewProjectInfo';
 import LogoutButton from '../components/LogoutButton.jsx'
-import LandingPage from './LandingPage.jsx';
 
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -41,6 +41,7 @@ export function ProjectListPage() {
     */
     return (
     <Box sx={{ flexGrow: 1}}>
+        <CssBaseline />
         <AppBar position="static">
         <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
