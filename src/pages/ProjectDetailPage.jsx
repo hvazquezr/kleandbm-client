@@ -15,6 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import Stack from '@mui/material/Stack';
+
 
 import {useNodesState, useEdgesState, addEdge} from 'reactflow';
 
@@ -23,6 +25,7 @@ import EditableTitle from '../components/EditableTitle.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
 import TableNode from '../components/TableNode.jsx';
 import TableEditor from '../components/TableEditor.jsx'
+import LogoutButton from '../components/LogoutButton.jsx'
 
 import 'reactflow/dist/style.css';
 

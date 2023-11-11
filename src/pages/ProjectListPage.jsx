@@ -9,12 +9,17 @@ import {Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from 
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add';
-import Modal from '@mui/material/Modal';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import NewProjectInfo from '../components/NewProjectInfo';
+import LogoutButton from '../components/LogoutButton.jsx'
+import LandingPage from './LandingPage.jsx';
+
+import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 
-export default function ProjectListPage() {
+export function ProjectListPage() {
     const [newProjectOpen, setNewProjectOpen] = React.useState(false);
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
@@ -37,14 +42,17 @@ export default function ProjectListPage() {
     return (
     <Box sx={{ flexGrow: 1}}>
         <AppBar position="static">
-            <Toolbar>
-                <img src={"./images/logo.png"} width="150" height="24"/>
+        <Toolbar>
+                <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
+                    <img src={"./images/logo.png"} width="150" height="24"/>
+                    <LogoutButton />                    
+                </Stack>
             </Toolbar>
         </AppBar>
         <Box component="main" sx={{p: 10 }}>
             <Grid container spacing={2} alignItems="center" alignContent="flex-end">
                 <Grid item xs={9}>
-                    <h1>Project List</h1>
+                    <Typography variant="h4">Project List</Typography>
                 </Grid>
                 <Grid item xs={3}>
                     <Button sx={{width:'100%'}} onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
@@ -80,3 +88,7 @@ export default function ProjectListPage() {
     </Box>
   );
 }
+
+export default withAuthenticationRequired(ProjectListPage, {
+    onRedirecting: () => (<div>Loading...</div>),
+});
