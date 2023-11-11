@@ -10,7 +10,7 @@ function App() {
       <Routes>
         <Route path="/" exact element={<LandingPage />} />
         <Route path="/dashboard" exact element={<ProjectListPage />} />
-        <Route path="/project/:id" element={<ProjectDetailPage />} />
+        <Route path="/project/:id" exact element={<ProjectDetailPage />} />
       </Routes>
     </Router>
   );
