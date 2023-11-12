@@ -29,17 +29,17 @@ export function DashboardPage() {
 
     const [projects, setProjects] = useState([]);
 
-        // The followign can be enabled once the rest api is up and running
-        /*
-        useEffect(() => {
-        const fetchData = async () => {
-            const result = await axios('https://api.example.com/projects'); // Replace with your API
-            setProjects(result.data);
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:5000/projects');
+                setProjects(response.data);
+            } catch (error) {
+                console.error("Error fetching projects", error);
+            }
         };
-
-        fetchData();
-        }, []);
-    */
+        fetchProjects();
+    }, []);
 
     return (
     <Box sx={{ flexGrow: 1}}>
