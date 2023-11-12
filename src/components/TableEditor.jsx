@@ -6,8 +6,10 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+
+
 
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -90,9 +92,13 @@ export default function TableEditor({table, onDone, onCancel}) {
                         <TextField label="Name" variant="outlined" value={tableName} onChange={handleEditTableName} required fullWidth/>
                     </Grid>
                     <Grid item xs={12} textAlign='right'>
-                        <Button variant='contained' size='small' onClick={handleDeleteColumn} color='error' disabled={selectedColumnIds.length === 0}><DeleteIcon /></Button>
+                        <Tooltip title="Delete Column">
+                            <span><Button variant='contained' size='small' onClick={handleDeleteColumn} color='error' disabled={selectedColumnIds.length === 0}><DeleteIcon /></Button></span>
+                        </Tooltip>
                         &nbsp;&nbsp;
-                        <Button variant='contained' size='small' onClick={handleAddColumn}><AddIcon /></Button>
+                        <Tooltip title="Add Column">
+                            <Button variant='contained' size='small' onClick={handleAddColumn}><AddIcon /></Button>
+                        </Tooltip>
                     </Grid>
                     <Grid item xs={12}>
                         <DataGrid

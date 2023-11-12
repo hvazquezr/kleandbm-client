@@ -1,12 +1,10 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import MenuList from '@mui/material/MenuList';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -25,11 +23,13 @@ function UserAvatar({user, onLogout}) {
     setAnchorElUser(null);
   };
 
+  //console.log(user.picture);
+
   return (
     <Box sx={{ flexGrow: 0 }}>
-    <Tooltip title="Account">
+    <Tooltip title={user.name}>
         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-        <Avatar alt={user.picture} src={user.picture}/>
+        <Avatar alt={user.name} src={user.picture}/>
         </IconButton>
     </Tooltip>
     <Menu

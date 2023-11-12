@@ -22,7 +22,7 @@ import LoadingPage from './LoadingPage.jsx';
 
 
 export function DashboardPage() {
-    const { user, logout } = useAuth0();
+    const { user, logout, getAccessTokenSilently } = useAuth0();
     const [newProjectOpen, setNewProjectOpen] = React.useState(false);
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
@@ -32,14 +32,19 @@ export function DashboardPage() {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:5000/projects');
-                setProjects(response.data);
+                const token = await getAccessTokenSilently();
+                const response = await axios.get('http://127.0.0.1:5000/projects', {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  });
+                setProjects(await response.data);
             } catch (error) {
                 console.error("Error fetching projects", error);
             }
         };
         fetchProjects();
-    }, []);
+    }, [getAccessTokenSilently]);
 
     return (
     <Box sx={{ flexGrow: 1}}>

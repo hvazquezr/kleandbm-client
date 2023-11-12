@@ -15,7 +15,7 @@ const actions = [
 export default function ActionMenu({handleAddTable}) {
 
   return (
-    <Box sx={{ height: 200, transform: 'translateZ(0px)', flexGrow: 1 }}>
+    <Box sx={{ height: 200, transform: 'translateZ(0px)', flexGrow: 1}}>
       <SpeedDial
         ariaLabel="Action Menu"
         sx={{ position: 'absolute', bottom: 16, right: 16 }}
