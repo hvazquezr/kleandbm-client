@@ -23,13 +23,13 @@ export default function TableContextMenu({onClick, menuOptions, onEditTable, onD
             anchorPosition={{top: menuOptions.top, left: menuOptions.left}}
             onClick={onClick} 
         >
-            <MenuItem onClick={handleEdit} disableRipple>
+            <MenuItem onClick={handleEdit} >
                 <ListItemIcon>
                     <EditIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Edit</ListItemText>
             </MenuItem>
-            <MenuItem onClick={handleDelete} disableRipple>
+            <MenuItem onClick={handleDelete} >
                 <ListItemIcon>
                     <DeleteIcon fontSize="small" />
                 </ListItemIcon>

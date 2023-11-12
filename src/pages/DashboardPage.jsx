@@ -24,6 +24,7 @@ import LoadingPage from './LoadingPage.jsx';
 export function DashboardPage() {
     const { user, logout, getAccessTokenSilently } = useAuth0();
     const [newProjectOpen, setNewProjectOpen] = React.useState(false);
+    const [projectsLoaded, setProjectsLoaded] = React.useState(false);
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
 
@@ -44,6 +45,7 @@ export function DashboardPage() {
             }
         };
         fetchProjects();
+        setProjectsLoaded(true);
     }, [getAccessTokenSilently]);
 
     return (
@@ -93,11 +95,11 @@ export function DashboardPage() {
                         </TableContainer>
                     </Grid>
                 </Grid>
-            ):(
+            ):projectsLoaded&&(
                 <Stack direction="column" spacing={4} alignItems="center" justifyContent="center" sx={{width:'100%', height: '70vh'}}>
                     <img src={"./images/projectsPlaceholder.png"} style={{ borderRadius: '50%', width:300, height:300 }}/>
                     <Typography variant="h5">
-                        You don't have any proejects yet. Go ahead and create your first project.
+                        You don't have any projects yet. Go ahead and create your first project.
                     </Typography>
                     <Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>
                 </Stack>

@@ -29,7 +29,9 @@ function UserAvatar({user, onLogout}) {
     <Box sx={{ flexGrow: 0 }}>
     <Tooltip title={user.name}>
         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-        <Avatar alt={user.name} src={user.picture}/>
+        <Avatar alt={user.name} src={user.picture}     style={{
+             border: '1px solid lightgray'
+          }}/>
         </IconButton>
     </Tooltip>
     <Menu
