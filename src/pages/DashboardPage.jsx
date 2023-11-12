@@ -27,9 +27,7 @@ export function DashboardPage() {
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
 
-    const [projects, setProjects] = useState([
-        {id:1, name:'First Project'}
-        ]);
+    const [projects, setProjects] = useState([]);
 
         // The followign can be enabled once the rest api is up and running
         /*
@@ -42,6 +40,7 @@ export function DashboardPage() {
         fetchData();
         }, []);
     */
+
     return (
     <Box sx={{ flexGrow: 1}}>
         <CssBaseline />
@@ -54,39 +53,50 @@ export function DashboardPage() {
             </Toolbar>
         </AppBar>
         <Box component="main" sx={{p: 10 }}>
-            <Grid container spacing={2} alignItems="center" alignContent="flex-end">
-                <Grid item xs={9}>
-                    <Typography variant="h4">Project List</Typography>
-                </Grid>
-                <Grid item xs={3}>
-                    <Button sx={{width:'100%'}} onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
-                </Grid>
-                <Grid item xs={12}>
-                    <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }}>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Description</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {projects.map((project) => (
-                                    <TableRow
-                                    key={project.id}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
-                                    <TableCell component="th" scope="row">
-                                    <Link to={`/project/${project.id}`}>{project.name}</Link>
-                                    </TableCell>
-                                    <TableCell>{project.description}</TableCell>
+            {(projects.length !== 0)?
+            (
+                <Grid container spacing={2} alignItems="center" alignContent="flex-end">
+                    <Grid item xs={9}>
+                        <Typography variant="h4">Project List</Typography>
+                    </Grid>
+                    <Grid item xs={3}>
+                        <Button sx={{width:'100%'}} onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TableContainer component={Paper}>
+                            <Table sx={{ minWidth: 650 }}>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Name</TableCell>
+                                        <TableCell>Description</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                </TableHead>
+                                <TableBody>
+                                    {projects.map((project) => (
+                                        <TableRow
+                                        key={project.id}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        >
+                                        <TableCell component="th" scope="row">
+                                        <Link to={`/project/${project.id}`}>{project.name}</Link>
+                                        </TableCell>
+                                        <TableCell>{project.description}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Grid>
                 </Grid>
-            </Grid>
+            ):(
+                <Stack direction="column" spacing={4} alignItems="center" justifyContent="center" sx={{width:'100%', height: '70vh'}}>
+                    <img src={"./images/projectsPlaceholder.png"} style={{ borderRadius: '50%', width:300, height:300 }}/>
+                    <Typography variant="h5">
+                        You don't have any proejects yet. Go ahead and create your first project.
+                    </Typography>
+                    <Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>
+                </Stack>
+            )}
             <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} />
         </Box>
     </Box>

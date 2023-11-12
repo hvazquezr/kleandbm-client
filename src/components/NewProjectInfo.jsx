@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button'
 import Modal from '@mui/material/Modal';
 
+
 import {TextField, FormControl, ToggleButtonGroup, ToggleButton, Autocomplete, Typography} from '@mui/material';
 import Tab from '@mui/material/Tab';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
@@ -23,7 +24,6 @@ const style = {
     transform: 'translate(-50%, -50%)',
     width: '80%',
     bgcolor: 'background.paper',
-    border: '1px solid #000',
     boxShadow: 24,
     p:5,
     flexGrow: 1,
@@ -98,6 +98,7 @@ export default function NewProjectInfo({open, onCancel}) {
                                     minRows={10}
                                     maxRows={10} 
                                     sx={{width:'100%'}}
+                                    required
                                 />                            
                             </TabPanel>
                             <TabPanel value="2">
