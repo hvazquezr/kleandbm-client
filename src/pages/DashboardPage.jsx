@@ -12,6 +12,8 @@ import AddIcon from '@mui/icons-material/Add';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
+import { TypeAnimation } from 'react-type-animation';
+
 
 import NewProjectInfo from '../components/NewProjectInfo.jsx';
 import UserAvatar from '../components/UserAvatar.jsx';
@@ -25,6 +27,8 @@ export function DashboardPage() {
     const { user, logout, getAccessTokenSilently } = useAuth0();
     const [newProjectOpen, setNewProjectOpen] = React.useState(false);
     const [projectsLoaded, setProjectsLoaded] = React.useState(false);
+    const [showStartButton, setShowStartButton] = React.useState(false);
+
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
 
@@ -51,7 +55,7 @@ export function DashboardPage() {
     return (
     <Box sx={{ flexGrow: 1}}>
         <CssBaseline />
-        <AppBar position="static" sx={{paddingLeft:7, paddingRight:7}}>
+        <AppBar position="static" sx={{paddingLeft:5, paddingRight:5}}>
         <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
                     <img src={"./images/logo.png"} width="150" height="24"/>
@@ -97,11 +101,23 @@ export function DashboardPage() {
                 </Grid>
             ):projectsLoaded&&(
                 <Stack direction="column" spacing={4} alignItems="center" justifyContent="center" sx={{width:'100%', height: '70vh'}}>
-                    <img src={"./images/projectsPlaceholder.png"} style={{ borderRadius: '50%', width:300, height:300 }}/>
                     <Typography variant="h5">
-                        You don't have any projects yet. Go ahead and create your first project.
+                        <TypeAnimation
+                                    preRenderFirstString={false}
+                                    sequence={[
+                                    500,
+                                    'You don\'t have any projects yet. Go ahead and create your first project.', 
+                                    500,
+                                    () => {
+                                        setShowStartButton(true);
+                                      },
+                                    ]}
+                                    speed={50}
+                                    style={{ fontSize: '2em', height:140, display: 'block' }}
+                                    repeat={0}
+                        />
                     </Typography>
-                    <Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>
+                    {showStartButton&&<Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>}
                 </Stack>
             )}
             <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} />

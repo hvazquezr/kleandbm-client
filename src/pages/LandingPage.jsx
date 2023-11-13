@@ -41,10 +41,10 @@ export default function LandingPage() {
                         <Typography variant="h2" sx={{color:"#535354"}}>AI-Driven Database Design <span style={{color:"#1080DB"}}>Simplified</span></Typography>
                         <Typography variant="h5">
                           <TypeAnimation
-                                preRenderFirstString={true}
+                                preRenderFirstString={false}
                                 sequence={[
                                 500,
-                                'Which is my daily revenue by region?', // initially rendered starting point
+                                'Which is my daily revenue by region?', 
                                 1000,
                                 'Which is my top selling product every month?',
                                 1000,
@@ -54,7 +54,7 @@ export default function LandingPage() {
                                 500,
                                 ]}
                                 speed={50}
-                                style={{ fontSize: '2em', heigh:200 }}
+                                style={{ fontSize: '2em', height:140, display: 'block' }}
                                 repeat={0}
                             />
                         </Typography>

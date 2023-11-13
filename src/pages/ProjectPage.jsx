@@ -176,7 +176,7 @@ const ProjectPage = () => {
     <>
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={openDrawer}>
+      <AppBar position="fixed" open={openDrawer} sx={{paddingRight:5}}>
         <Toolbar>
           <IconButton
             color="inherit"
