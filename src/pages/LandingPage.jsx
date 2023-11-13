@@ -40,13 +40,23 @@ export default function LandingPage() {
                     <Stack direction="column" spacing={2}>
                         <Typography variant="h2" sx={{color:"#535354"}}>AI-Driven Database Design <span style={{color:"#1080DB"}}>Simplified</span></Typography>
                         <Typography variant="h5">
-                        <TypeAnimation
-                            style={{ whiteSpace: 'pre-line', height:140, display: 'block' }}
-                            sequence={[
-                                `What is my daily revenue by region?\nWhich products are our top sellers every month?\nHow effective is our supply chain in terms of delivery times?\n...`
+                          <TypeAnimation
+                                preRenderFirstString={true}
+                                sequence={[
+                                500,
+                                'Which is my daily revenue by region?', // initially rendered starting point
+                                1000,
+                                'Which is my top selling product every month?',
+                                1000,
+                                'Which is my best supplier in terms of delivery times?',
+                                1000,
+                                'Which is my ...?',
+                                500,
                                 ]}
-                            repeat={0}
-                        />
+                                speed={50}
+                                style={{ fontSize: '2em', heigh:200 }}
+                                repeat={0}
+                            />
                         </Typography>
                     </Stack>
                 </Stack>
