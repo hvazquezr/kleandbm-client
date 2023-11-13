@@ -24,10 +24,11 @@ export default function LandingPage() {
                 </Stack>
             </Toolbar>
         </AppBar>
-        <Box component="main" sx={{p: 10, height:'90vh'}}>
+        <Box component="main" sx={{p: 10}}>
             <Stack direction="column"
-                alignItems="center"
-                justifyContent="center"
+                alignItems="center" 
+                justifyContent="center" 
+                sx={{width:'100%', height: '70vh'}}
                 spacing={5}
             >
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={5}
