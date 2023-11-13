@@ -51,7 +51,7 @@ export function DashboardPage() {
     return (
     <Box sx={{ flexGrow: 1}}>
         <CssBaseline />
-        <AppBar position="static">
+        <AppBar position="static" sx={{paddingLeft:7, paddingRight:7}}>
         <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
                     <img src={"./images/logo.png"} width="150" height="24"/>
