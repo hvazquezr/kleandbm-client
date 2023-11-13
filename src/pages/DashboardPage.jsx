@@ -120,7 +120,7 @@ export function DashboardPage() {
                     {showStartButton&&<Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>}
                 </Stack>
             )}
-            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} />
+            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} user={user}/>
         </Box>
     </Box>
   );

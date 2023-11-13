@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { nanoid } from 'nanoid';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button'
 import Modal from '@mui/material/Modal';
-
-
 import {TextField, FormControl, ToggleButtonGroup, ToggleButton, Autocomplete, Typography} from '@mui/material';
 import Tab from '@mui/material/Tab';
+import FormHelperText from '@mui/material/FormHelperText';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
+
+import { databaseTechnologies } from '../config/config';
 
 
 const supportedDbTypes = [
@@ -30,27 +32,47 @@ const style = {
     borderRadius: 2
   };
 
-export default function NewProjectInfo({open, onCancel}) {
-    const [tabValue, setTabValue] = React.useState('1');
+export default function NewProjectInfo({open, onCancel, user}) {
+    const [tabValue, setTabValue] = useState('1');
+    const [project, setProject] = useState({});
+    const navigate = useNavigate();
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
-    const [projects, setProjects] = useState([
-        {id:1, name:'First Project'}
-        ]);
 
-        // The followign can be enabled once the rest api is up and running
-        /*
-        useEffect(() => {
-        const fetchData = async () => {
-            const result = await axios('https://api.example.com/projects'); // Replace with your API
-            setProjects(result.data);
-        };
+    const handleProjectName = (event, newProjectName) => {
+        setProject({...project, name: newProjectName});
+    };
 
-        fetchData();
-        }, []);
-    */
+    const handleDbTechnology = (event, newDbTechnology) => {
+        setProject({...project, dbTechnology: newDbTechnology});
+    };
+
+    const handleProjectType = (event, newProjectType) => {
+        setProject({...project, projectType: newProjectType});
+    };
+
+    const handleQuestions = (event, newQuestions) => {
+        setProject({...project, questions: newQuestions});
+    };
+
+    const handleAdditionalInfo = (event, newAdditionalInfo) => {
+        setProject({...project, additionalInfo: newAdditionalInfo});
+    };
+
+    const handleNamingRules = (event, newNamingRules) => {
+        setProject({...project, namingRules: newNamingRules});
+    };
+
+    const handleSubmit = async (e) => {
+        // Failing check  https://github.com/corydolphin/flask-cors/issues/200. Also see how authorization is handled in the get
+        const newId = nanoid();
+        setProject({...project, id:newId, active:true, description:'Default description. To be changed by AI.', owner: user});
+        await axios.post('http://127.0.0.1:5000/projects/', project);
+        navigate(`/project/${id}`);
+    }
+
     return (
     <Modal open={open} onClose={onCancel}>
         <Box component="main" sx={style}>
@@ -59,21 +81,33 @@ export default function NewProjectInfo({open, onCancel}) {
                     <Grid item xs={12}>
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                                <TextField id="projectName" label="Project Name" variant="outlined" required/>
+                                <TextField id="projectName" label="Project Name" variant="outlined" required onChange={handleProjectName}
+                                error={true}
+                                helperText="Incorrect entry."
+                                />
                                 <Autocomplete
                                 disablePortal
-                                id="dbType"
-                                options={supportedDbTypes}
-                                renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Type" />}
+                                id="dbTechnology"
+                                getOptionLabel={(option) => option.name ?? option}
+                                options={databaseTechnologies}
+                                onChange={handleDbTechnology}
+                                renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Type"                                 error={true}
+                                helperText="Incorrect entry."/>}
                                 />
+                                <Box>
                                 <ToggleButtonGroup
                                 color="primary"
                                 exclusive
                                 aria-label="Project Type"
+                                value={project.projectType}
+                                onChange={handleProjectType}
+                                color='primary'
                                 >
                                     <ToggleButton value="analytical">Analytical</ToggleButton>
                                     <ToggleButton value="transactional">Transactional</ToggleButton>
                                 </ToggleButtonGroup>
+                                <FormHelperText error={false}>Test</FormHelperText>
+                                </Box>
                             </Box>
                         </div>
                     </Grid>
@@ -94,11 +128,14 @@ export default function NewProjectInfo({open, onCancel}) {
                                     id="questions"
                                     label="Questions"
                                     variant="outlined" 
+                                    onChange={handleQuestions}
                                     multiline 
                                     minRows={10}
                                     maxRows={10} 
                                     sx={{width:'100%'}}
                                     required
+                                    error={true}
+                                    helperText="Incorrect entry."
                                 />                            
                             </TabPanel>
                             <TabPanel value="2">
@@ -108,7 +145,8 @@ export default function NewProjectInfo({open, onCancel}) {
                                 <TextField 
                                     id="additionalInfo"
                                     label="Additional Information"
-                                    variant="outlined" 
+                                    variant="outlined"
+                                    onChange={handleAdditionalInfo}
                                     multiline 
                                     minRows={10}
                                     maxRows={10} 
@@ -122,7 +160,8 @@ export default function NewProjectInfo({open, onCancel}) {
                                 <TextField 
                                     id="namingRules"
                                     label="Naming Conventions"
-                                    variant="outlined" 
+                                    variant="outlined"
+                                    onChange={handleNamingRules}
                                     multiline 
                                     minRows={10}
                                     maxRows={10} 
@@ -135,7 +174,7 @@ export default function NewProjectInfo({open, onCancel}) {
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
                                 <Button variant="outlined" onClick={onCancel}>Cancel</Button>
-                                <Button variant="contained">Submit</Button>
+                                <Button variant="contained" onClick={handleSubmit}>Submit</Button>
                             </Box>
                         </div>
                     </Grid>

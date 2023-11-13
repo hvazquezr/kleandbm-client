@@ -206,7 +206,7 @@ export const columnProperties = [
         width: 180,
         editable: true,
         type: 'singleSelect',
-        valueOptions: dataTypes
+        valueOptions: databaseTechnologies
     },
     {
         field: 'primaryKey',
