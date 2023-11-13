@@ -51,7 +51,7 @@ export default function LandingPage() {
                 </Stack>
                 <Button size='large' color='success' variant='contained'>Sign Up</Button>
             </Stack>
+            </Box>
         </Box>
-    </Box>
   );
 }
