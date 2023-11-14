@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -34,23 +34,40 @@ export function DashboardPage() {
 
     const [projects, setProjects] = useState([]);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         const fetchProjects = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await axios.get('http://127.0.0.1:5000/projects', {
+                const response = await axios.get('http://127.0.0.1:5000/api/v1/projects', {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
                   });
                 setProjects(await response.data);
+                setProjectsLoaded(true);
             } catch (error) {
                 console.error("Error fetching projects", error);
             }
         };
         fetchProjects();
-        setProjectsLoaded(true);
     }, [getAccessTokenSilently]);
+
+    const handleSaveNewProject = async (newProject) => {
+        try {
+            const token = await getAccessTokenSilently();
+            const response = await axios.post('http://127.0.0.1:5000/api/v1/projects', newProject, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                });
+            navigate(`/project/${newProject.id}`);
+        } catch (error) {
+            console.error("Error saving project", error);
+        }
+    };
 
     return (
     <Box sx={{ flexGrow: 1}}>
@@ -106,21 +123,21 @@ export function DashboardPage() {
                                     preRenderFirstString={false}
                                     sequence={[
                                     500,
-                                    'You don\'t have any projects yet. Go ahead and create your first project.', 
+                                    'Ready to model?', 
                                     500,
                                     () => {
                                         setShowStartButton(true);
                                       },
                                     ]}
                                     speed={50}
-                                    style={{ fontSize: '2em', height:140, display: 'block' }}
+                                    style={{ fontSize: '2em', height:100, display: 'block' }}
                                     repeat={0}
                         />
                     </Typography>
                     {showStartButton&&<Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>}
                 </Stack>
             )}
-            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} user={user}/>
+            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} user={user} onSubmit={handleSaveNewProject}/>
         </Box>
     </Box>
   );

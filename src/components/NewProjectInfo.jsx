@@ -1,7 +1,6 @@
+//TODO: Vaidation
 import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button'
@@ -32,46 +31,56 @@ const style = {
     borderRadius: 2
   };
 
-export default function NewProjectInfo({open, onCancel, user}) {
+export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
     const [tabValue, setTabValue] = useState('1');
-    const [project, setProject] = useState({});
-    const navigate = useNavigate();
+    const [project, setProject] = useState({id: nanoid(), owner: user, active: true, description:'Default description. To be changed by AI.'});
+    const [validation, setValidation] = useState({
+        name: {error:false, helperText: ''},
+        dbTechnology: {error:false, helperText: ''},
+        projectType: {error:false, helperText: ''},
+        questions: {error:false, helperText: ''}
+    });
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
 
-    const handleProjectName = (event, newProjectName) => {
-        setProject({...project, name: newProjectName});
+    const handleProjectName = (e) => {
+        setProject({...project, name: e.target.value});
+        validation.name.error= (e.target.value === '');
     };
 
-    const handleDbTechnology = (event, newDbTechnology) => {
-        setProject({...project, dbTechnology: newDbTechnology});
+    const handleDbTechnology = (e, newValue) => {
+        setProject({...project, dbTechnology: newValue.id});
     };
 
-    const handleProjectType = (event, newProjectType) => {
-        setProject({...project, projectType: newProjectType});
+    const handleProjectType = (e) => {
+        setProject({...project, projectType: e.target.value});
     };
 
-    const handleQuestions = (event, newQuestions) => {
-        setProject({...project, questions: newQuestions});
+    const handleQuestions = (e) => {
+        setProject({...project, questions: e.target.value});
     };
 
-    const handleAdditionalInfo = (event, newAdditionalInfo) => {
-        setProject({...project, additionalInfo: newAdditionalInfo});
+    const handleAdditionalInfo = (e) => {
+        setProject({...project, additionalInfo: e.target.value});
     };
 
-    const handleNamingRules = (event, newNamingRules) => {
-        setProject({...project, namingRules: newNamingRules});
+    const handleNamingRules = (e) => {
+        setProject({...project, namingRules: e.target.value});
     };
 
     const handleSubmit = async (e) => {
-        // Failing check  https://github.com/corydolphin/flask-cors/issues/200. Also see how authorization is handled in the get
-        const newId = nanoid();
-        setProject({...project, id:newId, active:true, description:'Default description. To be changed by AI.', owner: user});
-        await axios.post('http://127.0.0.1:5000/projects/', project);
-        navigate(`/project/${id}`);
-    }
+        //Validation
+        //setValidation({...validation, name: {error:true, helperText:'Please enter a valid value.'} });
+        //setValidation({...validation, dbTechnology: {error:true, helperText:'Please enter a valid value.'} });
+        //setValidation({...validation, projectType: {error:true, helperText:'Please enter a valid value.'} });
+        //setValidation({...validation, questions: {error:true, helperText:'Please enter a valid value.'} });
+
+
+        onSubmit(project);
+    };
+    
 
     return (
     <Modal open={open} onClose={onCancel}>
@@ -82,8 +91,8 @@ export default function NewProjectInfo({open, onCancel, user}) {
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
                                 <TextField id="projectName" label="Project Name" variant="outlined" required onChange={handleProjectName}
-                                error={true}
-                                helperText="Incorrect entry."
+                                error = {validation.name.error}
+                                helperText={validation.name.helperText}
                                 />
                                 <Autocomplete
                                 disablePortal
@@ -91,22 +100,22 @@ export default function NewProjectInfo({open, onCancel, user}) {
                                 getOptionLabel={(option) => option.name ?? option}
                                 options={databaseTechnologies}
                                 onChange={handleDbTechnology}
-                                renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Type"                                 error={true}
-                                helperText="Incorrect entry."/>}
+                                renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Type"
+                                error={validation.dbTechnology.error}
+                                helperText={validation.dbTechnology.helperText}/>}
                                 />
                                 <Box>
                                 <ToggleButtonGroup
-                                color="primary"
+                                color= {validation.projectType.error?"error":"primary"}
                                 exclusive
                                 aria-label="Project Type"
                                 value={project.projectType}
                                 onChange={handleProjectType}
-                                color='primary'
                                 >
                                     <ToggleButton value="analytical">Analytical</ToggleButton>
                                     <ToggleButton value="transactional">Transactional</ToggleButton>
                                 </ToggleButtonGroup>
-                                <FormHelperText error={false}>Test</FormHelperText>
+                                <FormHelperText error={validation.projectType.error}>{validation.projectType.helperText}</FormHelperText>
                                 </Box>
                             </Box>
                         </div>
@@ -134,8 +143,8 @@ export default function NewProjectInfo({open, onCancel, user}) {
                                     maxRows={10} 
                                     sx={{width:'100%'}}
                                     required
-                                    error={true}
-                                    helperText="Incorrect entry."
+                                    error={validation.questions.error}
+                                    helperText={validation.questions.helperText}
                                 />                            
                             </TabPanel>
                             <TabPanel value="2">
