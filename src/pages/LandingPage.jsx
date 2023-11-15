@@ -44,13 +44,13 @@ export default function LandingPage() {
                                 preRenderFirstString={false}
                                 sequence={[
                                 500,
-                                'Which is my daily revenue by region?', 
+                                'What were last quarter\'s top-selling products?', 
                                 1000,
-                                'Which is my top selling product every month?',
+                                'What is my profitability trend by region?',
                                 1000,
-                                'Which is my best supplier in terms of delivery times?',
+                                'What\'s the connection between marketing spend and website traffic?',
                                 1000,
-                                'Which is my ...?',
+                                'What possibilities await when you accelerate database design with AI?',
                                 500,
                                 ]}
                                 speed={50}

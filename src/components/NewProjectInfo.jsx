@@ -41,24 +41,68 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
         questions: {error:false, helperText: ''}
     });
 
+    const validateProjectName = (name) => {
+        if (!name || name.length < 1 || name.length > 255) {
+          return 'Project name must be between 1 and 255 characters.';
+        }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+          return 'Project name must start with a letter or underscore and contain only letters, numbers, and underscores.';
+        }
+        return '';
+    };  
+
+    const validateDbTechnology = (value) => {
+        return (!value || value.id === '')?'Please select a Database Technology.':'';
+    }
+    
+    const validateProjectType = (value) => {
+        return (!value || value === '')?'Please select a Project Type.':'';
+    }
+
+    const validateQuestions = (value) => {
+        return (!value || value === '')?'Please enter some questions.':'';
+    }
+
+
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
 
     const handleProjectName = (e) => {
+        const helperText = validateProjectName(e.target.value);
+        const error = (helperText!=='');
+        if (validation.name.error){
+            setValidation({...validation, name: {helperText, error}});
+        }
         setProject({...project, name: e.target.value});
-        validation.name.error= (e.target.value === '');
     };
 
     const handleDbTechnology = (e, newValue) => {
-        setProject({...project, dbTechnology: newValue.id});
+        const newValueId = (!newValue)?null:newValue.id;
+        const helperText = validateDbTechnology(newValue);
+        const error = (helperText!=='');
+        if (validation.dbTechnology.error){
+            setValidation({...validation, dbTechnology: {helperText, error}});
+        }
+        (!newValue)
+        setProject({...project, dbTechnology: newValueId});
     };
 
     const handleProjectType = (e) => {
+        const helperText = validateProjectType(e.target.value);
+        const error = (helperText!=='');
+        if (validation.projectType.error){
+            setValidation({...validation, projectType: {helperText, error}});
+        }
         setProject({...project, projectType: e.target.value});
     };
 
     const handleQuestions = (e) => {
+        const helperText = validateQuestions(e.target.value);
+        const error = (helperText!=='');
+        if (validation.questions.error){
+            setValidation({...validation, questions: {helperText, error}});
+        }
         setProject({...project, questions: e.target.value});
     };
 
@@ -72,13 +116,35 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
 
     const handleSubmit = async (e) => {
         //Validation
-        //setValidation({...validation, name: {error:true, helperText:'Please enter a valid value.'} });
-        //setValidation({...validation, dbTechnology: {error:true, helperText:'Please enter a valid value.'} });
-        //setValidation({...validation, projectType: {error:true, helperText:'Please enter a valid value.'} });
-        //setValidation({...validation, questions: {error:true, helperText:'Please enter a valid value.'} });
+        console.log(project);
+        const newValidation = validation;
 
+        //Validating name
+        newValidation.name.helperText = validateProjectName(project.name);
+        newValidation.name.error = (newValidation.name.helperText!=='');
 
-        onSubmit(project);
+        //Validating dbTechnology
+        newValidation.dbTechnology.helperText = validateDbTechnology(project.dbTechnology);
+        newValidation.dbTechnology.error = (newValidation.dbTechnology.helperText!=='');
+
+        //Validating projectType
+        newValidation.projectType.helperText = validateProjectType(project.projectType);
+        newValidation.projectType.error = (newValidation.projectType.helperText!=='');
+
+        //Validating questions
+        newValidation.questions.helperText = validateQuestions(project.questions);
+        newValidation.questions.error = (newValidation.questions.helperText!=='');
+
+        console.log(newValidation);
+        //setValidation(newValidation);
+        setValidation({...validation, newValidation});
+        
+        if (!(
+            newValidation.name.error ||
+            newValidation.dbTechnology.error ||
+            newValidation.projectType.error ||
+            newValidation.questions.error))
+            onSubmit(project);
     };
     
 
@@ -91,31 +157,31 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
                                 <TextField id="projectName" label="Project Name" variant="outlined" required onChange={handleProjectName}
-                                error = {validation.name.error}
-                                helperText={validation.name.helperText}
+                                    error = {validation.name.error}
+                                    helperText={validation.name.helperText}
                                 />
                                 <Autocomplete
-                                disablePortal
-                                id="dbTechnology"
-                                getOptionLabel={(option) => option.name ?? option}
-                                options={databaseTechnologies}
-                                onChange={handleDbTechnology}
-                                renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Type"
-                                error={validation.dbTechnology.error}
-                                helperText={validation.dbTechnology.helperText}/>}
+                                    disablePortal
+                                    id="dbTechnology"
+                                    getOptionLabel={(option) => option.name ?? option}
+                                    options={databaseTechnologies}
+                                    onChange={handleDbTechnology}
+                                    renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Technology"
+                                    error={validation.dbTechnology.error}
+                                    helperText={validation.dbTechnology.helperText}/>}
                                 />
                                 <Box>
-                                <ToggleButtonGroup
-                                color= {validation.projectType.error?"error":"primary"}
-                                exclusive
-                                aria-label="Project Type"
-                                value={project.projectType}
-                                onChange={handleProjectType}
-                                >
-                                    <ToggleButton value="analytical">Analytical</ToggleButton>
-                                    <ToggleButton value="transactional">Transactional</ToggleButton>
-                                </ToggleButtonGroup>
-                                <FormHelperText error={validation.projectType.error}>{validation.projectType.helperText}</FormHelperText>
+                                    <ToggleButtonGroup
+                                        color= {validation.projectType.error?"error":"primary"}
+                                        exclusive
+                                        aria-label="Project Type"
+                                        value={project.projectType}
+                                        onChange={handleProjectType}
+                                    >
+                                        <ToggleButton value="analytical">Analytical</ToggleButton>
+                                        <ToggleButton value="transactional">Transactional</ToggleButton>
+                                    </ToggleButtonGroup>
+                                    <FormHelperText error={validation.projectType.error}>{validation.projectType.helperText}</FormHelperText>
                                 </Box>
                             </Box>
                         </div>
