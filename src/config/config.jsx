@@ -1,6 +1,6 @@
 export const databaseTechnologies = [
     {
-        id: '1',
+        id: 1,
         name: 'Snowflake',
         active: true,
         dataTypes: [
@@ -103,7 +103,7 @@ export const databaseTechnologies = [
         ]
     },
     {
-        id: '2',
+        id: 2,
         name: 'Databricks',
         active: true,
         dataTypes: [
@@ -127,7 +127,7 @@ export const databaseTechnologies = [
         ]
     },
     {
-        id: '3',
+        id: 3,
         name: 'SQL Server',
         active: true,
         dataTypes: [
@@ -161,7 +161,7 @@ export const databaseTechnologies = [
         ]
     },
     {
-        id: '4',
+        id: 4,
         name: 'MySql',
         active: true,
         dataTypes: [

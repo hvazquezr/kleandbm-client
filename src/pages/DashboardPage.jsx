@@ -21,6 +21,8 @@ import UserAvatar from '../components/UserAvatar.jsx';
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
 import LoadingPage from './LoadingPage.jsx';
+import { databaseTechnologies } from '../config/config';
+
 
 
 export function DashboardPage() {
@@ -69,6 +71,34 @@ export function DashboardPage() {
         }
     };
 
+    function lookupDbTechnology(id) {
+        console.log(id);
+        console.log(databaseTechnologies);
+        const dbTechnology = databaseTechnologies.find(dbTechnology => dbTechnology.id === id);
+        return dbTechnology ? dbTechnology.name : null;
+    }
+
+    function capitalizeFirstLetter(word) {
+        if (!word) return word;
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }
+    
+    function epochToLocalTime(epoch) {
+        const date = new Date(epoch);
+        const formattedDate = date.toLocaleDateString('en-US', {
+            year: '2-digit',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        const formattedTime = date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        return `${formattedDate} ${formattedTime}`;
+    }
+
     return (
     <Box sx={{ flexGrow: 1}}>
         <CssBaseline />
@@ -96,19 +126,27 @@ export function DashboardPage() {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Name</TableCell>
+                                        <TableCell>DB Technology</TableCell>
+                                        <TableCell>Project Type</TableCell>
                                         <TableCell>Description</TableCell>
+                                        <TableCell>Owner</TableCell>
+                                        <TableCell>Last Modified</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {projects.map((project) => (
                                         <TableRow
-                                        key={project.id}
+                                        key={project.ID}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
                                         <TableCell component="th" scope="row">
-                                        <Link to={`/project/${project.id}`}>{project.name}</Link>
+                                        <Link to={`/project/${project.ID}`}>{project.NAME}</Link>
                                         </TableCell>
-                                        <TableCell>{project.description}</TableCell>
+                                        <TableCell>{lookupDbTechnology(project.DBTECHNOLOGY)}</TableCell>
+                                        <TableCell>{capitalizeFirstLetter(project.PROJECTTYPE)}</TableCell>
+                                        <TableCell>{project.DESCRIPTION}</TableCell>
+                                        <TableCell>{project.OWNER.ID===user.sub?"Me":project.OWNER.NAME}</TableCell>
+                                        <TableCell>{epochToLocalTime(project.LASTMODIFIED)}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
