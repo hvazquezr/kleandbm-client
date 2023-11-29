@@ -16,7 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 
-import { columnProperties } from '../config/table-editor-config';
+import { columnProperties } from '../config/config.jsx';
 
 
 const boxStyle = {

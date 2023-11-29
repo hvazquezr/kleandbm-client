@@ -139,14 +139,14 @@ export function DashboardPage() {
                                         key={project.ID}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
-                                        <TableCell component="th" scope="row">
-                                        <Link to={`/project/${project.ID}`}>{project.NAME}</Link>
-                                        </TableCell>
-                                        <TableCell>{lookupDbTechnology(project.DBTECHNOLOGY)}</TableCell>
-                                        <TableCell>{capitalizeFirstLetter(project.PROJECTTYPE)}</TableCell>
-                                        <TableCell>{project.DESCRIPTION}</TableCell>
-                                        <TableCell>{project.OWNER.ID===user.sub?"Me":project.OWNER.NAME}</TableCell>
-                                        <TableCell>{epochToLocalTime(project.LASTMODIFIED)}</TableCell>
+                                            <TableCell component="th" scope="row">
+                                            <Link to={`/project/${project.ID}`}>{project.NAME}</Link>
+                                            </TableCell>
+                                            <TableCell>{lookupDbTechnology(project.DBTECHNOLOGY)}</TableCell>
+                                            <TableCell>{capitalizeFirstLetter(project.PROJECTTYPE)}</TableCell>
+                                            <TableCell>{project.DESCRIPTION}</TableCell>
+                                            <TableCell>{project.OWNER.ID===user.sub?"Me":project.OWNER.NAME}</TableCell>
+                                            <TableCell>{epochToLocalTime(project.LASTMODIFIED)}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
