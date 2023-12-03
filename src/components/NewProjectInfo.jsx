@@ -210,6 +210,7 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                                     required
                                     error={validation.questions.error}
                                     helperText={validation.questions.helperText}
+                                    value = {project.questions}
                                 />                            
                             </TabPanel>
                             <TabPanel value="2">
@@ -225,6 +226,7 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                                     minRows={10}
                                     maxRows={10} 
                                     sx={{width:'100%'}}
+                                    value={project.additionalInfo}
                                 />                            
                             </TabPanel>
                             <TabPanel value="3">
@@ -240,6 +242,7 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                                     minRows={10}
                                     maxRows={10} 
                                     sx={{width:'100%'}}
+                                    value={project.namingRules}
                                 />                            
                             </TabPanel>
                         </TabContext>
