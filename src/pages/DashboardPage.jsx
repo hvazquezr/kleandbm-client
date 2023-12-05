@@ -136,17 +136,17 @@ export function DashboardPage() {
                                 <TableBody>
                                     {projects.map((project) => (
                                         <TableRow
-                                        key={project.ID}
+                                        key={project.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
                                             <TableCell component="th" scope="row">
-                                            <Link to={`/project/${project.ID}`}>{project.NAME}</Link>
+                                            <Link to={`/project/${project.id}`}>{project.name}</Link>
                                             </TableCell>
-                                            <TableCell>{lookupDbTechnology(project.DBTECHNOLOGY)}</TableCell>
-                                            <TableCell>{capitalizeFirstLetter(project.PROJECTTYPE)}</TableCell>
-                                            <TableCell>{project.DESCRIPTION}</TableCell>
-                                            <TableCell>{project.OWNER.ID===user.sub?"Me":project.OWNER.NAME}</TableCell>
-                                            <TableCell>{epochToLocalTime(project.LASTMODIFIED)}</TableCell>
+                                            <TableCell>{lookupDbTechnology(project.dbTechnology)}</TableCell>
+                                            <TableCell>{capitalizeFirstLetter(project.projectType)}</TableCell>
+                                            <TableCell>{project.description}</TableCell>
+                                            <TableCell>{project.owner.id===user.sub?"Me":project.owner.name}</TableCell>
+                                            <TableCell>{epochToLocalTime(project.lastModified)}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
