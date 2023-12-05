@@ -1,3 +1,5 @@
+// TODO: Need to troubleshoot why data types are not loaded
+
 import * as React from 'react';
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
@@ -47,7 +49,7 @@ function CustomNoRowsOverlay() {
 };
 
 export default function TableEditor({table, onDone, onCancel}) {
-    const [tableName, setTableName] = useState(table.data.label);
+    const [tableName, setTableName] = useState(table.data.name);
     const [columns, setColumns] = useState(table.data.columns);
     const [selectedColumnIds, setSelectedColumnIds] = useState([]);
 

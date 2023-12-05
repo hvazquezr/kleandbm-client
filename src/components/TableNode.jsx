@@ -32,7 +32,7 @@ export default memo(({data, isConnectable}) => {
                 <TableHead>
                     <TableRow>
                         <TableCell colSpan={2}>
-                            {data.label}                         
+                            {data.name}                         
                         </TableCell>
                     </TableRow>
                     <TableRow>
@@ -43,7 +43,7 @@ export default memo(({data, isConnectable}) => {
                 <TableBody>
                     {data.columns.map((column) => (
                     <TableRow
-                        key={column.name}
+                        key={column.id}
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
                         <TableCell >

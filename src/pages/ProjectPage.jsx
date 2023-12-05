@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
@@ -79,12 +79,69 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
+function getNodesAndEdges(tables, nodes, relationships) {
+  const edges = [];
+
+  tables.forEach(table => {
+    const newTable = { id: table.id, position: { x: 0, y: 0 }, data: {}, type: 'tableNode' };
+
+    // Move all attributes except 'id' and 'position' into 'data'
+    for (const key in table) {
+      if (key !== 'id' && key !== 'position') {
+        newTable.data[key] = table[key];
+      }
+    }
+
+    // Find the corresponding node and set position
+    const node = nodes.find(node => node.tableId === table.id);
+    if (node) {
+      newTable.position.x = node.x;
+      newTable.position.y = node.y;
+    }
+
+    // Replace the old table object with the new one
+    Object.assign(table, newTable);
+  });
+
+  relationships.forEach(relationship => {
+    let sourceTableId = null;
+    let targetTableId = null;
+
+    tables.forEach(table => {
+      table.data.columns.forEach(column => {
+        if (column.id === relationship.parentColumn) {
+          sourceTableId = table.id;
+        } else if (column.id === relationship.childColumn) {
+          targetTableId = table.id;
+        }
+      });
+    });
+
+    if (sourceTableId && targetTableId) {
+      edges.push({
+        id: relationship.id,
+        source: sourceTableId,
+        target: targetTableId,
+        // Include other attributes from the relationship if needed
+      });
+    }
+  });
+
+  return {
+    enhancedTables: tables,
+    edges: edges
+  };
+}
+
+
 const ProjectPage = () => {
-  const { user, logout } = useAuth0();
+  const { user, logout, getAccessTokenSilently } = useAuth0();
   // ReactFlow
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [idCount, setIdCount] = useState(1);
+  const [projectName, setProjectName] = useState("");
+  const {id} = useParams();
+  console.log({id});
 
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
@@ -92,13 +149,8 @@ const ProjectPage = () => {
   const [activeTable, setActiveTable] = useState(null);
 
 
-  //Page Handling
-  const [projectName, setProjectName] = useState("Project Name");
-
   //Handlers
   const handleAddTable = () => {
-    let id = idCount;
-    setIdCount(id+1);
     const newNode = {
       id:nanoid(),
       type: 'tableNode',
@@ -160,17 +212,29 @@ const ProjectPage = () => {
   };
 
   // The followign can be enabled once the rest api is up and running
-  /*
+  
   useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios(`https://api.example.com/projects/${id}`); // Replace with your API
-      setProject(result.data);
+    const fetchProjects = async () => {
+        try {
+            const token = await getAccessTokenSilently();
+            const response = await axios.get(`http://127.0.0.1:5000/api/v1/projects/${id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              const project = await response.data;
+              const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
+              console.log(nodesAndEdges.enhancedTables);
+              console.log(nodesAndEdges.edges)
+              setProjectName(project.name);
+              setNodes(nodesAndEdges.enhancedTables);
+              setEdges(nodesAndEdges.edges);
+        } catch (error) {
+            console.error("Error fetching projects", error);
+        }
     };
-
-    fetchData();
-  }, [id]);
-  */
-
+    fetchProjects();
+}, [id]);
 
   return (
     <>

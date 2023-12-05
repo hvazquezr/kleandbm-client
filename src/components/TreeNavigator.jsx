@@ -22,7 +22,7 @@ export default function TreeNavigator({tableList}) {
             <TreeItem
                 nodeId = {table.id}
                 key = {table.id}
-                label={table.data.label}
+                label={table.data.name}
                 icon = {<TableChartOutlinedIcon />}
             />
         ))}
