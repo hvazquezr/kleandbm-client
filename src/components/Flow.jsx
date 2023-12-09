@@ -1,5 +1,8 @@
 import React, {useCallback, useState, useRef} from 'react';
-import ReactFlow, { MiniMap, Controls, Panel } from 'reactflow';
+import ReactFlow, { 
+  MiniMap,
+  Controls,
+  Panel } from 'reactflow';
 import ActionMenu from './ActionMenu';
 import TableContextMenu from './TableContextMenu';
 
@@ -44,6 +47,7 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
         ref={ref}
         nodes={nodes}
         edges={edges}
+        fitView
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
