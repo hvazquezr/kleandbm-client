@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
-import { useStore, getBezierPath } from 'reactflow';
+import { useStore, getSmoothStepPath } from 'reactflow';
 
 import { getEdgeParams } from './utils.jsx';
 
-function FloatingEdge({ id, source, target, markerEnd, style }) {
+function FloatingEdge({ id, source, target, markerEnd, markerStart, style }) {
   const sourceNode = useStore(useCallback((store) => store.nodeInternals.get(source), [source]));
   const targetNode = useStore(useCallback((store) => store.nodeInternals.get(target), [target]));
 
@@ -13,7 +13,7 @@ function FloatingEdge({ id, source, target, markerEnd, style }) {
 
   const { sx, sy, tx, ty, sourcePos, targetPos } = getEdgeParams(sourceNode, targetNode);
 
-  const [edgePath] = getBezierPath({
+  const [edgePath] = getSmoothStepPath({
     sourceX: sx,
     sourceY: sy,
     sourcePosition: sourcePos,
@@ -28,6 +28,7 @@ function FloatingEdge({ id, source, target, markerEnd, style }) {
       className="react-flow__edge-path"
       d={edgePath}
       markerEnd={markerEnd}
+      markerStart={markerStart}
       style={style}
     />
   );

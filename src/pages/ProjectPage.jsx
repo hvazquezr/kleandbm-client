@@ -19,8 +19,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {
   useNodesState,
   useEdgesState,
-  addEdge,
-  MarkerType
+  addEdge
 } from 'reactflow';
 
 import Flow from '../components/Flow.jsx';
@@ -131,7 +130,8 @@ function getNodesAndEdges(tables, nodes, relationships) {
         source: sourceTableId,
         target: targetTableId,
         type: 'floating',
-        markerEnd: 'logo'
+        markerEnd: 'endMarker',
+        markerStart: 'startMarker'
       });
     }
   });
@@ -155,7 +155,7 @@ const ProjectPage = () => {
   const onConnect = useCallback(
     (params) =>
       setEdges((eds) =>
-        addEdge({ ...params, type: 'floating', markerEnd: 'logo' }, eds)
+        addEdge({ ...params, type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' }, eds)
       ),
     [setEdges]
   );
@@ -253,24 +253,39 @@ const ProjectPage = () => {
 
   return (
     <>
-    
+
     <svg style={{ position: 'absolute', top: 0, left: 0 }}>
         <defs>
-          <marker
-            id="logo"
+            <marker
+            id="endMarker"
             viewBox="0 0 20 20"
-            markerHeight={20}
+            markerHeight={20} 
             markerWidth={20}
             refX={20}
             refY={10}
             orient="auto"
-          >
-          <path d="M0,0v20" fill="none" stroke="#000000" stroke-width="1.5"/>
-          <path d="M0,10L20,0" fill="none" stroke="#000000" stroke-width="1"/>
-          <path d="M0,10L20,20" fill="none" stroke="#000000" stroke-width="1"/>
-          </marker>
+            >
+                <path d="M0,0v20" fill="none" stroke="#000000" strokeWidth="2"/>
+                <path d="M0,10L20,0" fill="none" stroke="#000000" strokeWidth="1"/>
+                <path d="M0,10L20,20" fill="none" stroke="#000000" strokeWidth="1"/>
+            </marker>
         </defs>
-      </svg>
+    </svg>
+    <svg style={{ position: 'absolute', top: 0, left: 0 }}>
+        <defs>
+            <marker
+            id="startMarker"
+            viewBox="0 0 20 20"
+            markerHeight={20} 
+            markerWidth={20}
+            refX={-3}
+            refY={10}
+            orient="auto"
+            >
+              <path d="M10,0v20" fill="none" stroke="#3f5787" strokeWidth="2"/>
+            </marker>
+        </defs>
+    </svg>    
 
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
