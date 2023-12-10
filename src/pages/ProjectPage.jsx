@@ -16,13 +16,21 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 
-import {useNodesState, useEdgesState, addEdge} from 'reactflow';
+import {
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  MarkerType
+} from 'reactflow';
 
 import Flow from '../components/Flow.jsx';
 import EditableTitle from '../components/EditableTitle.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
 import TableNode from '../components/TableNode.jsx';
-import TableEditor from '../components/TableEditor.jsx'
+import TableEditor from '../components/TableEditor.jsx';
+
+import FloatingEdge from '../components/FloatingEdge.jsx';
+import FloatingConnectionLine from '../components/FloatingConnectionLine.jsx';
 
 import UserAvatar from '../components/UserAvatar.jsx';
 
@@ -122,7 +130,8 @@ function getNodesAndEdges(tables, nodes, relationships) {
         id: relationship.id,
         source: sourceTableId,
         target: targetTableId,
-        // Include other attributes from the relationship if needed
+        type: 'floating',
+        markerEnd: 'logo'
       });
     }
   });
@@ -143,9 +152,17 @@ const ProjectPage = () => {
   const {id} = useParams();
   console.log({id});
 
-  const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) =>
+        addEdge({ ...params, type: 'floating', markerEnd: 'logo' }, eds)
+      ),
+    [setEdges]
+  );
 
-  const nodeTypes = useMemo(() => ({ tableNode: TableNode }), []);
+  const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
+  const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
+  
   const [activeTable, setActiveTable] = useState(null);
 
 
@@ -210,8 +227,6 @@ const ProjectPage = () => {
   const updateProjectName = (e) => {
     setProjectName(e.target.value);
   };
-
-  // The followign can be enabled once the rest api is up and running
   
   useEffect(() => {
     const fetchProjects = async () => {
@@ -238,6 +253,25 @@ const ProjectPage = () => {
 
   return (
     <>
+    
+    <svg style={{ position: 'absolute', top: 0, left: 0 }}>
+        <defs>
+          <marker
+            id="logo"
+            viewBox="0 0 20 20"
+            markerHeight={20}
+            markerWidth={20}
+            refX={20}
+            refY={10}
+            orient="auto"
+          >
+          <path d="M0,0v20" fill="none" stroke="#000000" stroke-width="1.5"/>
+          <path d="M0,10L20,0" fill="none" stroke="#000000" stroke-width="1"/>
+          <path d="M0,10L20,20" fill="none" stroke="#000000" stroke-width="1"/>
+          </marker>
+        </defs>
+      </svg>
+
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={openDrawer} sx={{paddingRight:5}}>
@@ -290,6 +324,8 @@ const ProjectPage = () => {
           onEditTable = {handleEditTable}
           onDeleteTable = {handleDeleteTable}
           nodeTypes = {nodeTypes}
+          edgeTypes = {edgeTypes}
+          connectionLineComponent = {FloatingConnectionLine}
         />
       </Main>
     </Box>

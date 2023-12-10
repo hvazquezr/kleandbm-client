@@ -11,7 +11,7 @@ import TableContextMenu from './TableContextMenu';
 const proOptions = { hideAttribution: true };
 
 
-export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes}) {
+export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes, edgeTypes, connectionLineComponent}) {
 
   const [menu, setMenu] = useState(null);
   const ref = useRef(null);
@@ -52,6 +52,8 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        connectionLineComponent = {connectionLineComponent}
         proOptions={proOptions}
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
