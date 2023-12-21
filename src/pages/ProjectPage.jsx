@@ -86,11 +86,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
+// TODO: Have id be the nodeId and create another attribute for tableId
 function getNodesAndEdges(tables, nodes, relationships) {
   const edges = [];
 
   tables.forEach(table => {
-    const newTable = { id: table.id, position: { x: 0, y: 0 }, data: {}, type: 'tableNode' };
+    const newTable = { id: table.id, nodeId:'', position: { x: 0, y: 0 }, data: {}, type: 'tableNode' };
 
     // Move all attributes except 'id' and 'position' into 'data'
     for (const key in table) {
@@ -104,6 +105,7 @@ function getNodesAndEdges(tables, nodes, relationships) {
     if (node) {
       newTable.position.x = node.x;
       newTable.position.y = node.y;
+      newTable.nodeId = node.id;
     }
 
     // Replace the old table object with the new one
@@ -141,6 +143,21 @@ function getNodesAndEdges(tables, nodes, relationships) {
     edges: edges
   };
 }
+
+const saveNodePosition = async (node, projectId) => {
+  try {
+    const token = await getAccessTokenSilently();
+    const newName = {name: e.target.value};
+    const response = await axios.put(`http://127.0.0.1:5000/api/v1/projects/${projectId}/nodes/${node.nodeId}`, node.position, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        });
+  } catch (error) {
+    console.error("Error saving node position", error);
+  }
+};
 
 
 const ProjectPage = () => {
@@ -245,6 +262,20 @@ const ProjectPage = () => {
       console.error("Error saving project", error);
     }
   };
+
+  const onNodeDragStop = useCallback(async (event, node) => {
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await axios.put(`http://127.0.0.1:5000/api/v1/projects/${id}/nodes/${node.nodeId}`, node.position, {
+          headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+          },
+          });
+    } catch (error) {
+      console.error("Error saving node", error);
+    }
+  }, []);
   
   useEffect(() => {
     const fetchProjects = async () => {
@@ -359,6 +390,7 @@ const ProjectPage = () => {
           nodeTypes = {nodeTypes}
           edgeTypes = {edgeTypes}
           connectionLineComponent = {FloatingConnectionLine}
+          onNodeDragStop = {onNodeDragStop}
         />
       </Main>
     </Box>

@@ -10,13 +10,10 @@ import TableContextMenu from './TableContextMenu';
 
 const proOptions = { hideAttribution: true };
 
-const updateNodePosition = (node) => {
-  console.log(node.id);
-  console.log(node.position);
-};
 
 
-export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes, edgeTypes, connectionLineComponent}) {
+
+export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes, edgeTypes, connectionLineComponent, onNodeDragStop}) {
 
   const [menu, setMenu] = useState(null);
   const ref = useRef(null);
@@ -41,12 +38,6 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
 
   // Close the context menu if it's open whenever the window is clicked.
   const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
-
-  const onNodeDragStop = useCallback((event, node) => {
-    updateNodePosition(node);
-  }, []);
-
-
 
   return (
     <div style={{ width: `calc(100vw - 30px)`, height: `calc(100vh - 80px)` }}>
