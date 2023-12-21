@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button'
+import LoadingButton from '@mui/lab/LoadingButton';
 import Modal from '@mui/material/Modal';
 import {TextField, FormControl, ToggleButtonGroup, ToggleButton, Autocomplete, Typography} from '@mui/material';
 import Tab from '@mui/material/Tab';
@@ -33,6 +34,8 @@ const style = {
 export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
     const [tabValue, setTabValue] = useState('1');
     const [project, setProject] = useState({id: nanoid(), owner: user, active: true, description:'Default description. To be changed by AI.'});
+    const [cancelDisabled, setCancelDisabled] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [validation, setValidation] = useState({
         name: {error:false, helperText: ''},
         dbTechnology: {error:false, helperText: ''},
@@ -142,8 +145,11 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
             newValidation.name.error ||
             newValidation.dbTechnology.error ||
             newValidation.projectType.error ||
-            newValidation.questions.error))
-            onSubmit(project);
+            newValidation.questions.error)){
+                setSubmitting(true);
+                setCancelDisabled(true);
+                onSubmit(project);
+            }
     };
     
 
@@ -250,8 +256,8 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                     <Grid item xs={12} >
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                                <Button variant="outlined" onClick={onCancel}>Cancel</Button>
-                                <Button variant="contained" onClick={handleSubmit}>Submit</Button>
+                                <Button variant="outlined" onClick={onCancel} disabled={cancelDisabled}>Cancel</Button>
+                                <LoadingButton variant="contained" onClick={handleSubmit} loading={submitting}>Submit</LoadingButton>
                             </Box>
                         </div>
                     </Grid>

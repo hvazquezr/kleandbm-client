@@ -149,8 +149,9 @@ const ProjectPage = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
+  const [dbTechnology, setDbTechnology] = useState(0);
   const {id} = useParams();
-  console.log({id});
+  //console.log({id});
 
   const onConnect = useCallback(
     (params) =>
@@ -174,11 +175,12 @@ const ProjectPage = () => {
       // we are removing the half of the node width (75) to center the new node
       position: {x:0, y:0},
       data:{
-        label: 'Table ' +  id.toString(),
-        columns: [{id: nanoid(), name:'col1', dataType:'Varchar', primaryKey:true, description: 'Short'}]
+        name: 'New Table',
+        columns: []
       }
     };
     setNodes((nds) => nds.concat(newNode));
+    setActiveTable(newNode);
   };
 
   const handleEditTable = (nodeId) =>{
@@ -227,6 +229,22 @@ const ProjectPage = () => {
   const updateProjectName = (e) => {
     setProjectName(e.target.value);
   };
+
+  const saveProjectName = async (e) => {
+    try {
+      const token = await getAccessTokenSilently();
+      const newName = {name: e.target.value};
+      console.log(newName);
+      const response = await axios.put(`http://127.0.0.1:5000/api/v1/projects/${id}`, newName, {
+          headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+          },
+          });
+    } catch (error) {
+      console.error("Error saving project", error);
+    }
+  };
   
   useEffect(() => {
     const fetchProjects = async () => {
@@ -239,11 +257,11 @@ const ProjectPage = () => {
               });
               const project = await response.data;
               const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
-              console.log(nodesAndEdges.enhancedTables);
-              console.log(nodesAndEdges.edges)
               setProjectName(project.name);
+              console.log(nodesAndEdges.enhancedTables);
               setNodes(nodesAndEdges.enhancedTables);
               setEdges(nodesAndEdges.edges);
+              setDbTechnology(project.dbTechnology);
         } catch (error) {
             console.error("Error fetching projects", error);
         }
@@ -265,9 +283,9 @@ const ProjectPage = () => {
             refY={10}
             orient="auto"
             >
-                <path d="M0,0v20" fill="none" stroke="#000000" strokeWidth="2"/>
-                <path d="M0,10L20,0" fill="none" stroke="#000000" strokeWidth="1"/>
-                <path d="M0,10L20,20" fill="none" stroke="#000000" strokeWidth="1"/>
+                <path d="M0,0v20" fill="none" stroke="#cccccc" strokeWidth="2"/>
+                <path d="M0,10L20,0" fill="none" stroke="#cccccc" strokeWidth="1"/>
+                <path d="M0,10L20,20" fill="none" stroke="#cccccc" strokeWidth="1"/>
             </marker>
         </defs>
     </svg>
@@ -282,7 +300,7 @@ const ProjectPage = () => {
             refY={10}
             orient="auto"
             >
-              <path d="M10,0v20" fill="none" stroke="#3f5787" strokeWidth="2"/>
+              <path d="M10,0v20" fill="none" stroke="#cccccc" strokeWidth="1.5"/>
             </marker>
         </defs>
     </svg>    
@@ -301,7 +319,7 @@ const ProjectPage = () => {
             <MenuIcon />
           </IconButton>
           <Box sx={{width:'100%'}}>
-            <EditableTitle value={projectName} onChange={updateProjectName}/>
+            <EditableTitle value={projectName} onChange={updateProjectName} onBlur={saveProjectName}/>
           </Box>
           <UserAvatar user={user} onLogout={logout} />   
         </Toolbar>
@@ -344,7 +362,11 @@ const ProjectPage = () => {
         />
       </Main>
     </Box>
-    {activeTable && <TableEditor table={activeTable} onCancel={handleTableEditorCancel} onDone={handleTableEditorDone}/>}
+    {activeTable && <TableEditor 
+                      table={activeTable}
+                      dbTechnology={dbTechnology}
+                      onCancel={handleTableEditorCancel}
+                      onDone={handleTableEditorDone}/>}
     </>
   );
 };

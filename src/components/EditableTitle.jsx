@@ -2,7 +2,7 @@ import React from 'react';
 
 import { TextField } from '@mui/material';
 
-export default function EditableTitle({value, onChange}){
+export default function EditableTitle({value, onChange, onBlur}){
     return(
         <TextField
         sx={{
@@ -29,6 +29,7 @@ export default function EditableTitle({value, onChange}){
         variant="outlined"
         value={value}
         onChange = {onChange}
+        onBlur={onBlur}
         />
     )
 }

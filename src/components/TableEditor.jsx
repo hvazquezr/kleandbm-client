@@ -8,6 +8,7 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 
@@ -18,7 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 
-import { columnProperties } from '../config/config.jsx';
+import { columnProperties, databaseTechnologies } from '../config/config.jsx';
 
 
 const boxStyle = {
@@ -48,10 +49,11 @@ function CustomNoRowsOverlay() {
     );
 };
 
-export default function TableEditor({table, onDone, onCancel}) {
+export default function TableEditor({table, dbTechnology, onDone, onCancel}) {
     const [tableName, setTableName] = useState(table.data.name);
     const [columns, setColumns] = useState(table.data.columns);
     const [selectedColumnIds, setSelectedColumnIds] = useState([]);
+    const [cancelDisabled, setCancelDisabled] = useState(false);
 
     const apiRef = useGridApiRef();
 
@@ -60,14 +62,15 @@ export default function TableEditor({table, onDone, onCancel}) {
     };
 
     const handleDone = (e) => {
-        const data = {label: tableName, columns};
+        const data = {name: tableName, columns};
+        setCancelDisabled(true);
         onDone(data);
     };
 
     const handleAddColumn = () => {
-        let newId = nanoid();
-        setColumns((oldColumns) => [...oldColumns, { id:newId, name: '', dataType: '', primaryKey: false, description: '' }]);
-        apiRef.current.startRowEditMode({id:newId});
+        let id = nanoid();
+        setColumns((oldColumns) => [...oldColumns, { id, key: id, name: '', dataType: '', primaryKey: false, description: '' }]);
+        apiRef.current.startRowEditMode({id});
     };
 
     const handleRowUpdate = (newColumn, oldColumn) => {
@@ -83,6 +86,19 @@ export default function TableEditor({table, onDone, onCancel}) {
     function handleDeleteColumn(){
         setColumns(columns.filter(column => !selectedColumnIds.includes(column.id)));
     }
+
+    function getDataTypesByDbTechnologyId(id) {
+        const dbTechnology = databaseTechnologies.find(tech => tech.id === id);
+        return dbTechnology ? dbTechnology.dataTypes : null;
+    }
+
+    const dataTypeColumn = columnProperties.find(col => col.field === 'dataType');
+    if (dataTypeColumn) {
+        dataTypeColumn.valueOptions = getDataTypesByDbTechnologyId(dbTechnology);
+    }
+
+    console.log(table);
+
 
     return(
         <Modal
@@ -125,8 +141,8 @@ export default function TableEditor({table, onDone, onCancel}) {
                     <Grid item xs={12}>
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                                <Button variant="outlined" sx={buttonStyle} onClick={onCancel}>Cancel</Button>
-                                <Button variant="contained" sx={buttonStyle} onClick={handleDone}>Done</Button>
+                                <Button variant="outlined" sx={buttonStyle} onClick={onCancel} disabled={cancelDisabled}>Cancel</Button>
+                                <LoadingButton variant="contained" sx={buttonStyle} onClick={handleDone}>Done</LoadingButton>
                             </Box>
                         </div>
                     </Grid>

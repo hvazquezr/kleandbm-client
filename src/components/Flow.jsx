@@ -10,6 +10,11 @@ import TableContextMenu from './TableContextMenu';
 
 const proOptions = { hideAttribution: true };
 
+const updateNodePosition = (node) => {
+  console.log(node.id);
+  console.log(node.position);
+};
+
 
 export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes, edgeTypes, connectionLineComponent}) {
 
@@ -37,10 +42,12 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
   // Close the context menu if it's open whenever the window is clicked.
   const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
 
+  const onNodeDragStop = useCallback((event, node) => {
+    updateNodePosition(node);
+  }, []);
 
-  /* TODO:
-    Incorporate ability to define/edit fields for a table
-  */
+
+
   return (
     <div style={{ width: `calc(100vw - 30px)`, height: `calc(100vh - 80px)` }}>
         <ReactFlow
@@ -57,6 +64,7 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
         proOptions={proOptions}
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
+        onNodeDragStop={onNodeDragStop}
         >
             <Panel position="top-right">
                 <ActionMenu 
