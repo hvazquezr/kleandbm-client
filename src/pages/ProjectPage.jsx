@@ -86,7 +86,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-// TODO: Have id be the nodeId and create another attribute for tableId
+//@TODO: Have id be the nodeId and create another attribute for tableId
 function getNodesAndEdges(tables, nodes, relationships) {
   const edges = [];
 
@@ -143,21 +143,6 @@ function getNodesAndEdges(tables, nodes, relationships) {
     edges: edges
   };
 }
-
-const saveNodePosition = async (node, projectId) => {
-  try {
-    const token = await getAccessTokenSilently();
-    const newName = {name: e.target.value};
-    const response = await axios.put(`http://127.0.0.1:5000/api/v1/projects/${projectId}/nodes/${node.nodeId}`, node.position, {
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-        },
-        });
-  } catch (error) {
-    console.error("Error saving node position", error);
-  }
-};
 
 
 const ProjectPage = () => {

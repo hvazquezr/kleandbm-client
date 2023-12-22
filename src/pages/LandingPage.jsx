@@ -38,8 +38,8 @@ export default function LandingPage() {
                 sx={{width:'100%'}}>
                     <img src={"./images/projectsPlaceholder.png"} style={{ borderRadius: '50%', width:'300px', height:'300px' }}/>
                     <Stack direction="column" spacing={2}>
-                        <Typography variant="h2" sx={{color:"#535354"}}>AI-Driven Database Design <span style={{color:"#1080DB"}}>Simplified</span></Typography>
-                        <Typography variant="h5">
+                        <Typography variant="h2" sx={{color:"#1080DB"}}>AI-Accelerated <span style={{color:"#535354" }}>Database Design</span></Typography>
+                        <Typography variant="h6">
                           <TypeAnimation
                                 preRenderFirstString={false}
                                 sequence={[
@@ -54,7 +54,7 @@ export default function LandingPage() {
                                 500,
                                 ]}
                                 speed={50}
-                                style={{ fontSize: '2em', height:140, display: 'block' }}
+                                style={{ fontSize: '1em', height:80, display: 'block' }}
                                 repeat={0}
                             />
                         </Typography>
