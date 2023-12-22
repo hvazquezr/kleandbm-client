@@ -86,62 +86,46 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-//@TODO: Have id be the nodeId and create another attribute for tableId
-function getNodesAndEdges(tables, nodes, relationships) {
-  const edges = [];
 
-  tables.forEach(table => {
-    const newTable = { id: table.id, nodeId:'', position: { x: 0, y: 0 }, data: {}, type: 'tableNode' };
+function readyNodesAndEdges(jsonData) {
+  // Destructure the jsonData
+  const { tables, relationships, nodes } = jsonData;
 
-    // Move all attributes except 'id' and 'position' into 'data'
-    for (const key in table) {
-      if (key !== 'id' && key !== 'position') {
-        newTable.data[key] = table[key];
-      }
-    }
+  // Map of tableId to table data
+  const tableMap = tables.reduce((acc, table) => {
+      acc[table.id] = table;
+      return acc;
+  }, {});
 
-    // Find the corresponding node and set position
-    const node = nodes.find(node => node.tableId === table.id);
-    if (node) {
-      newTable.position.x = node.x;
-      newTable.position.y = node.y;
-      newTable.nodeId = node.id;
-    }
-
-    // Replace the old table object with the new one
-    Object.assign(table, newTable);
+  // Update nodes with table data and consolidate x and y into position, exclude certain attributes
+  const updatedNodes = nodes.map(({ active, tableId, x, y, ...rest }) => {
+      return {
+          ...rest,
+          type: 'tableNode',
+          data: tableMap[tableId],
+          position: { x, y }
+      };
   });
 
-  relationships.forEach(relationship => {
-    let sourceTableId = null;
-    let targetTableId = null;
+  // Create edges array from relationships
+  const edges = relationships.map(rel => {
+      const parentTable = tables.find(table => table.columns.some(col => col.id === rel.parentColumn));
+      const childTable = tables.find(table => table.columns.some(col => col.id === rel.childColumn));
+      const parentNode = updatedNodes.find(node => node.data.id === parentTable.id);
+      const childNode = updatedNodes.find(node => node.data.id === childTable.id);
 
-    tables.forEach(table => {
-      table.data.columns.forEach(column => {
-        if (column.id === relationship.parentColumn) {
-          sourceTableId = table.id;
-        } else if (column.id === relationship.childColumn) {
-          targetTableId = table.id;
-        }
-      });
-    });
-
-    if (sourceTableId && targetTableId) {
-      edges.push({
-        id: relationship.id,
-        source: sourceTableId,
-        target: targetTableId,
-        type: 'floating',
-        markerEnd: 'endMarker',
-        markerStart: 'startMarker'
-      });
-    }
+      return {
+          id: rel.id,
+          source: parentNode.id,
+          target: childNode.id,
+          data: rel,
+          type: 'floating',
+          markerEnd: 'endMarker',
+          markerStart: 'startMarker'
+      };
   });
 
-  return {
-    enhancedTables: tables,
-    edges: edges
-  };
+  return { updatedNodes, edges };
 }
 
 
@@ -172,7 +156,7 @@ const ProjectPage = () => {
   //Handlers
   const handleAddTable = () => {
     const newNode = {
-      id:nanoid(),
+      //id:nanoid(),
       type: 'tableNode',
       // we are removing the half of the node width (75) to center the new node
       position: {x:0, y:0},
@@ -181,7 +165,7 @@ const ProjectPage = () => {
         columns: []
       }
     };
-    setNodes((nds) => nds.concat(newNode));
+    //setNodes((nds) => nds.concat(newNode));
     setActiveTable(newNode);
   };
 
@@ -272,10 +256,11 @@ const ProjectPage = () => {
                 },
               });
               const project = await response.data;
-              const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
+              //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
+              const nodesAndEdges = readyNodesAndEdges(project);
               setProjectName(project.name);
-              console.log(nodesAndEdges.enhancedTables);
-              setNodes(nodesAndEdges.enhancedTables);
+              console.log(nodesAndEdges);
+              setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
         } catch (error) {
