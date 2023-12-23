@@ -1,0 +1,21 @@
+npm install @mui/material @emotion/react @emotion/styled
+npm install @fontsource/roboto
+npm install @mui/icons-material
+npm install @mui/x-data-grid
+npm install @mui/x-tree-view
+npm install reactflow
+npm install axios react-router-dom
+npm install @mui/lab
+npm install nanoid
+//npm install -D @vitejs/plugin-basic-ssl
+npm i vite-plugin-mkcert
+npm install @auth0/auth0-react
+npm i react-type-animation
+
+//This is not a dependency for the app; but what I'm using for deployment
+npm i -g vercel
+
+//Google app
+
+Client ID: 963784957680-2hlh0on9junrh7prp31s5o7iis376j52.apps.googleusercontent.com
+Client Secret: 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

@@ -1,5 +1,3 @@
-// TODO: Need to troubleshoot why data types are not loaded
-
 import * as React from 'react';
 import { useState } from 'react';
 import { nanoid } from 'nanoid';

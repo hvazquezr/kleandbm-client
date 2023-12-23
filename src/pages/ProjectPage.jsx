@@ -38,6 +38,7 @@ import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
+import DeleteConfirm from '../components/DeleteConfirm.jsx';
 
 const drawerWidth = 240;
 
@@ -129,16 +130,14 @@ function readyNodesAndEdges(jsonData) {
 }
 
 
-
-
-
 const ProjectPage = () => {
   const { user, logout, getAccessTokenSilently } = useAuth0();
-  // ReactFlow
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
   const [dbTechnology, setDbTechnology] = useState(0);
+  const [activeTable, setActiveTable] = useState(null);
+  const [toDeleteNode, setToDeleteNode] = useState(null);
   const {id} = useParams();
   //console.log({id});
 
@@ -153,12 +152,11 @@ const ProjectPage = () => {
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
   
-  const [activeTable, setActiveTable] = useState(null);
 
-  async function updateData(path, payload) {
+  async function updateRequest(path, payload) {
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.put('http://127.0.0.1:5000/api/v1/' + path, payload, {
+      const response = await axios.patch('http://127.0.0.1:5000/api/v1/' + path, payload, {
           headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
@@ -166,7 +164,24 @@ const ProjectPage = () => {
           });
           return response;
     } catch (error) {
-      console.error("Error saving saving data", error);
+      console.error("Error updataing data", error);
+      throw error;
+    }
+  }
+
+  async function deleteRequest(path) {
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await axios.delete('http://127.0.0.1:5000/api/v1/' + path, {
+          headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+          },
+          });
+          return response;
+    } catch (error) {
+      console.error("Error deleting data", error);
+      throw error;
     }
   }
 
@@ -190,7 +205,6 @@ const ProjectPage = () => {
       }
     };
     //setNodes((nds) => nds.concat(newNode));
-    console.log(newNode);
     setActiveTable(newNode);
   };
 
@@ -201,8 +215,25 @@ const ProjectPage = () => {
   };
 
   const handleDeleteTable = (id) =>{
-    console.log(id);
-    alert('Deleting Table');
+    const node = nodes.filter((n) => {return n.id === id})[0];
+    setToDeleteNode(node);
+  };
+
+  const handleConfirmDeleteNode = (nodeToDelete) =>{
+    const nodeId = nodeToDelete.id
+    deleteRequest(`projects/${id}/nodes/${nodeId}`);
+    deleteRequest(`projects/${id}/tables/${nodeToDelete.tableId}`);
+
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+
+    // If you also want to remove edges connected to this node
+    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+  
+    setToDeleteNode(null);
+  };
+
+  const handleCancelDeleteNode = () =>{
+    setToDeleteNode(null);
   };
 
   const handleTableEditorCancel = () => {
@@ -219,14 +250,14 @@ const ProjectPage = () => {
       y: activeTable.position.y,
       active: true
     }
-    updateData(`projects/${id}/nodes/${activeTable.id}`, readyNode);
+    updateRequest(`projects/${id}/nodes/${activeTable.id}`, readyNode);
 
     // save table
     const readyTable = activeTable.data;
     readyTable.name = data.name;
     readyTable.columns = data.columns;
     readyTable.description = data.description;
-    updateData(`projects/${id}/tables/${activeTable.data.id}`, readyTable);
+    updateRequest(`projects/${id}/tables/${activeTable.data.id}`, readyTable);
 
     // updating node in array
     if (activeTable.new){
@@ -238,7 +269,6 @@ const ProjectPage = () => {
           // it's important that you create a new object here
           // in order to notify react flow about the change
           node.data = data;
-          //node.data = readyTable;
         }
         return node;
       }
@@ -267,11 +297,11 @@ const ProjectPage = () => {
 
   const saveProjectName = async (e) => {
     const newName = {name: e.target.value};
-    updateData(`projects/${id}`, newName);
+    updateRequest(`projects/${id}`, newName);
   };
 
   const onNodeDragStop = useCallback(async (event, node) => {
-    updateData(`projects/${id}/nodes/${node.id}`, node.position);
+    updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
   }, []);
   
   useEffect(() => {
@@ -299,7 +329,6 @@ const ProjectPage = () => {
 
   return (
     <>
-
     <svg style={{ position: 'absolute', top: 0, left: 0 }}>
         <defs>
             <marker
@@ -396,6 +425,10 @@ const ProjectPage = () => {
                       dbTechnology={dbTechnology}
                       onCancel={handleTableEditorCancel}
                       onDone={handleTableEditorDone}/>}
+    {toDeleteNode && <DeleteConfirm
+                      node={toDeleteNode}
+                      onConfirm={handleConfirmDeleteNode}
+                      onCancel={handleCancelDeleteNode}/>}
     </>
   );
 };

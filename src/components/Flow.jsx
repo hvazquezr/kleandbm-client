@@ -1,24 +1,25 @@
-import React, {useCallback, useState, useRef} from 'react';
+import React, {useCallback, useState, useRef, useEffect} from 'react';
 import ReactFlow, { 
   MiniMap,
   Controls,
-  Panel } from 'reactflow';
+  Panel,
+  useKeyPress} from 'reactflow';
 import ActionMenu from './ActionMenu';
 import TableContextMenu from './TableContextMenu';
 
 
-
 const proOptions = { hideAttribution: true };
 
-
-
-
-export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes, edgeTypes, connectionLineComponent, onNodeDragStop}) {
+export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes, edgeTypes, connectionLineComponent, onNodeDragStop}) {
 
   const [menu, setMenu] = useState(null);
+  const deletePressed = useKeyPress(['Delete', 'Backspace']) 
   const ref = useRef(null);
 
-
+  useEffect(() => {
+    // This is only preventing being able to delete using Delete key
+    //alert('Trying to detete');
+  }, [deletePressed])
 
   const onNodeContextMenu = useCallback(
     (event, node) => {
@@ -30,8 +31,8 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
       const pane = ref.current.getBoundingClientRect();
       setMenu({
         id: node.id,
-        top: event.clientY < pane.height - 100 && event.clientY,
-        left: event.clientX < pane.width - 100 && event.clientX});
+        top: event.clientY,
+        left: event.clientX});
     },
     [setMenu],
   );
@@ -46,9 +47,9 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
         nodes={nodes}
         edges={edges}
         fitView
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onEdgesChange = {onEdgesChange}
+        onNodesChange = {onNodesChange}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionLineComponent = {connectionLineComponent}
@@ -56,6 +57,7 @@ export default function Flow({nodes, edges, onConnect, onNodesChange, onEdgesCha
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
         onNodeDragStop={onNodeDragStop}
+        deleteKeyCode={[]}
         >
             <Panel position="top-right">
                 <ActionMenu 
