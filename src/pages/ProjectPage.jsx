@@ -129,6 +129,9 @@ function readyNodesAndEdges(jsonData) {
 }
 
 
+
+
+
 const ProjectPage = () => {
   const { user, logout, getAccessTokenSilently } = useAuth0();
   // ReactFlow
@@ -152,31 +155,53 @@ const ProjectPage = () => {
   
   const [activeTable, setActiveTable] = useState(null);
 
+  async function updateData(path, payload) {
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await axios.put('http://127.0.0.1:5000/api/v1/' + path, payload, {
+          headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+          },
+          });
+          return response;
+    } catch (error) {
+      console.error("Error saving saving data", error);
+    }
+  }
+
 
   //Handlers
   const handleAddTable = () => {
     const newNode = {
-      //id:nanoid(),
+      id:nanoid(),
+      new:true,
       type: 'tableNode',
-      // we are removing the half of the node width (75) to center the new node
       position: {x:0, y:0},
+      active: true,
+      project_id: id,
       data:{
+        id: nanoid(),
+        project_id: id,
         name: 'New Table',
-        columns: []
+        columns: [],
+        active: true,
+        description: ''
       }
     };
     //setNodes((nds) => nds.concat(newNode));
+    console.log(newNode);
     setActiveTable(newNode);
   };
 
-  const handleEditTable = (nodeId) =>{
+  const handleEditTable = (id) =>{
     //const node = getNode(nodeId);
-    const node = nodes.filter((n) => {return n.id === nodeId})[0];
+    const node = nodes.filter((n) => {return n.id === id})[0];
     setActiveTable(node);
   };
 
-  const handleDeleteTable = (nodeId) =>{
-    console.log(nodeId);
+  const handleDeleteTable = (id) =>{
+    console.log(id);
     alert('Deleting Table');
   };
 
@@ -185,14 +210,40 @@ const ProjectPage = () => {
   };
 
   const handleTableEditorDone = (data) => {
+    const activeTableCopy = activeTable;
+    // Save node
+    const readyNode = {
+                        id: activeTable.id, 
+                        tableId: activeTable.data.id, 
+                        project_id: activeTable.project_id,
+                        x: activeTable.position.x,
+                        y: activeTable.position.y,
+                        active: true
+                      }
+    updateData(`projects/${id}/nodes/${activeTable.id}`, readyNode);
+
+    // save table
+    const readyTable = activeTable.data;
+    readyTable.name = data.name;
+    readyTable.columns = data.columns;
+    readyTable.description = data.description;
+    updateData(`projects/${id}/tables/${activeTable.data.id}`, readyTable);
+            
+    // updating node in array
+    if (activeTable.new){
+      setNodes((nds) => nds.concat(activeTable));
+    }
+
     setNodes((nds) =>
       nds.map((node) => {
         if (node.id === activeTable.id) {
           // it's important that you create a new object here
           // in order to notify react flow about the change
-          node.data = data;
+          const newNode = node;
+          newNode.data = copyTable;
+          console.log(newNode);
         }
-        return node;
+        return newNode;
       }
     )
   );
@@ -217,33 +268,12 @@ const ProjectPage = () => {
   };
 
   const saveProjectName = async (e) => {
-    try {
-      const token = await getAccessTokenSilently();
-      const newName = {name: e.target.value};
-      console.log(newName);
-      const response = await axios.put(`http://127.0.0.1:5000/api/v1/projects/${id}`, newName, {
-          headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-          },
-          });
-    } catch (error) {
-      console.error("Error saving project", error);
-    }
+    const newName = {name: e.target.value};
+    updateData(`projects/${id}`, newName);
   };
 
   const onNodeDragStop = useCallback(async (event, node) => {
-    try {
-      const token = await getAccessTokenSilently();
-      const response = await axios.put(`http://127.0.0.1:5000/api/v1/projects/${id}/nodes/${node.nodeId}`, node.position, {
-          headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-          },
-          });
-    } catch (error) {
-      console.error("Error saving node", error);
-    }
+    updateData(`projects/${id}/nodes/${node.id}`, node.position);
   }, []);
   
   useEffect(() => {
@@ -259,7 +289,6 @@ const ProjectPage = () => {
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
               const nodesAndEdges = readyNodesAndEdges(project);
               setProjectName(project.name);
-              console.log(nodesAndEdges);
               setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);

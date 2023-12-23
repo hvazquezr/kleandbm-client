@@ -62,7 +62,8 @@ export default function TableEditor({table, dbTechnology, onDone, onCancel}) {
     };
 
     const handleDone = (e) => {
-        const data = {name: tableName, columns};
+        //@tood: need to add description to the interface
+        const data = {name: tableName, columns, description: ''};
         setCancelDisabled(true);
         onDone(data);
     };
@@ -96,9 +97,6 @@ export default function TableEditor({table, dbTechnology, onDone, onCancel}) {
     if (dataTypeColumn) {
         dataTypeColumn.valueOptions = getDataTypesByDbTechnologyId(dbTechnology);
     }
-
-    console.log(table);
-
 
     return(
         <Modal
