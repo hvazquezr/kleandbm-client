@@ -210,16 +210,15 @@ const ProjectPage = () => {
   };
 
   const handleTableEditorDone = (data) => {
-    const activeTableCopy = activeTable;
     // Save node
     const readyNode = {
-                        id: activeTable.id, 
-                        tableId: activeTable.data.id, 
-                        project_id: activeTable.project_id,
-                        x: activeTable.position.x,
-                        y: activeTable.position.y,
-                        active: true
-                      }
+      id: activeTable.id, 
+      tableId: activeTable.data.id, 
+      project_id: activeTable.project_id,
+      x: activeTable.position.x,
+      y: activeTable.position.y,
+      active: true
+    }
     updateData(`projects/${id}/nodes/${activeTable.id}`, readyNode);
 
     // save table
@@ -228,27 +227,26 @@ const ProjectPage = () => {
     readyTable.columns = data.columns;
     readyTable.description = data.description;
     updateData(`projects/${id}/tables/${activeTable.data.id}`, readyTable);
-            
+
     // updating node in array
     if (activeTable.new){
       setNodes((nds) => nds.concat(activeTable));
     }
-
-    //@todo: After the udpates the table doesn't update in flow
     setNodes((nds) =>
       nds.map((node) => {
-        const newObject = {... node};
         if (node.id === activeTable.id) {
           // it's important that you create a new object here
           // in order to notify react flow about the change
-          newObject.data = readyTable;
+          node.data = data;
+          //node.data = readyTable;
         }
-        return newObject;
+        return node;
       }
-      )
-    );
-  setActiveTable(null);
+    )
+  );
+    setActiveTable(null);
   };
+  
   
 
   // Interactivity

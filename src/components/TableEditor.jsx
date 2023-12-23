@@ -63,7 +63,7 @@ export default function TableEditor({table, dbTechnology, onDone, onCancel}) {
 
     const handleDone = (e) => {
         //@tood: need to add description to the interface
-        const data = {name: tableName, columns, description: ''};
+        const data = {id: table.data.id, name: tableName, columns, description: ''};
         setCancelDisabled(true);
         onDone(data);
     };
