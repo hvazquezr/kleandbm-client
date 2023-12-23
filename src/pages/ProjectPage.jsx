@@ -234,20 +234,20 @@ const ProjectPage = () => {
       setNodes((nds) => nds.concat(activeTable));
     }
 
+    //@todo: After the udpates the table doesn't update in flow
     setNodes((nds) =>
       nds.map((node) => {
+        const newObject = {... node};
         if (node.id === activeTable.id) {
           // it's important that you create a new object here
           // in order to notify react flow about the change
-          const newNode = node;
-          newNode.data = copyTable;
-          console.log(newNode);
+          newObject.data = readyTable;
         }
-        return newNode;
+        return newObject;
       }
-    )
-  );
-    setActiveTable(null);
+      )
+    );
+  setActiveTable(null);
   };
   
 
