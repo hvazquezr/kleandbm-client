@@ -7,6 +7,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { green } from '@mui/material/colors';
 
 const style = {
     
@@ -31,13 +32,14 @@ export default memo(({data, isConnectable}) => {
             <Table size="small" aria-label="{data.label}">
                 <TableHead>
                     <TableRow>
-                        <TableCell colSpan={2}>
+                        <TableCell colSpan={3}>
                             {data.name}                         
                         </TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell sx={{fontWeight: 'normal'}} align="right">Name</TableCell>
                         <TableCell sx={{fontWeight: 'normal'}} align="right">Data&nbsp;Type</TableCell>
+                        <TableCell />
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -50,6 +52,7 @@ export default memo(({data, isConnectable}) => {
                         {column.name}
                         </TableCell>
                         <TableCell align="right">{column.dataType}</TableCell>
+                        <TableCell align="right" sx={{color:green[800]}}>{column.primaryKey?'PK':''}</TableCell>
                     </TableRow>
                     ))}
                 </TableBody>
