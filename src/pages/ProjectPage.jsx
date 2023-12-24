@@ -275,8 +275,9 @@ const ProjectPage = () => {
     setToDeleteRelationship(edge);
   }
 
-
+  //@TODO: Save from persistance
   const handleConfirmDeleteRelationship = (relationshipToDelete) => {
+
     // Deleting child column
     setNodes((nds) =>
       nds.map((node) => {

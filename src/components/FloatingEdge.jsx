@@ -1,5 +1,7 @@
 import React, { useCallback } from 'react';
-import { useStore, getSmoothStepPath } from 'reactflow';
+import { useStore, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
+import Chip from '@mui/material/Chip';
+import InfoIcon from '@mui/icons-material/Info'
 
 import { getEdgeParams } from './utils.jsx';
 
@@ -13,7 +15,7 @@ function FloatingEdge({ id, source, target, markerEnd, markerStart, style }) {
 
   const { sx, sy, tx, ty, sourcePos, targetPos } = getEdgeParams(sourceNode, targetNode);
 
-  const [edgePath] = getSmoothStepPath({
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX: sx,
     sourceY: sy,
     sourcePosition: sourcePos,
@@ -23,14 +25,28 @@ function FloatingEdge({ id, source, target, markerEnd, markerStart, style }) {
   });
 
   return (
-    <path
-      id={id}
-      className="react-flow__edge-path"
-      d={edgePath}
-      markerEnd={markerEnd}
-      markerStart={markerStart}
-      style={style}
-    />
+    <>
+      <path
+        id={id}
+        className="react-flow__edge-path"
+        d={edgePath}
+        markerEnd={markerEnd}
+        markerStart={markerStart}
+        style={style}
+      />
+      <EdgeLabelRenderer>
+        <div
+                    style={{
+                      position: 'absolute',
+                      transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+                      pointerEvents: 'all',
+                    }}
+                    className="nodrag nopan"
+        >
+          <InfoIcon color="action" fontSize="small" />
+        </div>
+      </EdgeLabelRenderer>
+    </>
   );
 }
 
