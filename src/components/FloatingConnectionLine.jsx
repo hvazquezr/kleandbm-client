@@ -10,7 +10,7 @@ function FloatingConnectionLine({ toX, toY, fromPosition, toPosition, fromNode }
 
   const targetNode = {
     id: 'connection-target',
-    width: 1,
+    width: 2,
     height: 1,
     positionAbsolute: { x: toX, y: toY }
   };

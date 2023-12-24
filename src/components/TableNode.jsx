@@ -37,8 +37,8 @@ export default memo(({data, isConnectable}) => {
                         </TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell sx={{fontWeight: 'normal'}} align="right">Name</TableCell>
-                        <TableCell sx={{fontWeight: 'normal'}} align="right">Data&nbsp;Type</TableCell>
+                        <TableCell sx={{fontWeight: 'normal'}} align="left">Name</TableCell>
+                        <TableCell sx={{fontWeight: 'normal'}} align="left">Data&nbsp;Type</TableCell>
                         <TableCell />
                     </TableRow>
                 </TableHead>

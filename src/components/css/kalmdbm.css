@@ -1,0 +1,16 @@
+.kamldbm {
+    width: calc(100vw - 0px);
+    height:calc(100vh - 80px)
+}
+
+.kamldbm .react-flow__edge-path {
+    stroke: #AAA;
+    stroke-width: 1.5;
+    fill: none
+  }
+
+.kamldb .react-flow__connection-path {
+    stroke: #AAA;
+    stroke-width: 1.5;
+    fill: none
+  }

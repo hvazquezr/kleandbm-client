@@ -18,7 +18,7 @@ export default function ActionMenu({handleAddTable}) {
     <Box sx={{ height: 200, transform: 'translateZ(0px)', flexGrow: 1}}>
       <SpeedDial
         ariaLabel="Action Menu"
-        sx={{ position: 'absolute', bottom: 16, right: 16 }}
+        sx={{ position: 'absolute', bottom: 16, right: 0 }}
         icon={<SpeedDialIcon />}
         direction='down'
       >

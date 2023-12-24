@@ -25,15 +25,28 @@ const buttonStyle = {
     width: 200
 };
 
-export default function DeleteConfirm({node, onConfirm, onCancel}) { 
+export default function DeleteConfirm({type, object, onConfirm, onCancel, nodes}) { 
     const [cancelDisabled, setCancelDisabled] = useState(false);
 
     const handleDone = (e) => {
-        //@tood: need to add description to the interface
-        const data = {id: node.id, tableId: node.data.id};
         setCancelDisabled(true);
-        onConfirm(data);
+        onConfirm(object);
     };
+
+    const getConfirmationMessage = () => {
+        if (type=='table'){
+            return (
+                <>Are you sure you want to delete table <span style={{fontWeight:"bold" }}>{object.data.name}</span>?</>
+            )
+        }
+        else{
+            const parentNode = nodes.filter((n) => {return n.id === object.source})[0]
+            const childNode = nodes.filter((n) => {return n.id === object.target})[0]
+            return (
+                <>Are you sure you want to delete the relationship between <span style={{fontWeight:"bold" }}>{parentNode.data.name}</span> and <span style={{fontWeight:"bold" }}>{childNode.data.name}</span>?</>
+            )
+        }
+    }
 
     return(
         <Modal
@@ -42,7 +55,7 @@ export default function DeleteConfirm({node, onConfirm, onCancel}) {
             <Box sx={boxStyle}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <Typography variant="body1">Are you sure you want to delete table <span style={{fontWeight:"bold" }}>{node.data.name}</span>?</Typography>
+                        <Typography variant="body1">{getConfirmationMessage()}</Typography>
                     </Grid>
                     <Grid item xs={12}>
                         <div sx={{width:'100%'}}>

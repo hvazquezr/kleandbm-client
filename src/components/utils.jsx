@@ -71,3 +71,30 @@ export function getEdgeParams(source, target) {
     targetPos,
   };
 }
+
+  // Function used to force teh copy of an object and trigger the Flow update
+  export function deepCopyObject(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+  
+    // Handle Array
+    if (Array.isArray(obj)) {
+      const arrCopy = [];
+      obj.forEach((v, i) => arrCopy[i] = deepCopyObject(v));
+      return arrCopy;
+    }
+  
+    // Handle Object
+    if (obj instanceof Object) {
+      const objCopy = {};
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          objCopy[key] = deepCopyObject(obj[key]);
+        }
+      }
+      return objCopy;
+    }
+  
+    throw new Error("Unable to copy object!");
+  }

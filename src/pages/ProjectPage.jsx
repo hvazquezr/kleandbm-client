@@ -27,6 +27,7 @@ import EditableTitle from '../components/EditableTitle.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
 import TableNode from '../components/TableNode.jsx';
 import TableEditor from '../components/TableEditor.jsx';
+import DeleteConfirm from '../components/DeleteConfirm.jsx';
 
 import FloatingEdge from '../components/FloatingEdge.jsx';
 import FloatingConnectionLine from '../components/FloatingConnectionLine.jsx';
@@ -38,7 +39,8 @@ import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
-import DeleteConfirm from '../components/DeleteConfirm.jsx';
+import '../components/css/kalmdbm.css';
+import { deepCopyObject } from '../components/utils.jsx';
 
 const drawerWidth = 240;
 
@@ -137,7 +139,8 @@ const ProjectPage = () => {
   const [projectName, setProjectName] = useState("");
   const [dbTechnology, setDbTechnology] = useState(0);
   const [activeTable, setActiveTable] = useState(null);
-  const [toDeleteNode, setToDeleteNode] = useState(null);
+  const [toDeleteTable, setToDeleteTable] = useState(null);
+  const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
   const {id} = useParams();
   //console.log({id});
 
@@ -152,7 +155,7 @@ const ProjectPage = () => {
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
   
-
+  //Helper functions
   async function updateRequest(path, payload) {
     try {
       const token = await getAccessTokenSilently();
@@ -185,7 +188,6 @@ const ProjectPage = () => {
     }
   }
 
-
   //Handlers
   const handleAddTable = () => {
     const newNode = {
@@ -216,28 +218,20 @@ const ProjectPage = () => {
 
   const handleDeleteTable = (id) =>{
     const node = nodes.filter((n) => {return n.id === id})[0];
-    setToDeleteNode(node);
+    setToDeleteTable(node);
   };
 
   const handleConfirmDeleteNode = (nodeToDelete) =>{
     const nodeId = nodeToDelete.id
     deleteRequest(`projects/${id}/nodes/${nodeId}`);
-    deleteRequest(`projects/${id}/tables/${nodeToDelete.tableId}`);
+    deleteRequest(`projects/${id}/tables/${nodeToDelete.data.id}`);
 
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
 
     // If you also want to remove edges connected to this node
     setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
   
-    setToDeleteNode(null);
-  };
-
-  const handleCancelDeleteNode = () =>{
-    setToDeleteNode(null);
-  };
-
-  const handleTableEditorCancel = () => {
-    setActiveTable(null);
+    setToDeleteTable(null);
   };
 
   const handleTableEditorDone = (data) => {
@@ -272,10 +266,35 @@ const ProjectPage = () => {
         }
         return node;
       }
-    )
-  );
+    ));
     setActiveTable(null);
   };
+
+  const handleDeleteRelationship = (id) => {
+    const edge = edges.filter((e) => {return e.id === id})[0];
+    setToDeleteRelationship(edge);
+  }
+
+
+  const handleConfirmDeleteRelationship = (relationshipToDelete) => {
+    // Deleting child column
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === relationshipToDelete.target) {
+          // it's important that you create a new object here
+          // in order to notify react flow about the change
+          node.data.columns = node.data.columns.filter(column => column.id !== relationshipToDelete.data.childColumn);
+          node = deepCopyObject(node);
+        }
+        return node;
+      }
+    ));
+
+    // Deleting actual edge
+    setEdges((es) => es.filter((e) => e.id !== relationshipToDelete.id));
+    setToDeleteRelationship(null);
+
+  }
   
   
 
@@ -340,9 +359,9 @@ const ProjectPage = () => {
             refY={10}
             orient="auto"
             >
-                <path d="M0,0v20" fill="none" stroke="#cccccc" strokeWidth="2"/>
-                <path d="M0,10L20,0" fill="none" stroke="#cccccc" strokeWidth="1"/>
-                <path d="M0,10L20,20" fill="none" stroke="#cccccc" strokeWidth="1"/>
+                <path d="M0,0v20" fill="none" stroke="#AAA" strokeWidth="2"/>
+                <path d="M0,10L20,0" fill="none" stroke="#AAA" strokeWidth="1"/>
+                <path d="M0,10L20,20" fill="none" stroke="#AAA" strokeWidth="1"/>
             </marker>
         </defs>
     </svg>
@@ -357,14 +376,14 @@ const ProjectPage = () => {
             refY={10}
             orient="auto"
             >
-              <path d="M10,0v20" fill="none" stroke="#cccccc" strokeWidth="1.5"/>
+              <path d="M10,0v20" fill="none" stroke="#AAA" strokeWidth="1.5"/>
             </marker>
         </defs>
     </svg>    
 
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={openDrawer} sx={{paddingRight:5}}>
+      <AppBar position="fixed" open={openDrawer} sx={{paddingRight:0}}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -402,7 +421,7 @@ const ProjectPage = () => {
         <Divider />
         <TreeNavigator tableList={nodes}/>
       </Drawer>
-      <Main open={openDrawer} sx={{p:1}}>
+      <Main open={openDrawer} sx={{p:0}}>
         <DrawerHeader />
         <Flow
           nodes = {nodes}
@@ -413,6 +432,7 @@ const ProjectPage = () => {
           onAddTable = {handleAddTable}
           onEditTable = {handleEditTable}
           onDeleteTable = {handleDeleteTable}
+          onDeleteRelationship = {handleDeleteRelationship}
           nodeTypes = {nodeTypes}
           edgeTypes = {edgeTypes}
           connectionLineComponent = {FloatingConnectionLine}
@@ -420,15 +440,25 @@ const ProjectPage = () => {
         />
       </Main>
     </Box>
-    {activeTable && <TableEditor 
+    {activeTable && <TableEditor
                       table={activeTable}
                       dbTechnology={dbTechnology}
-                      onCancel={handleTableEditorCancel}
-                      onDone={handleTableEditorDone}/>}
-    {toDeleteNode && <DeleteConfirm
-                      node={toDeleteNode}
+                      onCancel={() => {setActiveTable(null)}}
+                      onDone={handleTableEditorDone}
+                      />}
+    {toDeleteTable && <DeleteConfirm
+                      type='table' 
+                      object={toDeleteTable}
                       onConfirm={handleConfirmDeleteNode}
-                      onCancel={handleCancelDeleteNode}/>}
+                      onCancel={() => {setToDeleteTable(null)}}
+                      />}
+    {toDeleteRelationship && <DeleteConfirm
+                      type='relationship' 
+                      object={toDeleteRelationship}
+                      onConfirm={handleConfirmDeleteRelationship}
+                      onCancel={() => {setToDeleteRelationship(null)}}
+                      nodes = {nodes}
+                      />}
     </>
   );
 };

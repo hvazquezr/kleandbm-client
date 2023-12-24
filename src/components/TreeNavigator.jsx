@@ -6,6 +6,7 @@ import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
+import Typography from '@mui/material/Typography';
 
 
 export default function TreeNavigator({tableList}) {
@@ -24,19 +25,21 @@ export default function TreeNavigator({tableList}) {
     >
         <TreeItem
             nodeId="home"
-            label="Home"
+            label={<Typography variant="body1">Home</Typography> }
             icon={<HomeIcon />}
             onClick={() => handleNavigation('/dashboard')}
         />
         <TreeItem 
             nodeId="tables" 
-            label="Tables"
+            label={<Typography variant="body1">Tables</Typography> }
         >
         {tableList.map((table) => (
             <TreeItem
                 nodeId = {table.id}
                 key = {table.id}
-                label={table.data.name}
+                label={
+                  <Typography variant="body2">{table.data.name}</Typography> 
+                }
                 icon = {<TableChartOutlinedIcon />}
             />
         ))}

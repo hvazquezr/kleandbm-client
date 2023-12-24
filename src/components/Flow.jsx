@@ -6,13 +6,14 @@ import ReactFlow, {
   useKeyPress} from 'reactflow';
 import ActionMenu from './ActionMenu';
 import TableContextMenu from './TableContextMenu';
-
+import RelationshipContextMenu from './RelationshipContextMenu';
 
 const proOptions = { hideAttribution: true };
 
-export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesChange, onAddTable, onEditTable, onDeleteTable, nodeTypes, edgeTypes, connectionLineComponent, onNodeDragStop}) {
+export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesChange, onAddTable, onEditTable, onDeleteTable, onDeleteRelationship, nodeTypes, edgeTypes, connectionLineComponent, onNodeDragStop}) {
 
   const [menu, setMenu] = useState(null);
+  const [edgeMenu, setEdgeMenu] = useState(null);
   const deletePressed = useKeyPress(['Delete', 'Backspace']) 
   const ref = useRef(null);
 
@@ -37,16 +38,33 @@ export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesCha
     [setMenu],
   );
 
+  const onEdgeContextMenu = useCallback(
+    (event, edge) => {
+      // Prevent native context menu from showing
+      event.preventDefault();
+
+      // Calculate position of the context menu. We want to make sure it
+      // doesn't get positioned off-screen.
+      const pane = ref.current.getBoundingClientRect();
+      setEdgeMenu({
+        id: edge.id,
+        top: event.clientY,
+        left: event.clientX});
+    },
+    [setEdgeMenu],
+  );
+
   // Close the context menu if it's open whenever the window is clicked.
-  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+  const onPaneClick = useCallback(() => {setMenu(null), setEdgeMenu(null)}, [setMenu, setEdgeMenu]);
 
   return (
-    <div style={{ width: `calc(100vw - 30px)`, height: `calc(100vh - 80px)` }}>
+    <div className='kamldbm'>
         <ReactFlow
         ref={ref}
         nodes={nodes}
         edges={edges}
         fitView
+        minZoom = {.3}
         onConnect={onConnect}
         onEdgesChange = {onEdgesChange}
         onNodesChange = {onNodesChange}
@@ -56,6 +74,7 @@ export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesCha
         proOptions={proOptions}
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
+        onEdgeContextMenu={onEdgeContextMenu}
         onNodeDragStop={onNodeDragStop}
         deleteKeyCode={[]}
         >
@@ -67,6 +86,7 @@ export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesCha
             <Controls />
             <MiniMap pannable = 'true' zoomable = 'true' />
             {menu && <TableContextMenu onClick={onPaneClick} menuOptions={menu} onDeleteTable={onDeleteTable} onEditTable={onEditTable}/>}
+            {edgeMenu && <RelationshipContextMenu onClick={onPaneClick} menuOptions={edgeMenu} onDeleteRelationship={onDeleteRelationship}/>}
         </ReactFlow>
     </div>
   );
