@@ -221,15 +221,23 @@ const ProjectPage = () => {
     setToDeleteTable(node);
   };
 
+  //@TODO: To also delete associated edges/relationships
   const handleConfirmDeleteNode = (nodeToDelete) =>{
     const nodeId = nodeToDelete.id
-    deleteRequest(`projects/${id}/nodes/${nodeId}`);
+
+    // Determine relationships where the node acts a source/parent or target/child
+    const relatedRelationships = edges.filter((edge) => edge.source === nodeToDelete.id || edge.target === nodeToDelete.id);
+
+    // Iterate over the array to delete the relationsihps.
+    // Only in the cases where the node is the source the child objects should be updated
+    relatedRelationships.forEach(e => handleConfirmDeleteRelationship(e, (e.source === nodeToDelete.id)));
+
     deleteRequest(`projects/${id}/tables/${nodeToDelete.data.id}`);
+    deleteRequest(`projects/${id}/nodes/${nodeId}`);
 
+    //Delete node from UI
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-
-    // If you also want to remove edges connected to this node
-    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+    //setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
   
     setToDeleteTable(null);
   };
@@ -275,23 +283,28 @@ const ProjectPage = () => {
     setToDeleteRelationship(edge);
   }
 
-  //@TODO: Save from persistance
-  const handleConfirmDeleteRelationship = (relationshipToDelete) => {
+  const handleConfirmDeleteRelationship = (relationshipToDelete, updateNode = true) => {
 
-    // Deleting child column
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === relationshipToDelete.target) {
-          // it's important that you create a new object here
-          // in order to notify react flow about the change
-          node.data.columns = node.data.columns.filter(column => column.id !== relationshipToDelete.data.childColumn);
-          node = deepCopyObject(node);
+    if (updateNode) {
+      const targetTable = (nodes.filter((n) => {return n.id === relationshipToDelete.target})[0]).data;
+      targetTable.columns = targetTable.columns.filter(column => column.id !== relationshipToDelete.data.childColumn);
+      updateRequest(`projects/${id}/tables/${targetTable.id}`, {columns: targetTable.columns});
+      // Deleting child column from UI
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === relationshipToDelete.target) {
+            // it's important that you create a new object here
+            // in order to notify react flow about the change
+            node.data.columns = targetTable.columns;
+            node = deepCopyObject(node);
+          }
+          return node;
         }
-        return node;
-      }
-    ));
+      ));
+    }
+    deleteRequest(`projects/${id}/relationships/${relationshipToDelete.id}`);
 
-    // Deleting actual edge
+    // Deleting actual edge from UI
     setEdges((es) => es.filter((e) => e.id !== relationshipToDelete.id));
     setToDeleteRelationship(null);
 
