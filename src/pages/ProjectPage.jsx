@@ -143,15 +143,6 @@ const ProjectPage = () => {
   const [toDeleteTable, setToDeleteTable] = useState(null);
   const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
 
-  const onConnect = useCallback(
-    (params) =>
-      { const newRel = addRelationship(params);
-        setEdges((eds) =>
-          addEdge({ ...params, type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' }, eds)
-        )},
-    [nodes, setEdges]
-  );
-
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
   
@@ -188,39 +179,43 @@ const ProjectPage = () => {
     }
   };
 
-  const addRelationship = (params) => {
-    // Retrieve columns of source node
-    const parentTable = (nodes.filter((n) => n.id === params.source)[0]).data;
-    const childTable = (nodes.filter((n) => n.id === params.target)[0]).data;
-    const pkColumns = (parentTable.columns).filter((c) => c.primaryKey);
-    // Making sure the source table has at least one pk
-    if (pkColumns.length > 0){
-      const pkColumn = pkColumns[0]; //@TODO: For now it only supports one primary key
-      const newChildColumn = {
-                              id:nanoid(),
-                              name: pkColumn.name, //@TODO: Need to validate to when name already exists
-                              dataType: pkColumn.dataType,
-                              description: 'Foreign Key to ' + parentTable.name,
-                              primaryKey: false //@TODO: Needs to revisit when implemeting identifying relationsihps
-      };
-      childTable.columns = childTable.columns.concat(newChildColumn);
-      const newRelationship = { ...params, id: nanoid(), type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' };
-      newRelationship.data =  {
-                                id:newRelationship.id,
-                                identifying: false, //eventually we'll need to revisit this to support identifying relationships
-                                label: null,
-                                projectId: id,
-                                active: true,
-                                parentColumn: pkColumn,
-                                childColumn: newChildColumn.id
-                              }
-      console.log(newRelationship);
-      return newRelationship;
-    }
-    else{
-      return null;
-    }
-  };
+
+  const addRelationship = useCallback(
+      (params) => {
+      // Retrieve columns of source node
+      const parentTable = (nodes.filter((n) => n.id === params.source)[0]).data;
+      const childNode = (nodes.filter((n) => n.id === params.target)[0]);
+      const pkColumns = (parentTable.columns).filter((c) => c.primaryKey);
+      // Making sure the source table has at least one pk
+      if (pkColumns.length > 0){
+        const pkColumn = pkColumns[0]; //@TODO: For now it only supports one primary key
+        const newChildColumn = {
+                                id:nanoid(),
+                                name: pkColumn.name, //@TODO: Need to validate to when name already exists
+                                dataType: pkColumn.dataType,
+                                description: 'Foreign Key to ' + parentTable.name,
+                                primaryKey: false //@TODO: Needs to revisit when implemeting identifying relationsihps
+        };
+        childNode.data.columns = childNode.data.columns.concat(newChildColumn);
+        updateNode(childNode);
+        const newRelationship = { ...params, id: nanoid(), type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' };
+        newRelationship.data =  {
+                                  id:newRelationship.id,
+                                  identifying: false, //eventually we'll need to revisit this to support identifying relationships
+                                  label: null,
+                                  projectId: id,
+                                  active: true,
+                                  parentColumn: pkColumn.id,
+                                  childColumn: newChildColumn.id
+                                }
+        updateRequest(`projects/${id}/relationships/${newRelationship.id}`, newRelationship.data);
+        setEdges((eds) => addEdge(newRelationship, eds));
+      }
+      else{
+        alert('No Pk in source table');
+      }
+    }, [nodes, setEdges]
+  );
 
   //Handlers
   const handleAddTable = () => {
@@ -255,7 +250,6 @@ const ProjectPage = () => {
     setToDeleteTable(node);
   };
 
-  //@TODO: To also delete associated edges/relationships
   const handleConfirmDeleteNode = (nodeToDelete) =>{
     const nodeId = nodeToDelete.id
 
@@ -264,35 +258,45 @@ const ProjectPage = () => {
 
     // Iterate over the array to delete the relationsihps.
     // Only in the cases where the node is the source the child objects should be updated
-    relatedRelationships.forEach(e => handleConfirmDeleteRelationship(e, (e.source === nodeToDelete.id)));
+    relatedRelationships.forEach(e => deleteRelationship(e, (e.source === nodeToDelete.id)));
 
     deleteRequest(`projects/${id}/tables/${nodeToDelete.data.id}`);
     deleteRequest(`projects/${id}/nodes/${nodeId}`);
 
     //Delete node from UI
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-    //setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
   
     setToDeleteTable(null);
   };
 
   const updateNode = (node) => {
-    updateRequest(`projects/${id}/nodes/${node.id}`, node);
+    // Cleaning copy of the node
+    const copyNode = {
+      id: node.id, 
+      tableId: node.data.id, 
+      project_id: id,
+      x: node.position.x,
+      y: node.position.y,
+      active: true
+    }
+    
+    // Persisting changes
+    updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
     updateRequest(`projects/${id}/tables/${node.data.id}`, node.data);
 
-
-    // There should be an if (if new is handled one way otherwise  in a different way)
-    // Adding node in array
-    if (activeTable.new){
+    // Adding node in array if new
+    if (node.new){
+      delete node.new;
       setNodes((nds) => nds.concat(node));
     }
     else{
+      // Updating in Flow
       setNodes((nds) =>
         nds.map((n) => {
           if (n.id === node.id) {
             // it's important that you create a new object here
             // in order to notify react flow about the change
-            n.data = node.data;
+            n = deepCopyObject(node);
           }
           return n;
         }
@@ -307,31 +311,18 @@ const ProjectPage = () => {
     setToDeleteRelationship(edge);
   }
 
-  const handleConfirmDeleteRelationship = (relationshipToDelete, updateNode = true) => {
+  const deleteRelationship = (relationshipToDelete, shouldUpdateNode = true) => {
 
-    if (updateNode) {
-      const targetTable = (nodes.filter((n) => {return n.id === relationshipToDelete.target})[0]).data;
-      targetTable.columns = targetTable.columns.filter(column => column.id !== relationshipToDelete.data.childColumn);
-      updateRequest(`projects/${id}/tables/${targetTable.id}`, {columns: targetTable.columns});
-      // Deleting child column from UI
-      setNodes((nds) =>
-        nds.map((node) => {
-          if (node.id === relationshipToDelete.target) {
-            // it's important that you create a new object here
-            // in order to notify react flow about the change
-            node.data.columns = targetTable.columns;
-            node = deepCopyObject(node);
-          }
-          return node;
-        }
-      ));
+    if (shouldUpdateNode) {
+      const targetNode = nodes.filter((n) => {return n.id === relationshipToDelete.target})[0];
+      targetNode.data.columns = (targetNode.data.columns).filter(column => column.id !== relationshipToDelete.data.childColumn);
+      updateNode(targetNode);
     }
     deleteRequest(`projects/${id}/relationships/${relationshipToDelete.id}`);
 
     // Deleting actual edge from UI
     setEdges((es) => es.filter((e) => e.id !== relationshipToDelete.id));
     setToDeleteRelationship(null);
-
   }
   
   
@@ -464,7 +455,7 @@ const ProjectPage = () => {
         <Flow
           nodes = {nodes}
           edges = {edges}
-          onConnect = {onConnect}
+          onConnect = {addRelationship}
           onEdgesChange = {onEdgesChange}
           onNodesChange = {onNodesChange}
           onAddTable = {handleAddTable}
@@ -493,7 +484,7 @@ const ProjectPage = () => {
     {toDeleteRelationship && <DeleteConfirm
                       type='relationship' 
                       object={toDeleteRelationship}
-                      onConfirm={handleConfirmDeleteRelationship}
+                      onConfirm={deleteRelationship}
                       onCancel={() => {setToDeleteRelationship(null)}}
                       nodes = {nodes}
                       />}
