@@ -133,7 +133,8 @@ function readyNodesAndEdges(jsonData) {
 
 
 const ProjectPage = () => {
-  const { user, logout, getAccessTokenSilently } = useAuth0();
+  const {id} = useParams();
+  const {user, logout, getAccessTokenSilently} = useAuth0();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
@@ -141,15 +142,14 @@ const ProjectPage = () => {
   const [activeTable, setActiveTable] = useState(null);
   const [toDeleteTable, setToDeleteTable] = useState(null);
   const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
-  const {id} = useParams();
-  //console.log({id});
 
   const onConnect = useCallback(
     (params) =>
-      setEdges((eds) =>
-        addEdge({ ...params, type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' }, eds)
-      ),
-    [setEdges]
+      { const newRel = addRelationship(params);
+        setEdges((eds) =>
+          addEdge({ ...params, type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' }, eds)
+        )},
+    [nodes, setEdges]
   );
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
@@ -170,7 +170,7 @@ const ProjectPage = () => {
       console.error("Error updataing data", error);
       throw error;
     }
-  }
+  };
 
   async function deleteRequest(path) {
     try {
@@ -186,7 +186,41 @@ const ProjectPage = () => {
       console.error("Error deleting data", error);
       throw error;
     }
-  }
+  };
+
+  const addRelationship = (params) => {
+    // Retrieve columns of source node
+    const parentTable = (nodes.filter((n) => n.id === params.source)[0]).data;
+    const childTable = (nodes.filter((n) => n.id === params.target)[0]).data;
+    const pkColumns = (parentTable.columns).filter((c) => c.primaryKey);
+    // Making sure the source table has at least one pk
+    if (pkColumns.length > 0){
+      const pkColumn = pkColumns[0]; //@TODO: For now it only supports one primary key
+      const newChildColumn = {
+                              id:nanoid(),
+                              name: pkColumn.name, //@TODO: Need to validate to when name already exists
+                              dataType: pkColumn.dataType,
+                              description: 'Foreign Key to ' + parentTable.name,
+                              primaryKey: false //@TODO: Needs to revisit when implemeting identifying relationsihps
+      };
+      childTable.columns = childTable.columns.concat(newChildColumn);
+      const newRelationship = { ...params, id: nanoid(), type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' };
+      newRelationship.data =  {
+                                id:newRelationship.id,
+                                identifying: false, //eventually we'll need to revisit this to support identifying relationships
+                                label: null,
+                                projectId: id,
+                                active: true,
+                                parentColumn: pkColumn,
+                                childColumn: newChildColumn.id
+                              }
+      console.log(newRelationship);
+      return newRelationship;
+    }
+    else{
+      return null;
+    }
+  };
 
   //Handlers
   const handleAddTable = () => {
@@ -242,44 +276,34 @@ const ProjectPage = () => {
     setToDeleteTable(null);
   };
 
-  const handleTableEditorDone = (data) => {
-    // Save node
-    const readyNode = {
-      id: activeTable.id, 
-      tableId: activeTable.data.id, 
-      project_id: activeTable.project_id,
-      x: activeTable.position.x,
-      y: activeTable.position.y,
-      active: true
-    }
-    updateRequest(`projects/${id}/nodes/${activeTable.id}`, readyNode);
+  const updateNode = (node) => {
+    updateRequest(`projects/${id}/nodes/${node.id}`, node);
+    updateRequest(`projects/${id}/tables/${node.data.id}`, node.data);
 
-    // save table
-    const readyTable = activeTable.data;
-    readyTable.name = data.name;
-    readyTable.columns = data.columns;
-    readyTable.description = data.description;
-    updateRequest(`projects/${id}/tables/${activeTable.data.id}`, readyTable);
 
-    // updating node in array
+    // There should be an if (if new is handled one way otherwise  in a different way)
+    // Adding node in array
     if (activeTable.new){
-      setNodes((nds) => nds.concat(activeTable));
+      setNodes((nds) => nds.concat(node));
     }
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === activeTable.id) {
-          // it's important that you create a new object here
-          // in order to notify react flow about the change
-          node.data = data;
+    else{
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id === node.id) {
+            // it's important that you create a new object here
+            // in order to notify react flow about the change
+            n.data = node.data;
+          }
+          return n;
         }
-        return node;
-      }
-    ));
+      ));
+    }
     setActiveTable(null);
   };
 
   const handleDeleteRelationship = (id) => {
     const edge = edges.filter((e) => {return e.id === id})[0];
+    console.log(edge);
     setToDeleteRelationship(edge);
   }
 
@@ -455,10 +479,10 @@ const ProjectPage = () => {
       </Main>
     </Box>
     {activeTable && <TableEditor
-                      table={activeTable}
+                      node={activeTable}
                       dbTechnology={dbTechnology}
                       onCancel={() => {setActiveTable(null)}}
-                      onDone={handleTableEditorDone}
+                      onDone={updateNode}
                       />}
     {toDeleteTable && <DeleteConfirm
                       type='table' 

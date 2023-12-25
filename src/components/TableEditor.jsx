@@ -47,9 +47,9 @@ function CustomNoRowsOverlay() {
     );
 };
 
-export default function TableEditor({table, dbTechnology, onDone, onCancel}) {
-    const [tableName, setTableName] = useState(table.data.name);
-    const [columns, setColumns] = useState(table.data.columns);
+export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
+    const [tableName, setTableName] = useState(node.data.name);
+    const [columns, setColumns] = useState(node.data.columns);
     const [selectedColumnIds, setSelectedColumnIds] = useState([]);
     const [cancelDisabled, setCancelDisabled] = useState(false);
 
@@ -60,10 +60,13 @@ export default function TableEditor({table, dbTechnology, onDone, onCancel}) {
     };
 
     const handleDone = (e) => {
-        //@tood: need to add description to the interface
-        const data = {id: table.data.id, name: tableName, columns, description: ''};
+        //@TODO: need to add description to the interface
+        //const data = {id: node.data.id, name: tableName, columns, description: ''};
+        node.data.name = tableName;
+        node.data.columns = columns;
+        node.data.description = '';
         setCancelDisabled(true);
-        onDone(data);
+        onDone(node);
     };
 
     const handleAddColumn = () => {
