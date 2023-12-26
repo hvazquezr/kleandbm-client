@@ -25,14 +25,13 @@ export default memo(({data, isConnectable}) => {
         <Handle
             type="target"
             position={Position.Top}
-            style={{ background: '#555' }}
             isConnectable={isConnectable}
         />
         <TableContainer sx={style}>
             <Table size="small" aria-label="{data.label}">
                 <TableHead>
                     <TableRow>
-                        <TableCell colSpan={3}>
+                        <TableCell colSpan={3} sx={{fontWeight: 'bold'}}>
                             {data.name}                         
                         </TableCell>
                     </TableRow>
@@ -52,7 +51,7 @@ export default memo(({data, isConnectable}) => {
                         {column.name}
                         </TableCell>
                         <TableCell align="right">{column.dataType}</TableCell>
-                        <TableCell align="right" sx={{color:green[800]}}>{column.primaryKey?'PK':''}</TableCell>
+                        <TableCell align="right" sx={{color:green[800], fontWeight:'bold'}}>{column.primaryKey?'PK':''}</TableCell>
                     </TableRow>
                     ))}
                 </TableBody>

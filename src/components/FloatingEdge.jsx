@@ -43,7 +43,7 @@ function FloatingEdge({ id, source, target, markerEnd, markerStart, style }) {
                     }}
                     className="nodrag nopan"
         >
-          <InfoIcon color="action" fontSize="small" />
+          <InfoIcon sx={{color: "#AAA"}} fontSize="small" />
         </div>
       </EdgeLabelRenderer>
     </>

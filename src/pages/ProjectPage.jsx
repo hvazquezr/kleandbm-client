@@ -15,24 +15,22 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-
 import {
   useNodesState,
   useEdgesState,
   addEdge
 } from 'reactflow';
 
-import Flow from '../components/Flow.jsx';
-import EditableTitle from '../components/EditableTitle.jsx';
-import TreeNavigator from '../components/TreeNavigator.jsx';
-import TableNode from '../components/TableNode.jsx';
-import TableEditor from '../components/TableEditor.jsx';
-import DeleteConfirm from '../components/DeleteConfirm.jsx';
-
-import FloatingEdge from '../components/FloatingEdge.jsx';
-import FloatingConnectionLine from '../components/FloatingConnectionLine.jsx';
-
-import UserAvatar from '../components/UserAvatar.jsx';
+import Flow from '../components/Flow';
+import EditableTitle from '../components/EditableTitle';
+import TreeNavigator from '../components/TreeNavigator';
+import TableNode from '../components/TableNode';
+import TableEditor from '../components/TableEditor';
+import DeleteConfirm from '../components/DeleteConfirm';
+import FloatingEdge from '../components/FloatingEdge';
+import FloatingConnectionLine from '../components/FloatingConnectionLine';
+import UserAvatar from '../components/UserAvatar';
+import Warning from '../components/Warning';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -142,6 +140,7 @@ const ProjectPage = () => {
   const [activeTable, setActiveTable] = useState(null);
   const [toDeleteTable, setToDeleteTable] = useState(null);
   const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
+  const [warningMessage, setWarningMessage]= useState(null);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -179,7 +178,6 @@ const ProjectPage = () => {
     }
   };
 
-
   const addRelationship = useCallback(
       (params) => {
       // Retrieve columns of source node
@@ -212,7 +210,7 @@ const ProjectPage = () => {
         setEdges((eds) => addEdge(newRelationship, eds));
       }
       else{
-        alert('No Pk in source table');
+        setWarningMessage(<div><strong>{parentTable.name}</strong> does not have a primary key.</div>);
       }
     }, [nodes, setEdges]
   );
@@ -324,7 +322,6 @@ const ProjectPage = () => {
     setEdges((es) => es.filter((e) => e.id !== relationshipToDelete.id));
     setToDeleteRelationship(null);
   }
-  
   
 
   // Interactivity
@@ -469,6 +466,7 @@ const ProjectPage = () => {
         />
       </Main>
     </Box>
+    <Warning message={warningMessage} closeWarning={() => {setWarningMessage(null)}} />
     {activeTable && <TableEditor
                       node={activeTable}
                       dbTechnology={dbTechnology}

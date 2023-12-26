@@ -58,7 +58,7 @@ export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesCha
   const onPaneClick = useCallback(() => {setMenu(null), setEdgeMenu(null)}, [setMenu, setEdgeMenu]);
 
   return (
-    <div className='kamldbm'>
+    <div className='kalmdbm'>
         <ReactFlow
         ref={ref}
         nodes={nodes}

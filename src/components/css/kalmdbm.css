@@ -1,16 +1,35 @@
-.kamldbm {
+.kalmdbm {
     width: calc(100vw - 0px);
     height:calc(100vh - 80px)
 }
 
-.kamldbm .react-flow__edge-path {
+.kalmdbm .react-flow__edge-path {
     stroke: #AAA;
     stroke-width: 1.5;
     fill: none
-  }
+}
 
-.kamldb .react-flow__connection-path {
+.kalmdbm .react-flow__connection-path {
     stroke: #AAA;
     stroke-width: 1.5;
     fill: none
-  }
+}
+
+.kalmdbm .react-flow__handle-top {
+  width: 10px;
+  height: 10px;
+  background-color: #fff;
+  border: 2px solid #AAA;
+}
+
+.kalmdbm .react-flow__handle-bottom {
+  width: 10px;
+  height: 10px;
+  background-color: #AAA;
+  border: 2px solid #AAA;
+}
+
+.kalmdbm .react-flow__edge.selected .react-flow__edge-path{
+  stroke:rgb(9, 121, 233);
+  stroke-width: 2;
+}

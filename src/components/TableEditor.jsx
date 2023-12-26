@@ -123,7 +123,6 @@ export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
                             sx={{height:400}}
                             rows={columns}
                             columns={columnProperties}
-                            autoPageSize
                             checkboxSelection
                             disableRowSelectionOnClick
                             density='compact'
