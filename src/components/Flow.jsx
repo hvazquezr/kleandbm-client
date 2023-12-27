@@ -25,6 +25,7 @@ export default function Flow({
   edgeTypes,
   connectionLineComponent,
   onNodeDragStop,
+  projectName,
   projectDescription,
   onProjectDescriptionChange,
   onProjectDescriptionBlur,
@@ -99,7 +100,8 @@ export default function Flow({
         deleteKeyCode={[]}
         >
             <Panel position="top-left">
-              <ProjectInformation 
+              <ProjectInformation
+                projectName = {projectName} 
                 projectDescription = {projectDescription}
                 onProjectDescriptionChange = {onProjectDescriptionChange}
                 onProjectDescriptionBlur = {onProjectDescriptionBlur}

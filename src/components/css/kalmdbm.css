@@ -33,3 +33,36 @@
   stroke:rgb(9, 121, 233);
   stroke-width: 2;
 }
+
+ #infoTable {
+  border-spacing: 0;
+  border: 1px solid #AAA;
+  border-radius: 3px;
+  width: 50;
+}
+
+#infoTable th,  #infoTable td {
+  border-bottom: 1px solid #AAA;
+  padding: 5px;
+}
+
+#infoTable th {
+  border-left: none;
+  border-top: none;
+  border-right: 1px solid #AAA;
+  text-align: right;
+  width: 120px
+}
+
+#infoTable td {
+  text-align: left;
+  word-wrap: break-word;
+}
+
+#infoTable tr:first-child th {
+  border-top: none;
+}
+
+#infoTable tr:last-child th,  #infoTable tr:last-child td{
+  border-bottom: none;
+}

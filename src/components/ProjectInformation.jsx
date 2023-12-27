@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Panel, useReactFlow, getRectOfNodes, getTransformForBounds } from 'reactflow';
+import { useReactFlow, getRectOfNodes, getTransformForBounds } from 'reactflow';
 import { toPng } from 'html-to-image';
 
 import Box from '@mui/material/Box';
@@ -30,17 +30,11 @@ function convertTimestampToReadable(timestamp) {
     });
   }
 
-  function downloadImage(dataUrl) {
-    const a = document.createElement('a');
-    a.setAttribute('download', 'reactflow.png');
-    a.setAttribute('href', dataUrl);
-    a.click();
-  }
   
   const imageWidth = 2048; //(1024*2)
   const imageHeight = 1536; //(768*2)
 
-  function createProjectInfoTable(x, y) {
+  function createProjectInfoTable(x, y,  projectName, projectDescription, projectCreatorName, lastModified) {
     // Create a new div element
     const newDiv = document.createElement('div');
   
@@ -48,36 +42,48 @@ function convertTimestampToReadable(timestamp) {
     newDiv.style.position = 'absolute';
     newDiv.style.left = `${x}px`;
     newDiv.style.top = `${y}px`;
+    newDiv.style.width = '450px'
   
     // Create a new table element
     const table = document.createElement('table');
     table.innerHTML = `
+    <table id="infoTable">
       <tr>
-        <th>Header 1</th>
-        <th>Header 2</th>
+        <th>Name</th>
+        <td>${projectName}</td>
       </tr>
       <tr>
-        <td>Data 1</td>
-        <td>Data 2</td>
+          <th>Description</th>
+          <td>${projectDescription}</td>
       </tr>
+      <tr>
+          <th>Created by</th>
+          <td>${projectCreatorName}</td>
+      </tr>
+      <tr>
+          <th>Last Modified</th>
+          <td>${lastModified}</td>
+      </tr>
+    </table>
     `; // Adjust table HTML as needed
   
     // Append the table to the div
+    table.id='infoTable';
     newDiv.appendChild(table);
   
-    // Append the div to the body of the document
-    //document.body.appendChild(newDiv);
     return newDiv;
   }
   
 
 export default function ProjectInformation({
+    projectName,
     projectDescription,
     onProjectDescriptionChange,
     onProjectDescriptionBlur,
     lastModified,
     projectCreatorName
     }) {
+
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = (event) => {
@@ -96,19 +102,39 @@ export default function ProjectInformation({
     // we calculate a transform for the nodes so that all nodes are visible
     // we then overwrite the transform of the `.react-flow__viewport` element
     // with the style option of the html-to-image library
+
+    function downloadImage(dataUrl) {
+      const a = document.createElement('a');
+      a.setAttribute('download', `${projectName}.png`);
+      a.setAttribute('href', dataUrl);
+      a.click();
+      content.removeChild(infoTable);
+      content.removeChild(imageDiv);
+    }
+
     const nodesBounds = getRectOfNodes(getNodes());
     const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.2, 3, .02);
     const content = document.querySelector('.react-flow__viewport'); // The content you want to capture
 
-    console.log(nodesBounds);
-    console.log(transform);
+    const tableXPosition = nodesBounds.width>imageWidth?nodesBounds.x:(nodesBounds.x-(imageWidth/transform[2]-nodesBounds.width)/2);
+    const tableYPosition = nodesBounds.height>imageHeight?nodesBounds.y:(nodesBounds.y-(imageHeight/transform[2]-nodesBounds.height)/2);
 
-    const tableXPosition = nodesBounds.width>imageWidth?nodesBounds.x:(nodesBounds.x-(imageWidth/transform[2]-nodesBounds.width)/2)+15;
-    const tableYPosition = nodesBounds.height>imageHeight?nodesBounds.y:(nodesBounds.y-(imageHeight/transform[2]-nodesBounds.height)/2)+15;
+    const imageXPosition = (nodesBounds.width>imageWidth?nodesBounds.x+nodesBounds.width:nodesBounds.x+imageWidth) - 15 - 150;
+    const imageYPosition = (nodesBounds.height>imageWidth?nodesBounds.y+nodesBounds.height:nodesBounds.x+imageHeight) - 15 - 24;
 
-    const infoTable = createProjectInfoTable(tableXPosition, tableYPosition);
+    const infoTable = createProjectInfoTable(tableXPosition+15, tableYPosition+15, projectName, projectDescription, projectCreatorName, convertTimestampToReadable(lastModified));
     content.appendChild(infoTable);
 
+    // Addiing footer image
+    const imageDiv = document.createElement('div');
+    imageDiv.innerHTML = '<img src="/images/bluelogo.png" width="150" height="24"/>';
+
+    imageDiv.style.position = 'absolute';
+    imageDiv.style.left = `${imageXPosition}px`;
+    imageDiv.style.top = `${imageYPosition}px`;
+    content.appendChild(imageDiv);
+    //newDiv.style.width = '450px'
+    
 
     toPng(content, {
       backgroundColor: '#ffffff',
@@ -120,6 +146,7 @@ export default function ProjectInformation({
         transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
       },
     }).then(downloadImage);
+
     handleClose();
   };
 

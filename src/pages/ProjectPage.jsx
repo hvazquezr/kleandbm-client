@@ -364,7 +364,7 @@ const ProjectPage = () => {
   }, []);
   
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchProject = async () => {
         try {
             const token = await getAccessTokenSilently();
             const response = await axios.get(`http://127.0.0.1:5000/api/v1/projects/${id}`, {
@@ -386,7 +386,7 @@ const ProjectPage = () => {
             console.error("Error fetching projects", error);
         }
     };
-    fetchProjects();
+    fetchProject();
 }, [id]);
 
   return (
@@ -480,6 +480,7 @@ const ProjectPage = () => {
           edgeTypes = {edgeTypes}
           connectionLineComponent = {FloatingConnectionLine}
           onNodeDragStop = {onNodeDragStop}
+          projectName = {projectName}
           projectDescription = {projectDescription}
           onProjectDescriptionChange = {updateProjecDescription}
           onProjectDescriptionBlur = {saveProjectDescription}
