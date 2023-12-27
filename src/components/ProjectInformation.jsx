@@ -48,7 +48,7 @@ export default function ProjectInformation({
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'flex-start', textAlign: 'center' }}>
-        <Tooltip title="Project Information">
+        <Tooltip title="More">
           <IconButton
             onClick={handleClick}
             size="small"
@@ -83,14 +83,12 @@ export default function ProjectInformation({
                     },              
                     "& .MuiOutlinedInput-root:hover": {
                         "& > fieldset": {
-                        boder: "1 px",
-                        borderColor: "#AAAAAA"
+                        border: "0.5px solid #AAAAAA",
                         }
                     },
                     "& .MuiOutlinedInput-root.Mui-focused": {
                         "& > fieldset": {
-                        boder: "1 px",
-                        borderColor: "#AAAAAA"
+                        border: "0.5px solid #AAAAAA",
                         }
                     }
                     }}
