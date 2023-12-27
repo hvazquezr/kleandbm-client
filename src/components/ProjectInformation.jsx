@@ -37,8 +37,38 @@ function convertTimestampToReadable(timestamp) {
     a.click();
   }
   
-  const imageWidth = (1024*2);
-  const imageHeight = (768*2);
+  const imageWidth = 2048; //(1024*2)
+  const imageHeight = 1536; //(768*2)
+
+  function createProjectInfoTable(x, y) {
+    // Create a new div element
+    const newDiv = document.createElement('div');
+  
+    // Set the position style of the div
+    newDiv.style.position = 'absolute';
+    newDiv.style.left = `${x}px`;
+    newDiv.style.top = `${y}px`;
+  
+    // Create a new table element
+    const table = document.createElement('table');
+    table.innerHTML = `
+      <tr>
+        <th>Header 1</th>
+        <th>Header 2</th>
+      </tr>
+      <tr>
+        <td>Data 1</td>
+        <td>Data 2</td>
+      </tr>
+    `; // Adjust table HTML as needed
+  
+    // Append the table to the div
+    newDiv.appendChild(table);
+  
+    // Append the div to the body of the document
+    //document.body.appendChild(newDiv);
+    return newDiv;
+  }
   
 
 export default function ProjectInformation({
@@ -62,13 +92,25 @@ export default function ProjectInformation({
   const { getNodes } = useReactFlow();
 
   const onDownloadClick = () => {
-    handleClose();
+
     // we calculate a transform for the nodes so that all nodes are visible
     // we then overwrite the transform of the `.react-flow__viewport` element
     // with the style option of the html-to-image library
     const nodesBounds = getRectOfNodes(getNodes());
-    const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.2, 3);
-    toPng(document.querySelector('.react-flow__viewport'), {
+    const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.2, 3, .02);
+    const content = document.querySelector('.react-flow__viewport'); // The content you want to capture
+
+    console.log(nodesBounds);
+    console.log(transform);
+
+    const tableXPosition = nodesBounds.width>imageWidth?nodesBounds.x:(nodesBounds.x-(imageWidth/transform[2]-nodesBounds.width)/2)+15;
+    const tableYPosition = nodesBounds.height>imageHeight?nodesBounds.y:(nodesBounds.y-(imageHeight/transform[2]-nodesBounds.height)/2)+15;
+
+    const infoTable = createProjectInfoTable(tableXPosition, tableYPosition);
+    content.appendChild(infoTable);
+
+
+    toPng(content, {
       backgroundColor: '#ffffff',
       width: imageWidth,
       height: imageHeight,
@@ -78,6 +120,7 @@ export default function ProjectInformation({
         transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
       },
     }).then(downloadImage);
+    handleClose();
   };
 
   return (
