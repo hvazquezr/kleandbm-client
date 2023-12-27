@@ -1,4 +1,8 @@
 import * as React from 'react';
+
+import { Panel, useReactFlow, getRectOfNodes, getTransformForBounds } from 'reactflow';
+import { toPng } from 'html-to-image';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -13,7 +17,7 @@ import SourceIcon from '@mui/icons-material/Source';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Popover from '@mui/material/Popover';
 import { TextField } from '@mui/material';
-import Button from '@mui/material/Button';
+
 
 function convertTimestampToReadable(timestamp) {
     const date = new Date(timestamp);
@@ -25,6 +29,16 @@ function convertTimestampToReadable(timestamp) {
       minute: '2-digit'
     });
   }
+
+  function downloadImage(dataUrl) {
+    const a = document.createElement('a');
+    a.setAttribute('download', 'reactflow.png');
+    a.setAttribute('href', dataUrl);
+    a.click();
+  }
+  
+  const imageWidth = (1024*2);
+  const imageHeight = (768*2);
   
 
 export default function ProjectInformation({
@@ -44,6 +58,27 @@ export default function ProjectInformation({
   };
 
   const open = Boolean(anchorEl);
+
+  const { getNodes } = useReactFlow();
+
+  const onDownloadClick = () => {
+    handleClose();
+    // we calculate a transform for the nodes so that all nodes are visible
+    // we then overwrite the transform of the `.react-flow__viewport` element
+    // with the style option of the html-to-image library
+    const nodesBounds = getRectOfNodes(getNodes());
+    const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.2, 3);
+    toPng(document.querySelector('.react-flow__viewport'), {
+      backgroundColor: '#ffffff',
+      width: imageWidth,
+      height: imageHeight,
+      style: {
+        width: imageWidth,
+        height: imageHeight,
+        transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+      },
+    }).then(downloadImage);
+  };
 
   return (
     <React.Fragment>
@@ -116,7 +151,7 @@ export default function ProjectInformation({
                     </ListItemIcon>
                     <ListItemText>Generate SQL Code</ListItemText>
                 </MenuItem>
-                <MenuItem>
+                <MenuItem onClick={onDownloadClick}>
                     <ListItemIcon>
                         <PhotoCameraIcon fontSize="small" />
                     </ListItemIcon>

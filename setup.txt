@@ -11,6 +11,7 @@ npm install nanoid
 npm i vite-plugin-mkcert
 npm install @auth0/auth0-react
 npm i react-type-animation
+npm install --save html-to-image
 
 //This is not a dependency for the app; but what I'm using for deployment
 npm i -g vercel
