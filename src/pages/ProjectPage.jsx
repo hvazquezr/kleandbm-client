@@ -38,7 +38,7 @@ import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
 import '../components/css/kalmdbm.css';
-import { deepCopyObject } from '../components/utils.jsx';
+import { deepCopyObject, getCurrentUnixTime} from '../components/utils.jsx';
 
 const drawerWidth = 240;
 
@@ -141,6 +141,9 @@ const ProjectPage = () => {
   const [toDeleteTable, setToDeleteTable] = useState(null);
   const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
   const [warningMessage, setWarningMessage]= useState(null);
+  const [projectDescription, setProjectDescription] = useState("");
+  const [projectCreatorName, setProjectCreatorName] = useState("");
+  const [lastModified, setLastModified] = useState(null);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -155,6 +158,7 @@ const ProjectPage = () => {
               Authorization: `Bearer ${token}`,
           },
           });
+          setLastModified(getCurrentUnixTime());
           return response;
     } catch (error) {
       console.error("Error updataing data", error);
@@ -171,6 +175,7 @@ const ProjectPage = () => {
               Authorization: `Bearer ${token}`,
           },
           });
+          setLastModified(getCurrentUnixTime());
           return response;
     } catch (error) {
       console.error("Error deleting data", error);
@@ -345,6 +350,15 @@ const ProjectPage = () => {
     updateRequest(`projects/${id}`, newName);
   };
 
+  const updateProjecDescription = (e) => {
+    setProjectDescription(e.target.value);
+  };
+
+  const saveProjectDescription = async (e) => {
+    const newName = {description: e.target.value};
+    updateRequest(`projects/${id}`, newName);
+  };
+
   const onNodeDragStop = useCallback(async (event, node) => {
     updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
   }, []);
@@ -362,6 +376,9 @@ const ProjectPage = () => {
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
               const nodesAndEdges = readyNodesAndEdges(project);
               setProjectName(project.name);
+              setProjectDescription(project.description);
+              setProjectCreatorName(project.owner.name);
+              setLastModified(project.lastModified);
               setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
@@ -463,6 +480,11 @@ const ProjectPage = () => {
           edgeTypes = {edgeTypes}
           connectionLineComponent = {FloatingConnectionLine}
           onNodeDragStop = {onNodeDragStop}
+          projectDescription = {projectDescription}
+          onProjectDescriptionChange = {updateProjecDescription}
+          onProjectDescriptionBlur = {saveProjectDescription}
+          lastModified = {lastModified}
+          projectCreatorName = {projectCreatorName}
         />
       </Main>
     </Box>

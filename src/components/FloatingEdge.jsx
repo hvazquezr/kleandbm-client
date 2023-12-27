@@ -1,7 +1,5 @@
 import React, { useCallback } from 'react';
 import { useStore, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
-import Chip from '@mui/material/Chip';
-import InfoIcon from '@mui/icons-material/Info'
 
 import { getEdgeParams } from './utils.jsx';
 
@@ -40,11 +38,17 @@ function FloatingEdge({ id, source, target, markerEnd, markerStart, style }) {
                       position: 'absolute',
                       transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
                       pointerEvents: 'all',
+                      backgroundColor: '#FFF',
+                      border: '2px solid #AAA',
+                      borderRadius: '50%',
+                      width: 20,
+                      height: 20,
+                      display: 'flex',
+                      justifyContent: 'center', /* Center horizontally */
+                      alignItems: 'center' /* Center vertically */
                     }}
                     className="nodrag nopan"
-        >
-          <InfoIcon sx={{color: "#AAA"}} fontSize="small" />
-        </div>
+        />
       </EdgeLabelRenderer>
     </>
   );

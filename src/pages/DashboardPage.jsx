@@ -72,8 +72,6 @@ export function DashboardPage() {
     };
 
     function lookupDbTechnology(id) {
-        console.log(id);
-        console.log(databaseTechnologies);
         const dbTechnology = databaseTechnologies.find(dbTechnology => dbTechnology.id === id);
         return dbTechnology ? dbTechnology.name : null;
     }

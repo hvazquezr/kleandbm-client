@@ -98,3 +98,8 @@ export function getEdgeParams(source, target) {
   
     throw new Error("Unable to copy object!");
   }
+
+  export function getCurrentUnixTime() {
+    const now = new Date(); // Create a new date object with the current date and time
+    return now.getTime(); // Return the UNIX timestamp in milliseconds
+  }

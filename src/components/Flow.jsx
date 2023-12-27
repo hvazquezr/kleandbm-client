@@ -7,10 +7,30 @@ import ReactFlow, {
 import ActionMenu from './ActionMenu';
 import TableContextMenu from './TableContextMenu';
 import RelationshipContextMenu from './RelationshipContextMenu';
+import ProjectInformation from './ProjectInformation';
 
 const proOptions = { hideAttribution: true };
 
-export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesChange, onAddTable, onEditTable, onDeleteTable, onDeleteRelationship, nodeTypes, edgeTypes, connectionLineComponent, onNodeDragStop}) {
+export default function Flow({
+  nodes,
+  edges,
+  onConnect,
+  onEdgesChange,
+  onNodesChange,
+  onAddTable,
+  onEditTable,
+  onDeleteTable,
+  onDeleteRelationship,
+  nodeTypes,
+  edgeTypes,
+  connectionLineComponent,
+  onNodeDragStop,
+  projectDescription,
+  onProjectDescriptionChange,
+  onProjectDescriptionBlur,
+  lastModified,
+  projectCreatorName
+}) {
 
   const [menu, setMenu] = useState(null);
   const [edgeMenu, setEdgeMenu] = useState(null);
@@ -78,6 +98,15 @@ export default function Flow({nodes, edges, onConnect, onEdgesChange, onNodesCha
         onNodeDragStop={onNodeDragStop}
         deleteKeyCode={[]}
         >
+            <Panel position="top-left">
+              <ProjectInformation 
+                projectDescription = {projectDescription}
+                onProjectDescriptionChange = {onProjectDescriptionChange}
+                onProjectDescriptionBlur = {onProjectDescriptionBlur}
+                lastModified = {lastModified}
+                projectCreatorName = {projectCreatorName}
+              />
+            </Panel>
             <Panel position="top-right">
                 <ActionMenu 
                   handleAddTable = {onAddTable}
