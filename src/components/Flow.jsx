@@ -25,6 +25,7 @@ export default function Flow({
   edgeTypes,
   connectionLineComponent,
   onNodeDragStop,
+  projectId,
   projectName,
   projectDescription,
   onProjectDescriptionChange,
@@ -97,10 +98,11 @@ export default function Flow({
         onNodeContextMenu={onNodeContextMenu}
         onEdgeContextMenu={onEdgeContextMenu}
         onNodeDragStop={onNodeDragStop}
-        deleteKeyCode={[]}
+        deleteKeyCode={[]} // This is done to prvent deleting objects by pressing the delete key
         >
             <Panel position="top-left">
               <ProjectInformation
+                projectId = {projectId}
                 projectName = {projectName} 
                 projectDescription = {projectDescription}
                 onProjectDescriptionChange = {onProjectDescriptionChange}

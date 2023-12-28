@@ -480,6 +480,7 @@ const ProjectPage = () => {
           edgeTypes = {edgeTypes}
           connectionLineComponent = {FloatingConnectionLine}
           onNodeDragStop = {onNodeDragStop}
+          projectId = {id}
           projectName = {projectName}
           projectDescription = {projectDescription}
           onProjectDescriptionChange = {updateProjecDescription}

@@ -18,6 +18,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Popover from '@mui/material/Popover';
 import { TextField } from '@mui/material';
 
+import SQLCodeDisplay from './SQLCodeDisplay';
+
 function convertTimestampToReadable(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString(undefined, {
@@ -72,6 +74,7 @@ function convertTimestampToReadable(timestamp) {
   
 
 export default function ProjectInformation({
+    projectId,
     projectName,
     projectDescription,
     onProjectDescriptionChange,
@@ -81,6 +84,7 @@ export default function ProjectInformation({
     }) {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [openSqlWindow, setOpenSqlWindow] = React.useState(false);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -217,18 +221,22 @@ export default function ProjectInformation({
             </Stack>
             </Box>
             <Divider /> 
-            <MenuItem>
-                    <ListItemIcon>
-                        <SourceIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Generate SQL Code</ListItemText>
-                </MenuItem>
-                <MenuItem onClick={onDownloadClick}>
-                    <ListItemIcon>
-                        <PhotoCameraIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Download Image</ListItemText>
-                </MenuItem>   
+            <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
+                <ListItemIcon>
+                    <SourceIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Generate SQL Code</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={onDownloadClick}>
+                <ListItemIcon>
+                    <PhotoCameraIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Download Image</ListItemText>
+            </MenuItem>
+            {openSqlWindow && <SQLCodeDisplay 
+                projectId={projectId}
+                handleClose={() => {setOpenSqlWindow(false), handleClose()}}
+            />}
         </Popover>
     </React.Fragment>
   );
