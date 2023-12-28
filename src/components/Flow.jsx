@@ -7,7 +7,7 @@ import ReactFlow, {
 import ActionMenu from './ActionMenu';
 import TableContextMenu from './TableContextMenu';
 import RelationshipContextMenu from './RelationshipContextMenu';
-import ProjectInformation from './ProjectInformation';
+import ProjectInformation from './ProjectInformationAlternate';
 
 const proOptions = { hideAttribution: true };
 
