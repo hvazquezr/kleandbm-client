@@ -26,6 +26,7 @@ export default memo(({data, isConnectable}) => {
             type="target"
             position={Position.Top}
             isConnectable={isConnectable}
+            //isConnectableStart={false}
         />
         <TableContainer sx={style}>
             <Table size="small" aria-label="{data.label}">

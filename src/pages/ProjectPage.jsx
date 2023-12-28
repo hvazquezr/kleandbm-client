@@ -391,7 +391,7 @@ const ProjectPage = () => {
 
   return (
     <>
-    <svg style={{ position: 'absolute', top: 0, left: 0 }}>
+    <svg id="endMarkerParent" style={{ position: 'absolute', top: 0, left: 0 }}>
         <defs>
             <marker
             id="endMarker"
@@ -408,7 +408,7 @@ const ProjectPage = () => {
             </marker>
         </defs>
     </svg>
-    <svg style={{ position: 'absolute', top: 0, left: 0 }}>
+    <svg id="startMarkerParent" style={{ position: 'absolute', top: 0, left: 0 }}>
         <defs>
             <marker
             id="startMarker"

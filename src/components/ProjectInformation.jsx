@@ -29,10 +29,10 @@ function convertTimestampToReadable(timestamp) {
       minute: '2-digit'
     });
   }
-
   
-  const imageWidth = 2048; //(1024*2)
-  const imageHeight = 1536; //(768*2)
+  // The -40 is to allow for padding 
+  const imageWidth = 2048 - 40;
+  const imageHeight = 1536 - 40;
 
   function createProjectInfoTable(x, y,  projectName, projectDescription, projectCreatorName, lastModified) {
     // Create a new div element
@@ -113,37 +113,49 @@ export default function ProjectInformation({
     }
 
     const nodesBounds = getRectOfNodes(getNodes());
-    const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.2, 3, .02);
+    const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.2, 2, 0);
+
     const content = document.querySelector('.react-flow__viewport'); // The content you want to capture
 
-    const tableXPosition = nodesBounds.width>imageWidth?nodesBounds.x:(nodesBounds.x-(imageWidth/transform[2]-nodesBounds.width)/2);
-    const tableYPosition = nodesBounds.height>imageHeight?nodesBounds.y:(nodesBounds.y-(imageHeight/transform[2]-nodesBounds.height)/2);
+    const endMarker = document.getElementById('endMarkerParent');
+    const startMarker = document.getElementById('startMarkerParent');
 
-    const imageXPosition = (nodesBounds.width>imageWidth?nodesBounds.x+nodesBounds.width:nodesBounds.x+imageWidth) - 15 - 150;
-    const imageYPosition = (nodesBounds.height>imageWidth?nodesBounds.y+nodesBounds.height:nodesBounds.x+imageHeight) - 15 - 24;
+     // Copying markers to view port so they can be printed. They can staty there
+    content.appendChild(endMarker);
+    content.appendChild(startMarker); 
 
-    const infoTable = createProjectInfoTable(tableXPosition+15, tableYPosition+15, projectName, projectDescription, projectCreatorName, convertTimestampToReadable(lastModified));
+    // Calculating location for tableInfo
+    const scaledCanvasWidth = imageWidth/transform[2];
+    const scaledCanvasHeight = imageHeight/transform[2];
+
+    const leftEdge = Math.min(nodesBounds.x-(scaledCanvasWidth-nodesBounds.width)/2, nodesBounds.x);
+    const rightEdge = leftEdge + Math.max(scaledCanvasWidth, nodesBounds.width);
+    const topEdge = Math.min(nodesBounds.y-(scaledCanvasHeight-nodesBounds.height)/2, nodesBounds.y);
+    const bottomEdge = topEdge + Math.max(scaledCanvasHeight, nodesBounds.height) +20;
+
+    const infoTable = createProjectInfoTable(leftEdge, bottomEdge, projectName, projectDescription, projectCreatorName, convertTimestampToReadable(lastModified));
     content.appendChild(infoTable);
+
+    const tableInfoHeight = infoTable.offsetHeight;
+    const scaledTableInfoHeight = parseInt(tableInfoHeight * transform[2]);
 
     // Addiing footer image
     const imageDiv = document.createElement('div');
     imageDiv.innerHTML = '<img src="/images/bluelogo.png" width="150" height="24"/>';
 
     imageDiv.style.position = 'absolute';
-    imageDiv.style.left = `${imageXPosition}px`;
-    imageDiv.style.top = `${imageYPosition}px`;
+    imageDiv.style.left = `${rightEdge-150}px`;
+    imageDiv.style.top = `${bottomEdge+parseInt(scaledTableInfoHeight/2)+24}px`;
     content.appendChild(imageDiv);
-    //newDiv.style.width = '450px'
     
-
     toPng(content, {
       backgroundColor: '#ffffff',
-      width: imageWidth,
-      height: imageHeight,
+      width: imageWidth+40, // Edge padding
+      height: imageHeight+scaledTableInfoHeight+40+20, //Leavign extra room for information table + 20 margin
       style: {
-        width: imageWidth,
-        height: imageHeight,
-        transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
+        width: imageWidth+40, // Edge padding
+        height: imageHeight+scaledTableInfoHeight+40+20,//Leavign extra room for information table + 20 margin
+        transform: `translate(${transform[0]+20}px, ${transform[1]+20}px) scale(${transform[2]})`,
       },
     }).then(downloadImage);
 
