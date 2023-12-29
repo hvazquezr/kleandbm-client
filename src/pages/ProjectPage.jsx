@@ -15,6 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
+
 import {
   useNodesState,
   useEdgesState,
@@ -31,6 +32,7 @@ import FloatingEdge from '../components/FloatingEdge';
 import FloatingConnectionLine from '../components/FloatingConnectionLine';
 import UserAvatar from '../components/UserAvatar';
 import Warning from '../components/Warning';
+import AITableCreator from '../components/AITableCreator';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -144,6 +146,7 @@ const ProjectPage = () => {
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastModified, setLastModified] = useState(null);
+  const [showAITableCreator, setShowAITableCreator] = useState(false);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -221,6 +224,10 @@ const ProjectPage = () => {
   );
 
   //Handlers
+  const handleAddTableWithAI = () => {
+    setShowAITableCreator(true);
+  }
+
   const handleAddTable = () => {
     const newNode = {
       id:nanoid(),
@@ -473,6 +480,7 @@ const ProjectPage = () => {
           onEdgesChange = {onEdgesChange}
           onNodesChange = {onNodesChange}
           onAddTable = {handleAddTable}
+          onAddTableWithAI = {() => {alert('Hello');}}
           onEditTable = {handleEditTable}
           onDeleteTable = {handleDeleteTable}
           onDeleteRelationship = {handleDeleteRelationship}
@@ -509,6 +517,11 @@ const ProjectPage = () => {
                       onConfirm={deleteRelationship}
                       onCancel={() => {setToDeleteRelationship(null)}}
                       nodes = {nodes}
+                      />}
+    {showAITableCreator && <AITableCreator
+                      projectId = {id}
+                      onDone =  {() => {setShowAITableCreator(false)}} // Placeholder
+                      onCancel= {() => {setShowAITableCreator(false)}}
                       />}
     </>
   );

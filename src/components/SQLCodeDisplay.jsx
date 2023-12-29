@@ -5,7 +5,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 import { CopyBlock, CodeBlock, hopscotch } from 'react-code-blocks';
 import CancelIcon from '@mui/icons-material/Cancel';
-import copy from 'copy-to-clipboard';
 import CircularProgress from '@mui/material/CircularProgress';
 
 

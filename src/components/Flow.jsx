@@ -18,6 +18,7 @@ export default function Flow({
   onEdgesChange,
   onNodesChange,
   onAddTable,
+  onAddTableWithAI,
   onEditTable,
   onDeleteTable,
   onDeleteRelationship,
@@ -114,6 +115,7 @@ export default function Flow({
             <Panel position="top-right">
                 <ActionMenu 
                   handleAddTable = {onAddTable}
+                  handleAddTableWithAI = {onAddTableWithAI}
                 />
             </Panel>
             <Controls />
