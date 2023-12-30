@@ -58,7 +58,7 @@ export default function AITableCreator({onDone, onCancel}) {
                     <div sx={{width:'100%'}}>
                         <Box sx={{display:'flex', justifyContent:'space-between'}}>
                             <Button variant="outlined" sx={buttonStyle} onClick={onCancel} disabled={cancelDisabled}>Cancel</Button>
-                            <LoadingButton variant="contained" sx={buttonStyle} loading={cancelDisabled} onClick={handleDone}>Done</LoadingButton>
+                            <LoadingButton variant="contained" sx={buttonStyle} loading={cancelDisabled} onClick={handleDone}>Submit</LoadingButton>
                         </Box>
                     </div>
                 </Stack>

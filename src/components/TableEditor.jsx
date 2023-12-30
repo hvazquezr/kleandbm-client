@@ -16,6 +16,7 @@ import {TabContext, TabList, TabPanel}  from '@mui/lab';
 
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 
@@ -118,7 +119,13 @@ export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
         >
             <Box sx={boxStyle}>
                 <Stack direction="column" spacing={1}>
-                    <TextField label="Table Name" variant="outlined" value={tableName} onChange={handleEditTableName} required fullWidth/>
+                    <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
+                        <TextField  sx={{width:'80%'}} label="Table Name" variant="outlined" value={tableName} onChange={handleEditTableName} required/>
+                        &nbsp;&nbsp;
+                        <Tooltip title="Edit Table with AI">
+                            <span><Button variant='contained' size='large' onClick={handleDeleteColumn} color='secondary'><PsychologyIcon /></Button></span>
+                        </Tooltip>
+                    </Box>
                     <TabContext value={tabValue} sx={{width:'100%'}}>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                             <TabList onChange={handleTabChange}>
@@ -170,12 +177,10 @@ export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
                                 />  
                         </TabPanel>                           
                     </TabContext>
-                    <div sx={{width:'100%'}}>
-                        <Box sx={{display:'flex', justifyContent:'space-between'}}>
+                        <Box sx={{display:'flex', justifyContent:'space-between', width: '100%'}}>
                             <Button variant="outlined" sx={buttonStyle} onClick={onCancel} disabled={cancelDisabled}>Cancel</Button>
                             <LoadingButton variant="contained" sx={buttonStyle} onClick={handleDone}>Done</LoadingButton>
                         </Box>
-                    </div>
                 </Stack>
             </Box>
         </Modal>
