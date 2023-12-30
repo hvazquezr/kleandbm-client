@@ -32,15 +32,11 @@ export default memo(({data, isConnectable}) => {
             <Table size="small" aria-label="{data.label}">
                 <TableHead>
                     <TableRow>
-                        <TableCell colSpan={3} sx={{fontWeight: 'bold'}}>
+                        <TableCell colSpan={3} sx={{fontWeight: 'bold', backgroundColor: '#EEE'}}>
                             {data.name}                         
                         </TableCell>
                     </TableRow>
-                    <TableRow>
-                        <TableCell sx={{fontWeight: 'normal'}} align="left">Name</TableCell>
-                        <TableCell sx={{fontWeight: 'normal'}} align="left">Data&nbsp;Type</TableCell>
-                        <TableCell />
-                    </TableRow>
+
                 </TableHead>
                 <TableBody>
                     {data.columns.map((column) => (

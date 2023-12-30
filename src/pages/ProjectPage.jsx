@@ -186,6 +186,7 @@ const ProjectPage = () => {
     }
   };
 
+
   const addRelationship = useCallback(
       (params) => {
       // Retrieve columns of source node
@@ -224,6 +225,42 @@ const ProjectPage = () => {
   );
 
   //Handlers
+
+  async function handleAITableCreatorDone(instructions) {
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await axios.post(`http://127.0.0.1:5000/api/v1/projects/${id}/aisuggestedtables`, {prompt: instructions}, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            });
+            const recommendations = response.data;
+            if (recommendations.newNodes.length > 0){
+              recommendations.newNodes.forEach(n => {n.type='tableNode'; updateNode(n, true)});
+              
+              // Because state does not get refreshed right away addRelationship cannot be used.
+              // The relationships will be added here
+              //recommendations.newEdges.forEach(e => addRelationship(e));
+              for (const e of recommendations.newEdges) {
+                console.log(e);
+                updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
+                setEdges((eds) => addEdge(e, eds));
+              }
+
+              setShowAITableCreator(false);
+            }
+            else {
+
+            }
+      } catch (error) {
+        setShowAITableCreator(false);
+        console.error("Error retrieving recommended tables by AI", error);
+        throw error;
+      }
+      
+  }
+
   const handleAddTableWithAI = () => {
     setShowAITableCreator(true);
   }
@@ -279,7 +316,7 @@ const ProjectPage = () => {
     setToDeleteTable(null);
   };
 
-  const updateNode = (node) => {
+  const updateNode = (node, isNew = false) => {
     // Cleaning copy of the node
     const copyNode = {
       id: node.id, 
@@ -290,14 +327,14 @@ const ProjectPage = () => {
       active: true
     }
     
-    // Persisting changes
-    updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
-    updateRequest(`projects/${id}/tables/${node.data.id}`, node.data);
+    updateRequest(`projects/${id}/nodes/${node.id}`, copyNode),
+    updateRequest(`projects/${id}/tables/${node.data.id}`, node.data)
 
     // Adding node in array if new
-    if (node.new){
+    if (isNew || node.new){
       delete node.new;
-      setNodes((nds) => nds.concat(node));
+      const newN = deepCopyObject(node);
+      setNodes((nds) => nds.concat(newN));
     }
     else{
       // Updating in Flow
@@ -480,7 +517,7 @@ const ProjectPage = () => {
           onEdgesChange = {onEdgesChange}
           onNodesChange = {onNodesChange}
           onAddTable = {handleAddTable}
-          onAddTableWithAI = {() => {alert('Hello');}}
+          onAddTableWithAI = {handleAddTableWithAI}
           onEditTable = {handleEditTable}
           onDeleteTable = {handleDeleteTable}
           onDeleteRelationship = {handleDeleteRelationship}
@@ -520,7 +557,7 @@ const ProjectPage = () => {
                       />}
     {showAITableCreator && <AITableCreator
                       projectId = {id}
-                      onDone =  {() => {setShowAITableCreator(false)}} // Placeholder
+                      onDone =  {handleAITableCreatorDone} // Placeholder
                       onCancel= {() => {setShowAITableCreator(false)}}
                       />}
     </>

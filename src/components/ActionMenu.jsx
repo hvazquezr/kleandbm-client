@@ -9,7 +9,6 @@ import PsychologyIcon from '@mui/icons-material/Psychology';
 
 
 export default function ActionMenu({handleAddTable, handleAddTableWithAI}) {
-  console.log(handleAddTableWithAI);
   return (
     <Box sx={{ height: 250, transform: 'translateZ(0px)', flexGrow: 1}}>
       <SpeedDial
