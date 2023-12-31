@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import {useReactFlow} from 'reactflow';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { TreeView } from '@mui/x-tree-view/TreeView';
@@ -11,6 +12,12 @@ import Typography from '@mui/material/Typography';
 
 export default function TreeNavigator({tableList}) {
   const navigate = useNavigate();
+
+  const {fitView, setViewport } = useReactFlow();
+
+  const handleTransform = useCallback(() => {
+    setViewport({ x: 0, y: 0, zoom: 2 }, { duration: 800 });
+  }, [setViewport]);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -35,6 +42,7 @@ export default function TreeNavigator({tableList}) {
         >
         {tableList.map((table) => (
             <TreeItem
+                onClick={() => {fitView({nodes: [{id: table.id}], duration:500, maxZoom:1.5})}}
                 nodeId = {table.id}
                 key = {table.id}
                 label={

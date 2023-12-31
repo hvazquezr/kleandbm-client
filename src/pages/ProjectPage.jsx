@@ -19,7 +19,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {
   useNodesState,
   useEdgesState,
-  addEdge
+  addEdge,
+  ReactFlowProvider
 } from 'reactflow';
 
 import Flow from '../components/Flow';
@@ -470,70 +471,72 @@ const ProjectPage = () => {
 
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={openDrawer} sx={{paddingRight:0}}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(openDrawer && { display: 'none' }) }}
+        <AppBar position="fixed" open={openDrawer} sx={{paddingRight:0}}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={{ mr: 2, ...(openDrawer && { display: 'none' }) }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Box sx={{width:'100%'}}>
+              <EditableTitle value={projectName} onChange={updateProjectName} onBlur={saveProjectName}/>
+            </Box>
+            <UserAvatar user={user} onLogout={logout} />   
+          </Toolbar>
+        </AppBar>
+        <ReactFlowProvider>
+          <Drawer
+            sx={{
+              width: drawerWidth,
+              flexShrink: 0,
+              '& .MuiDrawer-paper': {
+                width: drawerWidth,
+                boxSizing: 'border-box',
+              },
+            }}
+            variant="persistent"
+            anchor="left"
+            open={openDrawer}
           >
-            <MenuIcon />
-          </IconButton>
-          <Box sx={{width:'100%'}}>
-            <EditableTitle value={projectName} onChange={updateProjectName} onBlur={saveProjectName}/>
-          </Box>
-          <UserAvatar user={user} onLogout={logout} />   
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={openDrawer}
-      >
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <TreeNavigator tableList={nodes}/>
-      </Drawer>
-      <Main open={openDrawer} sx={{p:0}}>
-        <DrawerHeader />
-        <Flow
-          nodes = {nodes}
-          edges = {edges}
-          onConnect = {addRelationship}
-          onEdgesChange = {onEdgesChange}
-          onNodesChange = {onNodesChange}
-          onAddTable = {handleAddTable}
-          onAddTableWithAI = {handleAddTableWithAI}
-          onEditTable = {handleEditTable}
-          onDeleteTable = {handleDeleteTable}
-          onDeleteRelationship = {handleDeleteRelationship}
-          nodeTypes = {nodeTypes}
-          edgeTypes = {edgeTypes}
-          connectionLineComponent = {FloatingConnectionLine}
-          onNodeDragStop = {onNodeDragStop}
-          projectId = {id}
-          projectName = {projectName}
-          projectDescription = {projectDescription}
-          onProjectDescriptionChange = {updateProjecDescription}
-          onProjectDescriptionBlur = {saveProjectDescription}
-          lastModified = {lastModified}
-          projectCreatorName = {projectCreatorName}
-        />
-      </Main>
+            <DrawerHeader>
+              <IconButton onClick={handleDrawerClose}>
+                {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+              </IconButton>
+            </DrawerHeader>
+            <Divider />
+            <TreeNavigator tableList={nodes}/>
+          </Drawer>
+          <Main open={openDrawer} sx={{p:0}}>
+            <DrawerHeader />
+            <Flow
+              nodes = {nodes}
+              edges = {edges}
+              onConnect = {addRelationship}
+              onEdgesChange = {onEdgesChange}
+              onNodesChange = {onNodesChange}
+              onAddTable = {handleAddTable}
+              onAddTableWithAI = {handleAddTableWithAI}
+              onEditTable = {handleEditTable}
+              onDeleteTable = {handleDeleteTable}
+              onDeleteRelationship = {handleDeleteRelationship}
+              nodeTypes = {nodeTypes}
+              edgeTypes = {edgeTypes}
+              connectionLineComponent = {FloatingConnectionLine}
+              onNodeDragStop = {onNodeDragStop}
+              projectId = {id}
+              projectName = {projectName}
+              projectDescription = {projectDescription}
+              onProjectDescriptionChange = {updateProjecDescription}
+              onProjectDescriptionBlur = {saveProjectDescription}
+              lastModified = {lastModified}
+              projectCreatorName = {projectCreatorName}
+            />
+          </Main>
+        </ReactFlowProvider>
     </Box>
     <Warning message={warningMessage} closeWarning={() => {setWarningMessage(null)}} />
     {activeTable && <TableEditor
