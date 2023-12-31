@@ -20,6 +20,9 @@ import { TextField } from '@mui/material';
 
 import SQLCodeDisplay from './SQLCodeDisplay';
 
+const headerStyle = {fontWeight:'bold', fontFamily:'sans-serif', color:'#666'};
+const labelStyle = {color:'#999'};
+
 function convertTimestampToReadable(timestamp) {
     const date = new Date(timestamp);
     return date.toLocaleString(undefined, {
@@ -32,7 +35,7 @@ function convertTimestampToReadable(timestamp) {
   }
   
 
-  function createProjectInfoTable(x, y,  projectName, projectDescription, projectCreatorName, lastModified) {
+  function createProjectInfoTable(x, y,  projectName, projectDescription, projectCreatorName, lastModified, countTables, countColumns, countRels) {
     // Create a new div element
     const newDiv = document.createElement('div');
   
@@ -48,20 +51,25 @@ function convertTimestampToReadable(timestamp) {
     <table id="infoTable">
       <tr>
         <th>Name</th>
-        <td>${projectName}</td>
+        <td colspan="2">${projectName}</td>
       </tr>
       <tr>
           <th>Description</th>
-          <td>${projectDescription}</td>
+          <td colspan="2">${projectDescription}</td>
       </tr>
       <tr>
           <th>Created by</th>
-          <td>${projectCreatorName}</td>
+          <td colspan="2">${projectCreatorName}</td>
       </tr>
       <tr>
           <th>Last Modified</th>
-          <td>${lastModified}</td>
+          <td colspan="2">${lastModified}</td>
       </tr>
+      <tr>
+        <td width="33%"><b>Tables:</b>&nbsp;${countTables}</td>
+        <td width="33%"><b>Columns:</b>&nbsp;${countColumns}</td>
+        <td width="33%"><b>Relationships:</b>&nbsp;${countRels}</td>
+      </tr>      
     </table>
     `; // Adjust table HTML as needed
   
@@ -71,6 +79,16 @@ function convertTimestampToReadable(timestamp) {
   
     return newDiv;
   }
+
+  // Function to get the total count of all columns
+  const totalCountOfColumns = (array) => {
+    return array.reduce((accumulator, element) => {
+      if (element.data && Array.isArray(element.data.columns)) {
+        return accumulator + element.data.columns.length;
+      }
+      return accumulator;
+    }, 0); // Start with an initial count of 0
+  };
   
 
 export default function ProjectInformation({
@@ -95,7 +113,10 @@ export default function ProjectInformation({
 
   const open = Boolean(anchorEl);
 
-  const { getNodes } = useReactFlow();
+  const { getNodes, getEdges } = useReactFlow();
+  const countTables = getNodes().length;
+  const countColumns = totalCountOfColumns(getNodes());
+  const countRels = getEdges().length;
 
   const onDownloadClick = () => {
 
@@ -127,7 +148,7 @@ export default function ProjectInformation({
     content.appendChild(endMarker);
     content.appendChild(startMarker); 
 
-    const infoTable = createProjectInfoTable(nodesBounds.x, nodesBounds.y+nodesBounds.height+30, projectName, projectDescription, projectCreatorName, convertTimestampToReadable(lastModified));
+    const infoTable = createProjectInfoTable(nodesBounds.x, nodesBounds.y+nodesBounds.height+30, projectName, projectDescription, projectCreatorName, convertTimestampToReadable(lastModified), countTables, countColumns, countRels);
     content.appendChild(infoTable);
 
     const tableInfoHeight = infoTable.offsetHeight;
@@ -181,44 +202,59 @@ export default function ProjectInformation({
         transformOrigin={{ horizontal: 'center', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
         >
-            <Box p={1}>
-            <Stack spacing={1} p={1} order='column' sx={{width:500, borderRadius:2, border: .5, borderColor: '#AAA'}} >
-                <Typography variant="subtitle2">Description:</Typography>
-                <TextField
-                    sx={{
-                    width: '100%',
-                    "& .MuiOutlinedInput-root": {
-                        "& > fieldset": {
-                        borderColor: "#ffffff"
-                        }
-                    },              
-                    "& .MuiOutlinedInput-root:hover": {
-                        "& > fieldset": {
-                        border: "0.5px solid #AAAAAA",
-                        }
-                    },
-                    "& .MuiOutlinedInput-root.Mui-focused": {
-                        "& > fieldset": {
-                        border: "0.5px solid #AAAAAA",
-                        }
-                    }
-                    }}
-                    inputProps={{style: {color:"#000000"}}} 
-                    variant="outlined"
-                    multiline
-                    value={projectDescription}
-                    onChange = {onProjectDescriptionChange}
-                    onBlur={onProjectDescriptionBlur}
-                />
-                <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                    <Typography variant="subtitle2">Created By:</Typography>
-                    <Typography variant="body2" sx={{ marginLeft: 1 }}>{projectCreatorName}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                    <Typography variant="subtitle2">Last Modified:</Typography>
-                    <Typography variant="body2" sx={{ marginLeft: 1 }}>{convertTimestampToReadable(lastModified)}</Typography>
-                </Box>      
+          <Stack p={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
+            <Stack direction="column" spacing={.1} justifyContent="space-between" alignItems="center" >
+              <Typography variant="h3" sx={headerStyle}>{countTables}</Typography>
+              <Typography variant="body2" sx={labelStyle}>Tables</Typography>
             </Stack>
+            <Stack direction="column" spacing={.1} justifyContent="space-between" alignItems="center" >
+              <Typography variant="h3" sx={headerStyle}>{countColumns}</Typography>
+              <Typography variant="body2" sx={labelStyle}>Columns</Typography>
+            </Stack>
+            <Stack direction="column" spacing={.1} justifyContent="space-between" alignItems="center" >
+              <Typography variant="h3" sx={headerStyle}>{countRels}</Typography>
+              <Typography variant="body2" sx={labelStyle}>Relationships</Typography>
+            </Stack>
+          </Stack>
+            <Divider /> 
+            <Box p={1}>
+              <Stack spacing={1} p={1} order='column' sx={{width:500, borderRadius:2, border: .5, borderColor: '#AAA'}} >
+                  <Typography variant="subtitle2">Description:</Typography>
+                  <TextField
+                      sx={{
+                      width: '100%',
+                      "& .MuiOutlinedInput-root": {
+                          "& > fieldset": {
+                          borderColor: "#ffffff"
+                          }
+                      },              
+                      "& .MuiOutlinedInput-root:hover": {
+                          "& > fieldset": {
+                          border: "0.5px solid #AAAAAA",
+                          }
+                      },
+                      "& .MuiOutlinedInput-root.Mui-focused": {
+                          "& > fieldset": {
+                          border: "0.5px solid #AAAAAA",
+                          }
+                      }
+                      }}
+                      inputProps={{style: {color:"#000000"}}} 
+                      variant="outlined"
+                      multiline
+                      value={projectDescription}
+                      onChange = {onProjectDescriptionChange}
+                      onBlur={onProjectDescriptionBlur}
+                  />
+                  <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                      <Typography variant="subtitle2">Created By:</Typography>
+                      <Typography variant="body2" sx={{ marginLeft: 1 }}>{projectCreatorName}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                      <Typography variant="subtitle2">Last Modified:</Typography>
+                      <Typography variant="body2" sx={{ marginLeft: 1 }}>{convertTimestampToReadable(lastModified)}</Typography>
+                  </Box>      
+              </Stack>
             </Box>
             <Divider /> 
             <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
