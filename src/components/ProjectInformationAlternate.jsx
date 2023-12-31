@@ -160,7 +160,8 @@ export default function ProjectInformation({
 
     imageDiv.style.position = 'absolute';
     imageDiv.style.left = `${nodesBounds.x+nodesBounds.width-150}px`;
-    imageDiv.style.top = `${nodesBounds.y+nodesBounds.height+parseInt(scaledTableInfoHeight/2)+24}px`;
+    //imageDiv.style.top = `${nodesBounds.y+nodesBounds.height+parseInt(scaledTableInfoHeight/2)+24}px`;
+    imageDiv.style.top = `${nodesBounds.y + nodesBounds.height + scaledTableInfoHeight}px`;
     content.appendChild(imageDiv);
     
     toPng(content, {
