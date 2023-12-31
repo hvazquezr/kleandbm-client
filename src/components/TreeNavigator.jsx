@@ -13,11 +13,7 @@ import Typography from '@mui/material/Typography';
 export default function TreeNavigator({tableList}) {
   const navigate = useNavigate();
 
-  const {fitView, setViewport } = useReactFlow();
-
-  const handleTransform = useCallback(() => {
-    setViewport({ x: 0, y: 0, zoom: 2 }, { duration: 800 });
-  }, [setViewport]);
+  const {fitView } = useReactFlow();
 
   const handleNavigation = (path) => {
     navigate(path);
