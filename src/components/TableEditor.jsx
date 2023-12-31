@@ -13,10 +13,11 @@ import Tab from '@mui/material/Tab';
 import FormHelperText from '@mui/material/FormHelperText';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
 
-
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PsychologyIcon from '@mui/icons-material/Psychology';
+
+import AITableEditor from './AITableEditor';
 
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 
@@ -49,14 +50,15 @@ function CustomNoRowsOverlay() {
     );
 };
 
-export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
+export default function TableEditor({node, projectId, dbTechnology, onDone, onCancel}) {
     const [tableName, setTableName] = useState(node.data.name);
     const [columns, setColumns] = useState(node.data.columns);
     const [description, setDescription] = useState(node.data.description);
     const [selectedColumnIds, setSelectedColumnIds] = useState([]);
     const [cancelDisabled, setCancelDisabled] = useState(false);
     const [tabValue, setTabValue] = useState('1');
-    //const [apiRef, setApiRef] = useState(useGridApiRef());
+    const [showAIEditor, setShowAIEditor] = useState(false);
+    
 
     const apiRef = useGridApiRef();
 
@@ -113,17 +115,22 @@ export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
         dataTypeColumn.valueOptions = getDataTypesByDbTechnologyId(dbTechnology);
     }
 
+    const handleAITableEditorRecommendations = (recommendations) => {
+        setTableName(recommendations.name);
+        setColumns(recommendations.columns);
+        setDescription(recommendations.description);
+        setShowAIEditor(false);
+    }
+
     return(
-        <Modal
-            open={true}
-        >
+        <>
+        <Modal open={true}>
             <Box sx={boxStyle}>
                 <Stack direction="column" spacing={1}>
-                    <Box sx={{display:'flex', justifyContent:'space-between', width:'100%'}}>
-                        <TextField  sx={{width:'80%'}} label="Table Name" variant="outlined" value={tableName} onChange={handleEditTableName} required/>
-                        &nbsp;&nbsp;
+                    <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
+                        <TextField  sx={{width:'100%'}} label="Table Name" variant="outlined" value={tableName} onChange={handleEditTableName} required/>
                         <Tooltip title="Edit Table with AI">
-                            <span><Button variant='contained' size='large' onClick={handleDeleteColumn} color='secondary'><PsychologyIcon /></Button></span>
+                            <span><Button sx={{height:56, marginLeft:1}} variant='contained' size='large' onClick={() => {setShowAIEditor(true)}} color='secondary'><PsychologyIcon /></Button></span>
                         </Tooltip>
                     </Box>
                     <TabContext value={tabValue} sx={{width:'100%'}}>
@@ -139,9 +146,8 @@ export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
                                     <Tooltip title="Delete Column">
                                         <span><Button variant='contained' size='small' onClick={handleDeleteColumn} color='error' disabled={selectedColumnIds.length === 0}><DeleteIcon /></Button></span>
                                     </Tooltip>
-                                    &nbsp;&nbsp;
                                     <Tooltip title="Add Column">
-                                        <Button variant='contained' size='small' onClick={handleAddColumn}><AddIcon /></Button>
+                                        <Button sx={{marginLeft:1}}variant='contained' size='small' onClick={handleAddColumn}><AddIcon /></Button>
                                     </Tooltip>
                                 </div>
                                 <div style={{ height: 320, width: '100%' }}>
@@ -184,5 +190,17 @@ export default function TableEditor({node, dbTechnology, onDone, onCancel}) {
                 </Stack>
             </Box>
         </Modal>
+        {showAIEditor && <AITableEditor 
+            onCancel={() => {setShowAIEditor(false)}}
+            onDone={handleAITableEditorRecommendations}
+            projectId={projectId}
+            currentTable={{
+                name: tableName,
+                id: node.data.id,
+                columns,
+                description
+            }}/>
+        }
+        </>
     );
 }

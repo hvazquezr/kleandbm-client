@@ -538,6 +538,7 @@ const ProjectPage = () => {
     <Warning message={warningMessage} closeWarning={() => {setWarningMessage(null)}} />
     {activeTable && <TableEditor
                       node={activeTable}
+                      projectId={id}
                       dbTechnology={dbTechnology}
                       onCancel={() => {setActiveTable(null)}}
                       onDone={updateNode}
