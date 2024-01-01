@@ -248,11 +248,11 @@ const ProjectPage = () => {
                 updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
                 setEdges((eds) => addEdge(e, eds));
               }
-
               setShowAITableCreator(false);
             }
             else {
-
+              setWarningMessage("The instruction did not generate any new tables.");
+              setShowAITableCreator(false);
             }
       } catch (error) {
         setShowAITableCreator(false);
