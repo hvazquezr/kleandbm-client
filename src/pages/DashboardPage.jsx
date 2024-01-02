@@ -30,6 +30,7 @@ export function DashboardPage() {
     const [newProjectOpen, setNewProjectOpen] = React.useState(false);
     const [projectsLoaded, setProjectsLoaded] = React.useState(false);
     const [showStartButton, setShowStartButton] = React.useState(false);
+    const [isComplete, setIsComplete] = React.useState(false);
 
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
@@ -65,6 +66,7 @@ export function DashboardPage() {
                     Authorization: `Bearer ${token}`,
                 },
                 });
+            setIsComplete(true);
             navigate(`/project/${newProject.id}`);
         } catch (error) {
             console.error("Error saving project", error);
@@ -173,7 +175,7 @@ export function DashboardPage() {
                     {showStartButton&&<Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>}
                 </Stack>
             )}
-            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} user={user} onSubmit={handleSaveNewProject}/>
+            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} user={user} onSubmit={handleSaveNewProject} isComplete={isComplete}/>
         </Box>
     </Box>
   );

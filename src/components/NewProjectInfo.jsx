@@ -10,8 +10,9 @@ import Tab from '@mui/material/Tab';
 import FormHelperText from '@mui/material/FormHelperText';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
 
-import { databaseTechnologies } from '../config/config';
+import CircularWithValueLabel from './CircularProgressWithLabel';
 
+import { databaseTechnologies } from '../config/config';
 
 const supportedDbTypes = [
     {id:1, label:'Snowflake'},
@@ -19,22 +20,34 @@ const supportedDbTypes = [
 ];
 
 const style = {
-    position: 'absolute',
+    position: 'relative', // To support cancel button
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: '80%',
+    height: '80%',
     bgcolor: 'background.paper',
-    boxShadow: 24,
-    p:5,
-    flexGrow: 1,
-    borderRadius: 2
+    border: '1px solid #000',
+    boxShadow: 10,
+    borderRadiius: 4,
+    p: 4,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   };
 
-export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
+  const progressStyle = {
+    position: 'absolute',
+    top: -15, // Adjust as needed for spacing from the top
+    right: -15, // Adjust as needed for spacing from the right
+    height: 200,
+    width: '100%',
+    border: '1px solid #000',
+  };
+  
+export default function NewProjectInfo({open, onCancel, user, isComplete, onSubmit}) {
     const [tabValue, setTabValue] = useState('1');
     const [project, setProject] = useState({id: nanoid(), owner: user, active: true, description:'Default description. To be changed by AI.'});
-    const [cancelDisabled, setCancelDisabled] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [validation, setValidation] = useState({
         name: {error:false, helperText: ''},
@@ -147,7 +160,6 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
             newValidation.projectType.error ||
             newValidation.questions.error)){
                 setSubmitting(true);
-                setCancelDisabled(true);
                 onSubmit(project);
             }
     };
@@ -155,7 +167,7 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
 
     return (
     <Modal open={open} onClose={onCancel}>
-        <Box component="main" sx={style}>
+        <Box sx={style}>
             <FormControl>
                 <Grid container spacing={2} alignItems="end" alignContent="flex-end">
                     <Grid item xs={12}>
@@ -201,13 +213,11 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                                 </TabList>
                             </Box>
                             <TabPanel value="1">
-                                <Typography variant="subtitle2" gutterBottom>
-                                    Enter the list of business questions the data model should be able to answer.
-                                </Typography>
                                 <TextField 
                                     id="questions"
                                     label="Questions"
-                                    variant="outlined" 
+                                    variant="outlined"
+                                    placeholder="Enter the list of business questions the data model should be able to answer."
                                     onChange={handleQuestions}
                                     multiline 
                                     minRows={10}
@@ -220,13 +230,11 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                                 />                            
                             </TabPanel>
                             <TabPanel value="2">
-                                <Typography variant="subtitle2" gutterBottom>
-                                    Provide additional information that should be taken into consideration. i.e. Relationships that change over time, etc.
-                                </Typography>
                                 <TextField 
                                     id="additionalInfo"
                                     label="Additional Information"
                                     variant="outlined"
+                                    placeholder="Provide additional information that should be taken into consideration. i.e. Relationships that change over time, etc."
                                     onChange={handleAdditionalInfo}
                                     multiline 
                                     minRows={10}
@@ -236,13 +244,11 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                                 />                            
                             </TabPanel>
                             <TabPanel value="3">
-                                <Typography variant="subtitle2" gutterBottom>
-                                    List naming conventions or abbreviations that need to be observed. i.e. Camelcase, etc.
-                                </Typography>
                                 <TextField 
                                     id="namingRules"
                                     label="Naming Conventions"
                                     variant="outlined"
+                                    placeholder="List naming conventions or abbreviations that need to be observed. i.e. Camelcase, etc."
                                     onChange={handleNamingRules}
                                     multiline 
                                     minRows={10}
@@ -256,13 +262,45 @@ export default function NewProjectInfo({open, onCancel, user, onSubmit}) {
                     <Grid item xs={12} >
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                                <Button variant="outlined" onClick={onCancel} disabled={cancelDisabled}>Cancel</Button>
+                                <Button variant="outlined" onClick={onCancel}>Cancel</Button>
                                 <LoadingButton variant="contained" onClick={handleSubmit} loading={submitting}>Submit</LoadingButton>
                             </Box>
                         </div>
                     </Grid>
                 </Grid>
             </FormControl>
+            {submitting && 
+                        <Box id="progressBox" sx={{
+                            position: 'absolute',
+                            width: '100%',
+                            backgroundColor: '#fff',
+                            top: 0,
+                            bottom: '140px',
+                            alignItems: 'center',
+                            display: 'flex',
+                            justifyContent: 'space-around',
+                            zIndex: 1,
+                        }}>
+                            <CircularWithValueLabel 
+                                totalTime={100}
+                                isComplete={isComplete}
+                                animatedSequence={
+                                    [
+                                        'Analyzing Request', 
+                                        5000,
+                                        'Schema Design',
+                                        10000,
+                                        'Field Definitions',
+                                        15000,
+                                        'Determining Relationships',
+                                        15000,
+                                        'Descriptions Generation',
+                                        15000,
+                                        'Retrieving Result'
+                                        ]
+                                }
+                            />
+                        </Box>}
         </Box>
     </Modal>
   );

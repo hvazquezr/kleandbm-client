@@ -10,6 +10,9 @@ import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 
+import CircularWithValueLabel from './CircularProgressWithLabel';
+
+
 
 const boxStyle = {
   position: 'absolute',
@@ -34,11 +37,12 @@ const buttonStyle = {
 
 export default function AITableEditor({onDone, onCancel, projectId, currentTable}) {
     const {getAccessTokenSilently} = useAuth0();
-    const [cancelDisabled, setCancelDisabled] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [instructions, setInstructions] = useState("");
+    const [isComplete, setIsComplete] = useState(false);
 
     async function handleSubmit() {
-        setCancelDisabled(true);
+        setIsSubmitting(true);
         try {
           const token = await getAccessTokenSilently();
           const response = await axios.post(`http://127.0.0.1:5000/api/v1/projects/${projectId}/tables/${currentTable.id}/aitableedits`, {prompt: instructions, currentTable}, {
@@ -47,6 +51,7 @@ export default function AITableEditor({onDone, onCancel, projectId, currentTable
                   Authorization: `Bearer ${token}`,
               },
               });
+              setIsComplete(true);
               onDone(response.data);
         } catch (error) {
           console.error("Error retrieving recommended edits by AI", error);
@@ -73,11 +78,41 @@ export default function AITableEditor({onDone, onCancel, projectId, currentTable
                                 /> 
                     <div sx={{width:'100%'}}>
                         <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                            <Button variant="outlined" sx={buttonStyle} onClick={onCancel} disabled={cancelDisabled}>Cancel</Button>
-                            <LoadingButton variant="contained" sx={buttonStyle} loading={cancelDisabled} onClick={handleSubmit}>Submit</LoadingButton>
+                            <Button variant="outlined" sx={buttonStyle} onClick={onCancel} >Cancel</Button>
+                            <LoadingButton variant="contained" sx={buttonStyle} loading={isSubmitting} onClick={handleSubmit}>Submit</LoadingButton>
                         </Box>
                     </div>
                 </Stack>
+                {isSubmitting && 
+                        <Box id="progressBox" sx={{
+                            position: 'absolute',
+                            width: '100%',
+                            backgroundColor: '#fff',
+                            top: 0,
+                            bottom: '60px',
+                            alignItems: 'center',
+                            display: 'flex',
+                            justifyContent: 'space-around',
+                            zIndex: 1,
+                        }}>
+                            <CircularWithValueLabel 
+                                totalTime={40}
+                                isComplete={isComplete}
+                                animatedSequence={
+                                    [
+                                        'Analyzing Request', 
+                                        3000,
+                                        'Determing Changes',
+                                        10000,
+                                        'Implementing Changes',
+                                        15000,
+                                        'Reviweing Definitions',
+                                        15000,
+                                        'Retrieving Result'
+                                        ]
+                                }
+                            />
+                        </Box>}
             </Box>
         </Modal>
     );

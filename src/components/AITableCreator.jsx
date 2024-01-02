@@ -8,6 +8,8 @@ import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 
+import CircularWithValueLabel from './CircularProgressWithLabel';
+
 
 const boxStyle = {
   position: 'absolute',
@@ -30,12 +32,12 @@ const buttonStyle = {
 };
 
 
-export default function AITableCreator({onDone, onCancel}) {
-    const [cancelDisabled, setCancelDisabled] = useState(false);
+export default function AITableCreator({onDone, onCancel, isComplete}) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [instructions, setInstructions] = useState("");
 
-    const handleDone = (e) => {
-        setCancelDisabled(true);
+    const handleSubmit = (e) => {
+        setIsSubmitting(true);
         onDone(instructions);
     };
 
@@ -57,11 +59,43 @@ export default function AITableCreator({onDone, onCancel}) {
                                 /> 
                     <div sx={{width:'100%'}}>
                         <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                            <Button variant="outlined" sx={buttonStyle} onClick={onCancel} disabled={cancelDisabled}>Cancel</Button>
-                            <LoadingButton variant="contained" sx={buttonStyle} loading={cancelDisabled} onClick={handleDone}>Submit</LoadingButton>
+                            <Button variant="outlined" sx={buttonStyle} onClick={onCancel}>Cancel</Button>
+                            <LoadingButton variant="contained" sx={buttonStyle} loading={isSubmitting} onClick={handleSubmit}>Submit</LoadingButton>
                         </Box>
                     </div>
                 </Stack>
+                {isSubmitting && 
+                        <Box id="progressBox" sx={{
+                            position: 'absolute',
+                            width: '100%',
+                            backgroundColor: '#fff',
+                            top: 0,
+                            bottom: '60px',
+                            alignItems: 'center',
+                            display: 'flex',
+                            justifyContent: 'space-around',
+                            zIndex: 1,
+                        }}>
+                            <CircularWithValueLabel 
+                                totalTime={40}
+                                isComplete={isComplete}
+                                animatedSequence={
+                                    [
+                                        'Analyzing Request', 
+                                        3000,
+                                        'Table Design',
+                                        10000,
+                                        'Field Definitions',
+                                        15000,
+                                        'Determining Relationships',
+                                        5000,
+                                        'Descriptions Generation',
+                                        15000,
+                                        'Retrieving Result'
+                                        ]
+                                }
+                            />
+                        </Box>}
             </Box>
         </Modal>
     );

@@ -148,6 +148,7 @@ const ProjectPage = () => {
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastModified, setLastModified] = useState(null);
   const [showAITableCreator, setShowAITableCreator] = useState(false);
+  const [isCompleteAITable, setIsCompleteAITable] = useState(false);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -248,6 +249,7 @@ const ProjectPage = () => {
                 updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
                 setEdges((eds) => addEdge(e, eds));
               }
+              setIsCompleteAITable(true);
               setShowAITableCreator(false);
             }
             else {
@@ -563,6 +565,7 @@ const ProjectPage = () => {
                       projectId = {id}
                       onDone =  {handleAITableCreatorDone} // Placeholder
                       onCancel= {() => {setShowAITableCreator(false)}}
+                      isComplete={isCompleteAITable}
                       />}
     </>
   );
