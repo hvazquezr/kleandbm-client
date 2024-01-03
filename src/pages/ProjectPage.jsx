@@ -33,7 +33,7 @@ import FloatingEdge from '../components/FloatingEdge';
 import FloatingConnectionLine from '../components/FloatingConnectionLine';
 import UserAvatar from '../components/UserAvatar';
 import Warning from '../components/Warning';
-import AITableCreator from '../components/AITableCreator';
+import AITableCreator from '../components/AITableCreator.jsx';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -249,7 +249,7 @@ const ProjectPage = () => {
                 updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
                 setEdges((eds) => addEdge(e, eds));
               }
-              setIsCompleteAITable(true);
+              //setIsCompleteAITable(true);
               setShowAITableCreator(false);
             }
             else {

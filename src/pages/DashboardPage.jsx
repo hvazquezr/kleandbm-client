@@ -66,7 +66,7 @@ export function DashboardPage() {
                     Authorization: `Bearer ${token}`,
                 },
                 });
-            setIsComplete(true);
+            //setIsComplete(true);
             navigate(`/project/${newProject.id}`);
         } catch (error) {
             console.error("Error saving project", error);

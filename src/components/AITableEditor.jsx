@@ -51,7 +51,7 @@ export default function AITableEditor({onDone, onCancel, projectId, currentTable
                   Authorization: `Bearer ${token}`,
               },
               });
-              setIsComplete(true);
+              //setIsComplete(true);
               onDone(response.data);
         } catch (error) {
           console.error("Error retrieving recommended edits by AI", error);
