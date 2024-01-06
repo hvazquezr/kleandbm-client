@@ -4,9 +4,9 @@ import ReactFlow, {
   Controls,
   Panel,
   useKeyPress} from 'reactflow';
-import ActionMenu from './ActionMenu';
 import TableContextMenu from './TableContextMenu';
 import RelationshipContextMenu from './RelationshipContextMenu';
+import PaneContextMenu from './PaneContextMenu';
 import ProjectInformation from './ProjectInformationAlternate';
 
 const proOptions = { hideAttribution: true };
@@ -35,7 +35,8 @@ export default function Flow({
   projectCreatorName
 }) {
 
-  const [menu, setMenu] = useState(null);
+  const [paneMenu, setPaneMenu] = useState(null);
+  const [nodeMenu, setNodeMenu] = useState(null);
   const [edgeMenu, setEdgeMenu] = useState(null);
   const deletePressed = useKeyPress(['Delete', 'Backspace']) 
   const ref = useRef(null);
@@ -50,15 +51,27 @@ export default function Flow({
       // Prevent native context menu from showing
       event.preventDefault();
 
-      // Calculate position of the context menu. We want to make sure it
-      // doesn't get positioned off-screen.
-      const pane = ref.current.getBoundingClientRect();
-      setMenu({
+      setNodeMenu({
         id: node.id,
         top: event.clientY,
         left: event.clientX});
     },
-    [setMenu],
+    [setNodeMenu],
+  );
+
+  const onPaneContextMenu = useCallback(
+    (event, node) => {
+      // Prevent native context menu from showing
+      event.preventDefault();
+
+      const pane = ref.current.getBoundingClientRect();
+
+      setPaneMenu({
+        top: event.clientY,
+        left: event.clientX,
+        pane});
+    },
+    [setPaneMenu],
   );
 
   const onEdgeContextMenu = useCallback(
@@ -66,9 +79,6 @@ export default function Flow({
       // Prevent native context menu from showing
       event.preventDefault();
 
-      // Calculate position of the context menu. We want to make sure it
-      // doesn't get positioned off-screen.
-      const pane = ref.current.getBoundingClientRect();
       setEdgeMenu({
         id: edge.id,
         top: event.clientY,
@@ -78,7 +88,7 @@ export default function Flow({
   );
 
   // Close the context menu if it's open whenever the window is clicked.
-  const onPaneClick = useCallback(() => {setMenu(null), setEdgeMenu(null)}, [setMenu, setEdgeMenu]);
+  const onPaneClick = useCallback(() => {setPaneMenu(null), setNodeMenu(null), setEdgeMenu(null)}, [setPaneMenu, setNodeMenu, setEdgeMenu]);
 
   return (
     <div className='kalmdbm'>
@@ -96,12 +106,13 @@ export default function Flow({
         connectionLineComponent = {connectionLineComponent}
         proOptions={proOptions}
         onPaneClick={onPaneClick}
+        onPaneContextMenu={onPaneContextMenu}
         onNodeContextMenu={onNodeContextMenu}
         onEdgeContextMenu={onEdgeContextMenu}
         onNodeDragStop={onNodeDragStop}
         deleteKeyCode={[]} // This is done to prvent deleting objects by pressing the delete key
         >
-            <Panel position="top-left">
+            <Panel position="top-right">
               <ProjectInformation
                 projectId = {projectId}
                 projectName = {projectName} 
@@ -112,15 +123,10 @@ export default function Flow({
                 projectCreatorName = {projectCreatorName}
               />
             </Panel>
-            <Panel position="top-right">
-                <ActionMenu 
-                  handleAddTable = {onAddTable}
-                  handleAddTableWithAI = {onAddTableWithAI}
-                />
-            </Panel>
             <Controls />
             <MiniMap pannable = 'true' zoomable = 'true' />
-            {menu && <TableContextMenu onClick={onPaneClick} menuOptions={menu} onDeleteTable={onDeleteTable} onEditTable={onEditTable}/>}
+            {paneMenu && <PaneContextMenu onClick={onPaneClick} menuOptions={paneMenu} onAddTable={onAddTable} onAddTableWithAI={onAddTableWithAI} onAddNote={null}/>}
+            {nodeMenu && <TableContextMenu onClick={onPaneClick} menuOptions={nodeMenu} onDeleteTable={onDeleteTable} onEditTable={onEditTable}/>}
             {edgeMenu && <RelationshipContextMenu onClick={onPaneClick} menuOptions={edgeMenu} onDeleteRelationship={onDeleteRelationship}/>}
         </ReactFlow>
     </div>

@@ -33,7 +33,7 @@ import FloatingEdge from '../components/FloatingEdge';
 import FloatingConnectionLine from '../components/FloatingConnectionLine';
 import UserAvatar from '../components/UserAvatar';
 import Warning from '../components/Warning';
-import AITableCreator from '../components/AITableCreator.jsx';
+import AITableCreator from '../components/aITableCreator.jsx';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -148,6 +148,7 @@ const ProjectPage = () => {
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastModified, setLastModified] = useState(null);
   const [showAITableCreator, setShowAITableCreator] = useState(false);
+  const [paneContextMenuPosition, setPaneContextMenuPosition] = useState(null);
   const [isCompleteAITable, setIsCompleteAITable] = useState(false);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
@@ -231,7 +232,8 @@ const ProjectPage = () => {
   async function handleAITableCreatorDone(instructions) {
       try {
         const token = await getAccessTokenSilently();
-        const response = await axios.post(`http://127.0.0.1:5000/api/v1/projects/${id}/aisuggestedtables`, {prompt: instructions}, {
+        console.log(paneContextMenuPosition);
+        const response = await axios.post(`http://127.0.0.1:5000/api/v1/projects/${id}/aisuggestedtables`, {prompt: instructions, position: paneContextMenuPosition}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
@@ -250,6 +252,7 @@ const ProjectPage = () => {
                 setEdges((eds) => addEdge(e, eds));
               }
               //setIsCompleteAITable(true);
+
               setShowAITableCreator(false);
             }
             else {
@@ -263,17 +266,18 @@ const ProjectPage = () => {
       }
       
   }
-
-  const handleAddTableWithAI = () => {
+  // @TODO: Handle the position of the click to position the new tables.
+  const handleAddTableWithAI = (position) => {
+    setPaneContextMenuPosition(position);
     setShowAITableCreator(true);
   }
 
-  const handleAddTable = () => {
+  const handleAddTable = (position) => {
     const newNode = {
       id:nanoid(),
       new:true,
       type: 'tableNode',
-      position: {x:0, y:0},
+      position,
       active: true,
       project_id: id,
       data:{
@@ -285,7 +289,6 @@ const ProjectPage = () => {
         description: ''
       }
     };
-    //setNodes((nds) => nds.concat(newNode));
     setActiveTable(newNode);
   };
 
@@ -320,6 +323,7 @@ const ProjectPage = () => {
   };
 
   const updateNode = (node, isNew = false) => {
+    console.log(node);
     // Cleaning copy of the node
     const copyNode = {
       id: node.id, 
