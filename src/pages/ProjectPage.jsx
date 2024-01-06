@@ -272,7 +272,7 @@ const ProjectPage = () => {
     setShowAITableCreator(true);
   }
 
-  const handleAddTable = (position) => {
+  const handleAddTable = (position={x:600, y:80}) => {
     const newNode = {
       id:nanoid(),
       new:true,
