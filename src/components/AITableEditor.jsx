@@ -44,22 +44,57 @@ export default function AITableEditor({onDone, onCancel, projectId, currentTable
 
     async function handleSubmit() {
         setIsSubmitting(true);
+        let pollingInterval; // Declare the variable in an accessible scope
+    
         try {
-          const token = await getAccessTokenSilently();
-          const response = await axios.post(`${apiUrl}/projects/${projectId}/tables/${currentTable.id}/aitableedits`, {prompt: instructions, currentTable}, {
-              headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${token}`,
-              },
-              });
-              //setIsComplete(true);
-              onDone(response.data);
+            const token = await getAccessTokenSilently();
+            // Initial request to start the job and get jobId
+            const startResponse = await axios.post(`${apiUrl}/projects/${projectId}/tables/${currentTable.id}/aitableedits`, { prompt: instructions, currentTable }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            const jobId = startResponse.data.jobId; // Assuming jobId is returned
+    
+            // Function to poll for job status
+            const pollJobStatus = async () => {
+                try {
+                    const statusResponse = await axios.get(`${apiUrl}/jobs/${jobId}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+    
+                    if (statusResponse.data && statusResponse.data.result !== null) {
+                        clearInterval(pollingInterval);
+                        // setIsComplete(true);
+                        onDone(statusResponse.data.result);
+                    }
+                } catch (pollError) {
+                    console.error("Error polling job status", pollError);
+                    clearInterval(pollingInterval);
+                    onDone(null);
+                    throw pollError; // or handle it differently
+                }
+            };
+    
+            // Delay the start of polling by 15 seconds, then poll every 5 seconds
+            const initialDelay = 15000; // 15 seconds
+            setTimeout(() => {
+                pollJobStatus(); // Execute once after the initial delay
+                pollingInterval = setInterval(pollJobStatus, 5000); // Continue polling every 5 seconds
+            }, initialDelay);
+    
         } catch (error) {
-          console.error("Error retrieving recommended edits by AI", error);
-          onDone(null);
-          throw error;
+            console.error("Error initiating AI table edit", error);
+            onDone(null);
+            throw error;
         }
     }
+    
 
     return(
         <Modal open={true}>

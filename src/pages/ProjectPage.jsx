@@ -232,42 +232,72 @@ const ProjectPage = () => {
   //Handlers
 
   async function handleAITableCreatorDone(instructions) {
-      try {
+    try {
         const token = await getAccessTokenSilently();
         console.log(paneContextMenuPosition);
-        const response = await axios.post(`${apiUrl}/projects/${id}/aisuggestedtables`, {prompt: instructions, position: paneContextMenuPosition}, {
+
+        // Initial request to start the job and get jobId
+        const startResponse = await axios.post(`${apiUrl}/projects/${id}/aisuggestedtables`, { prompt: instructions, position: paneContextMenuPosition }, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
-            });
-            const recommendations = response.data;
-            if (recommendations.newNodes.length > 0){
-              recommendations.newNodes.forEach(n => {n.type='tableNode'; updateNode(n, true)});
-              
-              // Because state does not get refreshed right away addRelationship cannot be used.
-              // The relationships will be added here
-              //recommendations.newEdges.forEach(e => addRelationship(e));
-              for (const e of recommendations.newEdges) {
-                console.log(e);
-                updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
-                setEdges((eds) => addEdge(e, eds));
-              }
-              //setIsCompleteAITable(true);
+        });
 
-              setShowAITableCreator(false);
+        const jobId = startResponse.data.jobId; // Assuming jobId is returned
+
+        const pollJobStatus = async () => {
+            try {
+                // Polling the status of the job
+                const statusResponse = await axios.get(`${apiUrl}/jobs/${jobId}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (statusResponse.data && statusResponse.data.result !== null) {
+                    clearInterval(pollingInterval);
+
+                    const recommendations = statusResponse.data.result;
+                    if (recommendations.newNodes.length > 0){
+                      recommendations.newNodes.forEach(n => {n.type='tableNode'; updateNode(n, true)});
+                      
+                      // Because state does not get refreshed right away addRelationship cannot be used.
+                      // The relationships will be added here
+                      //recommendations.newEdges.forEach(e => addRelationship(e));
+                      for (const e of recommendations.newEdges) {
+                        console.log(e);
+                        updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
+                        setEdges((eds) => addEdge(e, eds));
+                      }
+                      //setIsCompleteAITable(true);
+        
+                      setShowAITableCreator(false);
+                    }
+                    else {
+                      setWarningMessage("The instruction did not generate any new tables.");
+                      setShowAITableCreator(false);
+                    }
+                }
+            } catch (pollError) {
+                console.error("Error polling job status", pollError);
+                clearInterval(pollingInterval);
+                setShowAITableCreator(false);
+                throw pollError;
             }
-            else {
-              setWarningMessage("The instruction did not generate any new tables.");
-              setShowAITableCreator(false);
-            }
-      } catch (error) {
+        };
+
+        // Start polling every 5 seconds
+        const pollingInterval = setInterval(pollJobStatus, 5000);
+
+    } catch (error) {
+        console.error("Error initiating AI table creation", error);
         setShowAITableCreator(false);
-        console.error("Error retrieving recommended tables by AI", error);
         throw error;
-      }
-      
-  }
+    }
+}
+
   // @TODO: Handle the position of the click to position the new tables.
   const handleAddTableWithAI = (position) => {
     setPaneContextMenuPosition(position);
@@ -436,7 +466,7 @@ const ProjectPage = () => {
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
         } catch (error) {
-            console.error("Error fetching projects", error);
+            console.error("Error fetching project", error);
         }
     };
     fetchProject();
