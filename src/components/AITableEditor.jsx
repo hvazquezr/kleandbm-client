@@ -11,6 +11,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 
 import CircularWithValueLabel from './CircularProgressWithLabel';
+import {apiUrl} from '../config/UrlConfig'
 
 
 
@@ -45,7 +46,7 @@ export default function AITableEditor({onDone, onCancel, projectId, currentTable
         setIsSubmitting(true);
         try {
           const token = await getAccessTokenSilently();
-          const response = await axios.post(`http://127.0.0.1:5000/api/v1/projects/${projectId}/tables/${currentTable.id}/aitableedits`, {prompt: instructions, currentTable}, {
+          const response = await axios.post(`${apiUrl}/projects/${projectId}/tables/${currentTable.id}/aitableedits`, {prompt: instructions, currentTable}, {
               headers: {
                   'Content-Type': 'application/json',
                   Authorization: `Bearer ${token}`,

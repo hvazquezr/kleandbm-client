@@ -9,6 +9,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 
+import {appUrl} from '../config/UrlConfig'
+
 
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
@@ -50,7 +52,7 @@ function UserAvatar({user, onLogout}) {
         onClose={handleCloseUserMenu}
     >
         
-        <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: "https://127.0.0.1:5173" } })}>
+        <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: appUrl } })}>
             <ListItemIcon>
                 <LogoutIcon fontSize="small" />
             </ListItemIcon>

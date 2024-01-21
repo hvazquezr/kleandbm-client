@@ -12,7 +12,7 @@ import {TabContext, TabList, TabPanel}  from '@mui/lab';
 
 import CircularWithValueLabel from './CircularProgressWithLabel';
 
-import { databaseTechnologies } from '../config/config';
+import { databaseTechnologies } from '../config/Constants';
 
 const supportedDbTypes = [
     {id:1, label:'Snowflake'},
@@ -47,6 +47,8 @@ const style = {
   
 export default function NewProjectInfo({open, onCancel, user, isComplete, onSubmit}) {
     const [tabValue, setTabValue] = useState('1');
+    // Owner should have id
+    user['id'] = user['sub'];
     const [project, setProject] = useState({id: nanoid(), owner: user, active: true, description:'Default description. To be changed by AI.'});
     const [submitting, setSubmitting] = useState(false);
     const [validation, setValidation] = useState({

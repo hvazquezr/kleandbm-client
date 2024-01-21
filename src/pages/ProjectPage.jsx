@@ -132,6 +132,8 @@ function readyNodesAndEdges(jsonData) {
   return { updatedNodes, edges };
 }
 
+import {apiUrl} from '../config/UrlConfig.jsx'
+
 
 const ProjectPage = () => {
   const {id} = useParams();
@@ -158,7 +160,7 @@ const ProjectPage = () => {
   async function updateRequest(path, payload) {
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.patch('http://127.0.0.1:5000/api/v1/' + path, payload, {
+      const response = await axios.patch(`${apiUrl}/`+ path, payload, {
           headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
@@ -170,12 +172,12 @@ const ProjectPage = () => {
       console.error("Error updataing data", error);
       throw error;
     }
-  };
+  };  
 
   async function deleteRequest(path) {
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.delete('http://127.0.0.1:5000/api/v1/' + path, {
+      const response = await axios.delete(`${apiUrl}/` + path, {
           headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
@@ -233,7 +235,7 @@ const ProjectPage = () => {
       try {
         const token = await getAccessTokenSilently();
         console.log(paneContextMenuPosition);
-        const response = await axios.post(`http://127.0.0.1:5000/api/v1/projects/${id}/aisuggestedtables`, {prompt: instructions, position: paneContextMenuPosition}, {
+        const response = await axios.post(`${apiUrl}/projects/${id}/aisuggestedtables`, {prompt: instructions, position: paneContextMenuPosition}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
@@ -279,10 +281,10 @@ const ProjectPage = () => {
       type: 'tableNode',
       position,
       active: true,
-      project_id: id,
+      projectId: id,
       data:{
         id: nanoid(),
-        project_id: id,
+        projectId: id,
         name: 'New Table',
         columns: [],
         active: true,
@@ -328,7 +330,7 @@ const ProjectPage = () => {
     const copyNode = {
       id: node.id, 
       tableId: node.data.id, 
-      project_id: id,
+      projectId: id,
       x: node.position.x,
       y: node.position.y,
       active: true
@@ -418,7 +420,7 @@ const ProjectPage = () => {
     const fetchProject = async () => {
         try {
             const token = await getAccessTokenSilently();
-            const response = await axios.get(`http://127.0.0.1:5000/api/v1/projects/${id}`, {
+            const response = await axios.get(`${apiUrl}/projects/${id}`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },

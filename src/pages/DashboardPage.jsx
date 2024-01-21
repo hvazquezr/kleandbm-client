@@ -21,7 +21,8 @@ import UserAvatar from '../components/UserAvatar.jsx';
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
 import LoadingPage from './LoadingPage.jsx';
-import { databaseTechnologies } from '../config/config';
+import { databaseTechnologies } from '../config/Constants.jsx';
+import {apiUrl} from '../config/UrlConfig.jsx'
 
 
 
@@ -43,7 +44,7 @@ export function DashboardPage() {
         const fetchProjects = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await axios.get('http://127.0.0.1:5000/api/v1/projects', {
+                const response = await axios.get(`${apiUrl}/projects`, {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
@@ -60,18 +61,40 @@ export function DashboardPage() {
     const handleSaveNewProject = async (newProject) => {
         try {
             const token = await getAccessTokenSilently();
-            const response = await axios.post('http://127.0.0.1:5000/api/v1/projects', newProject, {
+            let response = await axios.post(`${apiUrl}/projects`, newProject, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                });
-            //setIsComplete(true);
-            navigate(`/project/${newProject.id}`);
+            });
+    
+            const jobId = response.data.jobId; // Assuming the jobId is in the response
+    
+            const pollInterval = setInterval(async () => {
+                try {
+                    const statusResponse = await axios.get(`${apiUrl}/jobs/${jobId}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+    
+                    if (statusResponse.data && statusResponse.data.result !== null) {
+                        clearInterval(pollInterval);
+                        // setIsComplete(true);
+                        navigate(`/project/${newProject.id}`);
+                    }
+                } catch (pollError) {
+                    console.error("Error polling project status", pollError);
+                    clearInterval(pollInterval); // Optional: stop polling on error
+                }
+            }, 5000); // Poll every 5 seconds
+    
         } catch (error) {
             console.error("Error saving project", error);
         }
     };
+    
 
     function lookupDbTechnology(id) {
         const dbTechnology = databaseTechnologies.find(dbTechnology => dbTechnology.id === id);

@@ -10,8 +10,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
+import {apiUrl} from '../config/UrlConfig'
 
 const boxStyle = {
   position: 'relative', // To support cancel button
@@ -57,7 +57,7 @@ export default function SQLCodeDisplay({projectId, handleClose}) {
         const fetchSql = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await axios.get(`http://127.0.0.1:5000/api/v1/projects/${projectId}/sql`, {
+                const response = await axios.get(`${apiUrl}/projects/${projectId}/sql`, {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
