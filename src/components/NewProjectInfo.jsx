@@ -25,7 +25,7 @@ const style = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: '80%',
-    height: '80%',
+    height: 600,
     bgcolor: 'background.paper',
     border: '1px solid #000',
     boxShadow: 10,
@@ -45,7 +45,7 @@ const style = {
     border: '1px solid #000',
   };
   
-export default function NewProjectInfo({open, onCancel, user, isComplete, onSubmit}) {
+export default function NewProjectInfo({onCancel, user, isComplete, onSubmit}) {
     const [tabValue, setTabValue] = useState('1');
     // Owner should have id
     user['id'] = user['sub'];
@@ -168,7 +168,7 @@ export default function NewProjectInfo({open, onCancel, user, isComplete, onSubm
     
 
     return (
-    <Modal open={open} onClose={onCancel}>
+    <Modal open={true} onClose={onCancel}>
         <Box sx={style}>
             <FormControl>
                 <Grid container spacing={2} alignItems="end" alignContent="flex-end">
@@ -277,7 +277,7 @@ export default function NewProjectInfo({open, onCancel, user, isComplete, onSubm
                             width: '100%',
                             backgroundColor: '#fff',
                             top: 0,
-                            bottom: '140px',
+                            bottom: '120px',
                             alignItems: 'center',
                             display: 'flex',
                             justifyContent: 'space-around',

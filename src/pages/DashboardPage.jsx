@@ -198,7 +198,9 @@ export function DashboardPage() {
                     {showStartButton&&<Button onClick={handleNewProjectOpen} variant="contained" >Let's get started</Button>}
                 </Stack>
             )}
-            <NewProjectInfo open={newProjectOpen} onCancel={handleNewProjectClose} user={user} onSubmit={handleSaveNewProject} isComplete={isComplete}/>
+            {newProjectOpen&&
+                <NewProjectInfo onCancel={handleNewProjectClose} user={user} onSubmit={handleSaveNewProject} isComplete={isComplete}/>
+            }
         </Box>
     </Box>
   );
