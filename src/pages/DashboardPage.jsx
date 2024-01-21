@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Grid from '@mui/material/Grid';
-import {Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from '@mui/material';
-import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add';
 import Stack from '@mui/material/Stack';
@@ -17,6 +15,7 @@ import { TypeAnimation } from 'react-type-animation';
 
 import NewProjectInfo from '../components/NewProjectInfo.jsx';
 import UserAvatar from '../components/UserAvatar.jsx';
+import ProjectCard from '../components/ProjectCard.jsx';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -133,50 +132,26 @@ export function DashboardPage() {
                 </Stack>
             </Toolbar>
         </AppBar>
-        <Box component="main" sx={{p: 10 }}>
+        <Box component="main" sx={{p: 10}}>
             {(projects.length !== 0)?
             (
-                <Grid container spacing={2} alignItems="center" alignContent="flex-end">
-                    <Grid item xs={9}>
-                        <Typography variant="h4">Project List</Typography>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <Button sx={{width:'100%'}} onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }}>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell>DB Technology</TableCell>
-                                        <TableCell>Project Type</TableCell>
-                                        <TableCell>Description</TableCell>
-                                        <TableCell>Owner</TableCell>
-                                        <TableCell>Last Modified</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {projects.map((project) => (
-                                        <TableRow
-                                        key={project.id}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
-                                            <TableCell component="th" scope="row">
-                                            <Link to={`/project/${project.id}`}>{project.name}</Link>
-                                            </TableCell>
-                                            <TableCell>{lookupDbTechnology(project.dbTechnology)}</TableCell>
-                                            <TableCell>{capitalizeFirstLetter(project.projectType)}</TableCell>
-                                            <TableCell>{project.description}</TableCell>
-                                            <TableCell>{project.owner.id===user.sub?"Me":project.owner.name}</TableCell>
-                                            <TableCell>{epochToLocalTime(project.lastModified)}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+            <Grid container spacing={4} alignItems="center">
+                <Grid item xs={6} sm={8} md={9} lg={10} xl={10}>
+                    <Typography variant="h4">Projects</Typography>
+                </Grid>
+                <Grid item xs={6} sm={4} md={3} lg={2} xl={2} style={{ textAlign: 'right' }}>
+                    <Button onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid container spacing={2} justifyContent="space-between">
+                        {projects.map(project => (
+                            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={project.id}>
+                                <ProjectCard project={project} user={user} />
+                            </Grid>
+                        ))}
                     </Grid>
                 </Grid>
+            </Grid>
             ):projectsLoaded&&(
                 <Stack direction="column" spacing={4} alignItems="center" justifyContent="center" sx={{width:'100%', height: '70vh'}}>
                     <Typography variant="h5">
