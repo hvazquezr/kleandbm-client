@@ -1,6 +1,6 @@
 .kalmdbm {
-    width: calc(100vw);
-    height:calc(100vh)
+    width: 100%;
+    height: 100vh
 }
 
 .kalmdbm .react-flow__edge-path {

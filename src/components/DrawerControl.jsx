@@ -12,19 +12,21 @@ export default function DrawerControl({
 
   return (
     <React.Fragment>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', textAlign: 'center' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', textAlign: 'center', alignItems: 'center' }}>
+        {!openDrawer&&(
         <Tooltip title="Navigation Panel">
           <IconButton
             onClick={handleDrawerOpen}
             size="small"
-            sx={{ ml: 2, padding:0, marginLeft:0, opacity: 20 }}
+            sx={{ ml: 2, padding:0, marginLeft:0, opacity: 20, marginRight:1 }}
             aria-controls={open ? 'account-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
           >
             <MenuIcon sx={{ width: 30, height: 30, color:'#DDD' }}/>
           </IconButton>
-        </Tooltip>
+        </Tooltip>)}
+        <img src={"/images/bluelogo.png"} width="100" height="16"/>
       </Box>
     </React.Fragment>
   );
