@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardMedia, CardContent, Typography, Avatar, IconButton } from '@mui/material';
-import { AccessTime as AccessTimeIcon, Favorite as FavoriteIcon } from '@mui/icons-material';
+import { Card, CardHeader, CardMedia, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/material';
+import { AccessTime as AccessTimeIcon } from '@mui/icons-material';
 
 import { databaseTechnologies } from '../config/Constants.jsx';
+import {apiUrl} from '../config/UrlConfig'
 
 
 function lookupDbTechnology(id) {
@@ -38,57 +39,60 @@ function ProjectCard({ project, user }) {
     const handleClick = () => {
         navigate(`/project/${project.id}`);
     };
-
-    console.log(`/images/${lookupDbTechnology(project.dbTechnology)}.png`);
-
     return (
-        <Card 
-            sx={{ 
-                maxWidth: 345, 
-                cursor: 'pointer', 
+        <Card
+            sx={{
+                display: 'flex',
+                maxHeight: 150,
+                cursor: 'pointer',
                 transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
                 '&:hover': {
-                    transform: 'scale(1.05)', // Slightly scale up the card on hover
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)' // Increase shadow on hover
+                    transform: 'scale(1.03)',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
                 }
-            }} 
+            }}
             onClick={handleClick}
         >
-            <CardHeader
-                title={
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        {project.name}
-                        <Avatar 
-                            aria-label="Technology"
-                            src={`/images/${lookupDbTechnology(project.dbTechnology)}.png`}
-                            sx={{ 
-                                width: 24,   // Smaller width
-                                height: 24
-                            }}
-                        />
-                    </div>
-                }
-                //subheader={lookupDbTechnology(project.dbTechnology)}
-            />
             <CardMedia
                 component="img"
-                height="194"
-                image="/images/projectsPlaceholder.png"
+                sx={{ width: 151 }} // Adjust width as needed
+                //image="/images/projectsPlaceholder.png"
+
+                image={`${apiUrl}/image/${project.id}`}
                 alt="Project image"
             />
-            <CardContent>
-                <Typography variant="body2" color="text.primary" sx={{height:60, lineClamp: 3, textOverflow:'ellipsis'}}>
-                        {project.description}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{paddingTop:1}}>
-                    <strong>Author:</strong> {project.owner.id===user.sub?"Me":project.owner.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', paddingTop:.2 }}>
-                        <AccessTimeIcon fontSize="small" />
-                        <span style={{ marginLeft: 4 }}>Last Modified: {epochToLocalTime(project.lastModified)}</span>
-                </Typography>
-
-            </CardContent>
+            <Grid container direction="row" sx={{ flex: 1 }}>
+                <Grid item sx={{width:'100%'}}>
+                    <CardHeader
+                        title={
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width:'100%' }}>
+                                <span style={{textOverflow:'ellipsis', width:'320px', overflow:'hidden'}}>{project.name}</span>
+                                <Tooltip title={lookupDbTechnology(project.dbTechnology)}>
+                                    <Avatar 
+                                        aria-label="Technology"
+                                        src={`/images/${lookupDbTechnology(project.dbTechnology)}.png`}
+                                        sx={{ width: 24, height: 24 }}
+                                    />
+                                </Tooltip>
+                            </div>
+                        }
+                    />
+                    <CardContent sx={{paddingTop:0}}>
+                        <Typography variant="body2" color="text.primary" sx={{height:'43px', overflow:'clip'}}>
+                            {project.description}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            <strong>Author:</strong> {project.owner.id === user.sub ? "Me" : project.owner.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center'}}>
+                            <AccessTimeIcon sx={{width:16, height:16}}/>
+                            <span style={{ marginLeft: 4 }}>
+                                Last Modified: {epochToLocalTime(project.lastModified)}
+                            </span>
+                        </Typography>
+                    </CardContent>
+                </Grid>
+            </Grid>
         </Card>
     );
 }

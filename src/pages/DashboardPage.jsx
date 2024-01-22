@@ -132,7 +132,7 @@ export function DashboardPage() {
                 </Stack>
             </Toolbar>
         </AppBar>
-        <Box component="main" sx={{p: 10}}>
+        <Box component="main" sx={{p: 8}}>
             {(projects.length !== 0)?
             (
             <Grid container spacing={4} alignItems="center">
@@ -143,9 +143,9 @@ export function DashboardPage() {
                     <Button onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
                 </Grid>
                 <Grid item xs={12}>
-                    <Grid container spacing={2} justifyContent="space-between">
+                    <Grid container spacing={2}>
                         {projects.map(project => (
-                            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={project.id}>
+                            <Grid item xs={12} sm={12} md={6} lg={6} xl={4} key={project.id}>
                                 <ProjectCard project={project} user={user} />
                             </Grid>
                         ))}

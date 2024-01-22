@@ -16,6 +16,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       //scope:"read:projects"
     }}
   >
-    <App />
+      <App />
     </Auth0Provider>
 )
