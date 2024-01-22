@@ -185,7 +185,7 @@ export default function ProjectInformation({
           <IconButton
             onClick={handleClick}
             size="small"
-            sx={{ ml: 2, padding:0, marginLeft:0, opacity: 20 }}
+            sx={{ ml: 2, padding:0, marginLeft:0 }}
             aria-controls={open ? 'account-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
