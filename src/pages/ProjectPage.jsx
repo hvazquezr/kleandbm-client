@@ -64,23 +64,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   }),
 );
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -509,23 +492,6 @@ const ProjectPage = () => {
 
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-        <AppBar position="fixed" open={openDrawer} sx={{paddingRight:0}}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              edge="start"
-              sx={{ mr: 2, ...(openDrawer && { display: 'none' }) }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Box sx={{width:'100%'}}>
-              <EditableTitle value={projectName} onChange={updateProjectName} onBlur={saveProjectName}/>
-            </Box>
-            <UserAvatar user={user} onLogout={logout} />   
-          </Toolbar>
-        </AppBar>
         <ReactFlowProvider>
           <Drawer
             sx={{
@@ -549,7 +515,6 @@ const ProjectPage = () => {
             <TreeNavigator tableList={nodes}/>
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
-            <DrawerHeader />
             <Flow
               nodes = {nodes}
               edges = {edges}
@@ -558,6 +523,8 @@ const ProjectPage = () => {
               onNodesChange = {onNodesChange}
               onAddTable = {handleAddTable}
               onAddTableWithAI = {handleAddTableWithAI}
+              handleDrawerOpen = {handleDrawerOpen}
+              openDrawer = {openDrawer} 
               onEditTable = {handleEditTable}
               onDeleteTable = {handleDeleteTable}
               onDeleteRelationship = {handleDeleteRelationship}

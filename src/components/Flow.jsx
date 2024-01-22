@@ -8,6 +8,7 @@ import TableContextMenu from './TableContextMenu';
 import RelationshipContextMenu from './RelationshipContextMenu';
 import PaneContextMenu from './PaneContextMenu';
 import ProjectInformation from './ProjectInformationAlternate';
+import DrawerControl from './DrawerControl';
 
 const proOptions = { hideAttribution: true };
 
@@ -19,6 +20,8 @@ export default function Flow({
   onNodesChange,
   onAddTable,
   onAddTableWithAI,
+  handleDrawerOpen,
+  openDrawer, 
   onEditTable,
   onDeleteTable,
   onDeleteRelationship,
@@ -112,6 +115,12 @@ export default function Flow({
         onNodeDragStop={onNodeDragStop}
         deleteKeyCode={[]} // This is done to prvent deleting objects by pressing the delete key
         >
+            <Panel position="top-left">
+              <DrawerControl
+                handleDrawerOpen = {handleDrawerOpen}
+                openDrawer = {openDrawer} 
+              />
+            </Panel>
             <Panel position="top-right">
               <ProjectInformation
                 projectId = {projectId}
