@@ -1,4 +1,5 @@
 import { Position, MarkerType } from 'reactflow';
+import { databaseTechnologies } from '../config/Constants.jsx';
 
 // this helper function returns the intersection point
 // of the line between the center of the intersectionNode and the target node
@@ -103,3 +104,8 @@ export function getEdgeParams(source, target) {
     const now = new Date(); // Create a new date object with the current date and time
     return now.getTime(); // Return the UNIX timestamp in milliseconds
   }
+
+  export function lookupDbTechnology(id) {
+    const dbTechnology = databaseTechnologies.find(dbTechnology => dbTechnology.id === id);
+    return dbTechnology ? dbTechnology.name : null;
+}

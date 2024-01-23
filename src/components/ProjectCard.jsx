@@ -2,20 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardMedia, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/material';
 import { AccessTime as AccessTimeIcon } from '@mui/icons-material';
+import { lookupDbTechnology } from './utils';
 
-import { databaseTechnologies } from '../config/Constants.jsx';
 import {apiUrl} from '../config/UrlConfig'
 
-
-function lookupDbTechnology(id) {
-    const dbTechnology = databaseTechnologies.find(dbTechnology => dbTechnology.id === id);
-    return dbTechnology ? dbTechnology.name : null;
-}
-
-function capitalizeFirstLetter(word) {
-    if (!word) return word;
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-}
 
 function epochToLocalTime(epoch) {
     const date = new Date(epoch);

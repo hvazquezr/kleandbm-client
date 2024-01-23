@@ -31,11 +31,14 @@ export default function Flow({
   onNodeDragStop,
   projectId,
   projectName,
+  onProjectNameChange,
+  onProjectNameBlur,
   projectDescription,
   onProjectDescriptionChange,
   onProjectDescriptionBlur,
   lastModified,
-  projectCreatorName
+  projectCreatorName,
+  dbTechnology
 }) {
 
   const [paneMenu, setPaneMenu] = useState(null);
@@ -125,11 +128,14 @@ export default function Flow({
               <ProjectInformation
                 projectId = {projectId}
                 projectName = {projectName} 
+                onProjectNameChange = {onProjectNameChange}
+                onProjectNameBlur = {onProjectNameBlur}
                 projectDescription = {projectDescription}
                 onProjectDescriptionChange = {onProjectDescriptionChange}
                 onProjectDescriptionBlur = {onProjectDescriptionBlur}
                 lastModified = {lastModified}
                 projectCreatorName = {projectCreatorName}
+                dbTechnology={dbTechnology}
               />
             </Panel>
             <Controls />

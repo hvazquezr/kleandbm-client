@@ -93,33 +93,6 @@ export function DashboardPage() {
             console.error("Error saving project", error);
         }
     };
-    
-
-    function lookupDbTechnology(id) {
-        const dbTechnology = databaseTechnologies.find(dbTechnology => dbTechnology.id === id);
-        return dbTechnology ? dbTechnology.name : null;
-    }
-
-    function capitalizeFirstLetter(word) {
-        if (!word) return word;
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    }
-    
-    function epochToLocalTime(epoch) {
-        const date = new Date(epoch);
-        const formattedDate = date.toLocaleDateString('en-US', {
-            year: '2-digit',
-            month: '2-digit',
-            day: '2-digit'
-        });
-        const formattedTime = date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-        return `${formattedDate} ${formattedTime}`;
-    }
 
     return (
     <Box sx={{ flexGrow: 1}}>

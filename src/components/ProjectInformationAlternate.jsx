@@ -15,13 +15,16 @@ import Tooltip from '@mui/material/Tooltip';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import SourceIcon from '@mui/icons-material/Source';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { AccessTime as AccessTimeIcon } from '@mui/icons-material';
 import Popover from '@mui/material/Popover';
-import { TextField } from '@mui/material';
+import { TextField , Avatar} from '@mui/material';
 
 import SQLCodeDisplay from './SQLCodeDisplay';
 
-const headerStyle = {fontWeight:'bold', fontFamily:'sans-serif', color:'#666'};
-const labelStyle = {color:'#999'};
+import { lookupDbTechnology } from './utils';
+
+const headerStyle = {fontWeight:'bold', fontFamily:'sans-serif', color:'text.primary'};
+const labelStyle = {color:'text.secondary'};
 
 function convertTimestampToReadable(timestamp) {
     const date = new Date(timestamp);
@@ -97,8 +100,11 @@ export default function ProjectInformation({
     projectDescription,
     onProjectDescriptionChange,
     onProjectDescriptionBlur,
+    onProjectNameChange,
+    onProjectNameBlur,
     lastModified,
-    projectCreatorName
+    projectCreatorName,
+    dbTechnology
     }) {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -203,6 +209,85 @@ export default function ProjectInformation({
         transformOrigin={{ horizontal: 'center', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
         >
+          <Stack p={.5} direction="column" sx={{ width: 450 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%" paddingRight={2}>
+              <TextField
+                sx={{
+                
+                width: 380,
+                "& .MuiOutlinedInput-root": {
+                    "& > fieldset": {
+                    borderColor: "#ffffff"
+                    }
+                },              
+                "& .MuiOutlinedInput-root:hover": {
+                    "& > fieldset": {
+                    border: "0.5px solid #AAAAAA",
+                    }
+                },
+                "& .MuiOutlinedInput-root.Mui-focused": {
+                    "& > fieldset": {
+                    border: "0.5px solid #AAAAAA",
+                    }
+                }
+                }}
+                inputProps={{style: {fontWeight:"bold", fontSize: 18, color:"text.primary"}}} 
+                variant="outlined"
+                value={projectName}
+                onChange = {onProjectNameChange}
+                onBlur={onProjectNameBlur}
+              />
+              <Tooltip title={lookupDbTechnology(dbTechnology)}>
+                  <Avatar 
+                      aria-label="Technology"
+                      src={`/images/${lookupDbTechnology(dbTechnology)}.png`}
+                      sx={{ width: 24, height: 24}}
+                  />
+              </Tooltip>
+            </Stack>
+            <TextField
+                  sx={{
+                  width: '100%',
+                  "& .MuiOutlinedInput-root": {
+                      "& > fieldset": {
+                      borderColor: "#ffffff"
+                      }
+                  },              
+                  "& .MuiOutlinedInput-root:hover": {
+                      "& > fieldset": {
+                      border: "0.5px solid #AAAAAA",
+                      }
+                  },
+                  "& .MuiOutlinedInput-root.Mui-focused": {
+                      "& > fieldset": {
+                      border: "0.5px solid #AAAAAA",
+                      }
+                  }
+                  }}
+                  inputProps={{style: {color:"text.primary"}}} 
+                  variant="outlined"
+                  multiline
+                  value={projectDescription}
+                  onChange = {onProjectDescriptionChange}
+                  onBlur={onProjectDescriptionBlur}
+              />
+          </Stack>
+          <Stack spacing={1} p={2.5} order='column' sx={{width:'100%'}} >
+              <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                      <strong>Author:</strong> {projectCreatorName}
+                  </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center'}}>
+                    <AccessTimeIcon sx={{width:16, height:16}}/>
+                    <span style={{ marginLeft: 4 }}>
+                        Last Modified: {convertTimestampToReadable(lastModified)}
+                    </span>
+                </Typography>
+              </Box>      
+          </Stack>
+          <Divider /> 
           <Stack p={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
             <Stack direction="column" spacing={.1} justifyContent="space-between" alignItems="center" >
               <Typography variant="h3" sx={headerStyle}>{countTables}</Typography>
@@ -217,63 +302,23 @@ export default function ProjectInformation({
               <Typography variant="body2" sx={labelStyle}>Relationships</Typography>
             </Stack>
           </Stack>
-            <Divider /> 
-            <Box p={1}>
-              <Stack spacing={1} p={1} order='column' sx={{width:500, borderRadius:2, border: .5, borderColor: '#AAA'}} >
-                  <Typography variant="subtitle2">Description:</Typography>
-                  <TextField
-                      sx={{
-                      width: '100%',
-                      "& .MuiOutlinedInput-root": {
-                          "& > fieldset": {
-                          borderColor: "#ffffff"
-                          }
-                      },              
-                      "& .MuiOutlinedInput-root:hover": {
-                          "& > fieldset": {
-                          border: "0.5px solid #AAAAAA",
-                          }
-                      },
-                      "& .MuiOutlinedInput-root.Mui-focused": {
-                          "& > fieldset": {
-                          border: "0.5px solid #AAAAAA",
-                          }
-                      }
-                      }}
-                      inputProps={{style: {color:"#000000"}}} 
-                      variant="outlined"
-                      multiline
-                      value={projectDescription}
-                      onChange = {onProjectDescriptionChange}
-                      onBlur={onProjectDescriptionBlur}
-                  />
-                  <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                      <Typography variant="subtitle2">Created By:</Typography>
-                      <Typography variant="body2" sx={{ marginLeft: 1 }}>{projectCreatorName}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-                      <Typography variant="subtitle2">Last Modified:</Typography>
-                      <Typography variant="body2" sx={{ marginLeft: 1 }}>{convertTimestampToReadable(lastModified)}</Typography>
-                  </Box>      
-              </Stack>
-            </Box>
-            <Divider /> 
-            <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
-                <ListItemIcon>
-                    <SourceIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Generate SQL Code</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={onDownloadClick}>
-                <ListItemIcon>
-                    <PhotoCameraIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Download Image</ListItemText>
-            </MenuItem>
-            {openSqlWindow && <SQLCodeDisplay 
-                projectId={projectId}
-                handleClose={() => {setOpenSqlWindow(false), handleClose()}}
-            />}
+          <Divider /> 
+          <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
+              <ListItemIcon>
+                  <SourceIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Generate SQL Code</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={onDownloadClick}>
+              <ListItemIcon>
+                  <PhotoCameraIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Download Image</ListItemText>
+          </MenuItem>
+          {openSqlWindow && <SQLCodeDisplay 
+              projectId={projectId}
+              handleClose={() => {setOpenSqlWindow(false), handleClose()}}
+          />}
         </Popover>
     </React.Fragment>
   );

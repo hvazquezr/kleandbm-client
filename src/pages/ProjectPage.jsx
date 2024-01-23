@@ -7,11 +7,8 @@ import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
@@ -24,14 +21,12 @@ import {
 } from 'reactflow';
 
 import Flow from '../components/Flow';
-import EditableTitle from '../components/EditableTitle';
 import TreeNavigator from '../components/TreeNavigator';
 import TableNode from '../components/TableNode';
 import TableEditor from '../components/TableEditor';
 import DeleteConfirm from '../components/DeleteConfirm';
 import FloatingEdge from '../components/FloatingEdge';
 import FloatingConnectionLine from '../components/FloatingConnectionLine';
-import UserAvatar from '../components/UserAvatar';
 import Warning from '../components/Warning';
 import AITableCreator from '../components/aITableCreator.jsx';
 
@@ -537,10 +532,13 @@ const ProjectPage = () => {
               projectId = {id}
               projectName = {projectName}
               projectDescription = {projectDescription}
+              onProjectNameChange = {updateProjectName}
+              onProjectNameBlur = {saveProjectName}
               onProjectDescriptionChange = {updateProjecDescription}
               onProjectDescriptionBlur = {saveProjectDescription}
               lastModified = {lastModified}
               projectCreatorName = {projectCreatorName}
+              dbTechnology={dbTechnology}
             />
           </Main>
         </ReactFlowProvider>
