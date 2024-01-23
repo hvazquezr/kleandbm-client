@@ -7,11 +7,8 @@ import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
@@ -24,16 +21,15 @@ import {
 } from 'reactflow';
 
 import Flow from '../components/Flow';
-import EditableTitle from '../components/EditableTitle';
 import TreeNavigator from '../components/TreeNavigator';
 import TableNode from '../components/TableNode';
 import TableEditor from '../components/TableEditor';
 import DeleteConfirm from '../components/DeleteConfirm';
 import FloatingEdge from '../components/FloatingEdge';
 import FloatingConnectionLine from '../components/FloatingConnectionLine';
-import UserAvatar from '../components/UserAvatar';
 import Warning from '../components/Warning';
 import AITableCreator from '../components/aITableCreator.jsx';
+import UserAvatar from '../components/UserAvatar.jsx';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -49,37 +45,22 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
+    width: '100vw',
     ...(open && {
-      transition: theme.transitions.create('margin', {
+      transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
       marginLeft: 0,
+      width: `calc(100vw - ${drawerWidth}px)`,
     }),
   }),
 );
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -132,6 +113,8 @@ function readyNodesAndEdges(jsonData) {
   return { updatedNodes, edges };
 }
 
+import {apiUrl} from '../config/UrlConfig.jsx'
+
 
 const ProjectPage = () => {
   const {id} = useParams();
@@ -158,7 +141,7 @@ const ProjectPage = () => {
   async function updateRequest(path, payload) {
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.patch('http://127.0.0.1:5000/api/v1/' + path, payload, {
+      const response = await axios.patch(`${apiUrl}/`+ path, payload, {
           headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
@@ -170,12 +153,12 @@ const ProjectPage = () => {
       console.error("Error updataing data", error);
       throw error;
     }
-  };
+  };  
 
   async function deleteRequest(path) {
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.delete('http://127.0.0.1:5000/api/v1/' + path, {
+      const response = await axios.delete(`${apiUrl}/` + path, {
           headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
@@ -230,42 +213,72 @@ const ProjectPage = () => {
   //Handlers
 
   async function handleAITableCreatorDone(instructions) {
-      try {
+    try {
         const token = await getAccessTokenSilently();
         console.log(paneContextMenuPosition);
-        const response = await axios.post(`http://127.0.0.1:5000/api/v1/projects/${id}/aisuggestedtables`, {prompt: instructions, position: paneContextMenuPosition}, {
+
+        // Initial request to start the job and get jobId
+        const startResponse = await axios.post(`${apiUrl}/projects/${id}/aisuggestedtables`, { prompt: instructions, position: paneContextMenuPosition }, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
-            });
-            const recommendations = response.data;
-            if (recommendations.newNodes.length > 0){
-              recommendations.newNodes.forEach(n => {n.type='tableNode'; updateNode(n, true)});
-              
-              // Because state does not get refreshed right away addRelationship cannot be used.
-              // The relationships will be added here
-              //recommendations.newEdges.forEach(e => addRelationship(e));
-              for (const e of recommendations.newEdges) {
-                console.log(e);
-                updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
-                setEdges((eds) => addEdge(e, eds));
-              }
-              //setIsCompleteAITable(true);
+        });
 
-              setShowAITableCreator(false);
+        const jobId = startResponse.data.jobId; // Assuming jobId is returned
+
+        const pollJobStatus = async () => {
+            try {
+                // Polling the status of the job
+                const statusResponse = await axios.get(`${apiUrl}/jobs/${jobId}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (statusResponse.data && statusResponse.data.result !== null) {
+                    clearInterval(pollingInterval);
+
+                    const recommendations = statusResponse.data.result;
+                    if (recommendations.newNodes.length > 0){
+                      recommendations.newNodes.forEach(n => {n.type='tableNode'; updateNode(n, true)});
+                      
+                      // Because state does not get refreshed right away addRelationship cannot be used.
+                      // The relationships will be added here
+                      //recommendations.newEdges.forEach(e => addRelationship(e));
+                      for (const e of recommendations.newEdges) {
+                        console.log(e);
+                        updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
+                        setEdges((eds) => addEdge(e, eds));
+                      }
+                      //setIsCompleteAITable(true);
+        
+                      setShowAITableCreator(false);
+                    }
+                    else {
+                      setWarningMessage("The instruction did not generate any new tables.");
+                      setShowAITableCreator(false);
+                    }
+                }
+            } catch (pollError) {
+                console.error("Error polling job status", pollError);
+                clearInterval(pollingInterval);
+                setShowAITableCreator(false);
+                throw pollError;
             }
-            else {
-              setWarningMessage("The instruction did not generate any new tables.");
-              setShowAITableCreator(false);
-            }
-      } catch (error) {
+        };
+
+        // Start polling every 5 seconds
+        const pollingInterval = setInterval(pollJobStatus, 5000);
+
+    } catch (error) {
+        console.error("Error initiating AI table creation", error);
         setShowAITableCreator(false);
-        console.error("Error retrieving recommended tables by AI", error);
         throw error;
-      }
-      
-  }
+    }
+}
+
   // @TODO: Handle the position of the click to position the new tables.
   const handleAddTableWithAI = (position) => {
     setPaneContextMenuPosition(position);
@@ -279,10 +292,10 @@ const ProjectPage = () => {
       type: 'tableNode',
       position,
       active: true,
-      project_id: id,
+      projectId: id,
       data:{
         id: nanoid(),
-        project_id: id,
+        projectId: id,
         name: 'New Table',
         columns: [],
         active: true,
@@ -328,7 +341,7 @@ const ProjectPage = () => {
     const copyNode = {
       id: node.id, 
       tableId: node.data.id, 
-      project_id: id,
+      projectId: id,
       x: node.position.x,
       y: node.position.y,
       active: true
@@ -418,7 +431,7 @@ const ProjectPage = () => {
     const fetchProject = async () => {
         try {
             const token = await getAccessTokenSilently();
-            const response = await axios.get(`http://127.0.0.1:5000/api/v1/projects/${id}`, {
+            const response = await axios.get(`${apiUrl}/projects/${id}`, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
@@ -434,7 +447,7 @@ const ProjectPage = () => {
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
         } catch (error) {
-            console.error("Error fetching projects", error);
+            console.error("Error fetching project", error);
         }
     };
     fetchProject();
@@ -477,23 +490,6 @@ const ProjectPage = () => {
 
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-        <AppBar position="fixed" open={openDrawer} sx={{paddingRight:0}}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              edge="start"
-              sx={{ mr: 2, ...(openDrawer && { display: 'none' }) }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Box sx={{width:'100%'}}>
-              <EditableTitle value={projectName} onChange={updateProjectName} onBlur={saveProjectName}/>
-            </Box>
-            <UserAvatar user={user} onLogout={logout} />   
-          </Toolbar>
-        </AppBar>
         <ReactFlowProvider>
           <Drawer
             sx={{
@@ -514,10 +510,19 @@ const ProjectPage = () => {
               </IconButton>
             </DrawerHeader>
             <Divider />
-            <TreeNavigator tableList={nodes}/>
+            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <TreeNavigator  tableList={nodes} sx={{ flexGrow: 1, overflow: 'auto' }} />
+              <Divider />
+              <Box sx={{ height: '150px' }}> {/* Fixed height */}
+                <UserAvatar 
+                  user={user}
+                  onLogout={logout}
+                  layoutType = "ProjectPage"
+                />
+              </Box>
+            </Box>
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
-            <DrawerHeader />
             <Flow
               nodes = {nodes}
               edges = {edges}
@@ -526,6 +531,8 @@ const ProjectPage = () => {
               onNodesChange = {onNodesChange}
               onAddTable = {handleAddTable}
               onAddTableWithAI = {handleAddTableWithAI}
+              handleDrawerOpen = {handleDrawerOpen}
+              openDrawer = {openDrawer} 
               onEditTable = {handleEditTable}
               onDeleteTable = {handleDeleteTable}
               onDeleteRelationship = {handleDeleteRelationship}
@@ -536,10 +543,13 @@ const ProjectPage = () => {
               projectId = {id}
               projectName = {projectName}
               projectDescription = {projectDescription}
+              onProjectNameChange = {updateProjectName}
+              onProjectNameBlur = {saveProjectName}
               onProjectDescriptionChange = {updateProjecDescription}
               onProjectDescriptionBlur = {saveProjectDescription}
               lastModified = {lastModified}
               projectCreatorName = {projectCreatorName}
+              dbTechnology={dbTechnology}
             />
           </Main>
         </ReactFlowProvider>

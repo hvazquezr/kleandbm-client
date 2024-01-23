@@ -10,8 +10,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
+import {apiUrl} from '../config/UrlConfig'
 
 const boxStyle = {
   position: 'relative', // To support cancel button
@@ -54,21 +54,53 @@ export default function SQLCodeDisplay({projectId, handleClose}) {
     const {getAccessTokenSilently} = useAuth0();
 
     useEffect(() => {
-        const fetchSql = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const response = await axios.get(`http://127.0.0.1:5000/api/v1/projects/${projectId}/sql`, {
-                    headers: {
+      let pollingInterval;
+      const pollJobStatus = async (jobId) => {
+          try {
+              const token = await getAccessTokenSilently();
+              const statusResponse = await axios.get(`${apiUrl}/jobs/${jobId}`, {
+                  headers: {
                       Authorization: `Bearer ${token}`,
-                    },
-                  });
-                setSql(await response.data.sql);
-            } catch (error) {
-                console.error("Error fetching sql", error);
-            }
-        };
-        fetchSql();
-    }, [projectId]);
+                  },
+              });
+  
+              if (statusResponse.data && statusResponse.data.result !== null) {
+                  clearInterval(pollingInterval);
+                  setSql(statusResponse.data.result.sql); // Assuming result has the SQL data
+              }
+          } catch (error) {
+              console.error("Error polling job status", error);
+              clearInterval(pollingInterval);
+          }
+      };
+  
+      const fetchSql = async () => {
+          try {
+              const token = await getAccessTokenSilently();
+              const response = await axios.get(`${apiUrl}/projects/${projectId}/sql`, {
+                  headers: {
+                      Authorization: `Bearer ${token}`,
+                  },
+              });
+  
+              const jobId = response.data.jobId; // Assuming jobId is returned
+              // Wait for 15 seconds before starting to poll
+              setTimeout(() => {
+                  pollingInterval = setInterval(() => pollJobStatus(jobId), 5000);
+              }, 15000);
+  
+          } catch (error) {
+              console.error("Error fetching sql", error);
+          }
+      };
+  
+      fetchSql();
+  
+      return () => {
+          clearInterval(pollingInterval); // Clear polling interval on cleanup
+      };
+  }, [projectId]);
+  
 
     return(
         <Modal open={true}>

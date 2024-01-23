@@ -2,21 +2,20 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Auth0Provider } from '@auth0/auth0-react';
 import App from './App.jsx'
+import {appUrl, auth0Audience, auth0Domain, auth0ClientId} from './config/UrlConfig.jsx'
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <Auth0Provider
-    domain="hvazquez.auth0.com"
-    clientId="6XPCQ4ZlyBLWc4MdctGtr7oN3BlOcfKs"
+    domain={auth0Domain}
+    clientId={auth0ClientId}
     authorizationParams={{
       //redirect_uri: window.location.origin
-      redirect_uri: "https://127.0.0.1:5173/dashboard",
-      audience:"https://api.kalmdbm.io",
+      redirect_uri: `${appUrl}/dashboard`,
+      audience:auth0Audience,
       //scope:"read:projects"
     }}
   >
-    <App />
+      <App />
     </Auth0Provider>
-  </React.StrictMode>,
 )

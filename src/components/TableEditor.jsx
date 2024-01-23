@@ -21,7 +21,7 @@ import AITableEditor from './AITableEditor';
 
 import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 
-import { columnProperties, databaseTechnologies } from '../config/config.jsx';
+import { columnProperties, databaseTechnologies } from '../config/Constants';
 
 const boxStyle = {
   position: 'absolute',
