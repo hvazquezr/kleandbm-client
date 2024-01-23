@@ -29,6 +29,7 @@ import FloatingEdge from '../components/FloatingEdge';
 import FloatingConnectionLine from '../components/FloatingConnectionLine';
 import Warning from '../components/Warning';
 import AITableCreator from '../components/aITableCreator.jsx';
+import UserAvatar from '../components/UserAvatar.jsx';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -509,7 +510,16 @@ const ProjectPage = () => {
               </IconButton>
             </DrawerHeader>
             <Divider />
-            <TreeNavigator tableList={nodes}/>
+            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <TreeNavigator  tableList={nodes} sx={{ flexGrow: 1, overflow: 'auto' }} />
+              <Divider />
+              <Box sx={{ height: '150px' }}> {/* Fixed height */}
+                <UserAvatar 
+                  user={user}
+                  onLogout={logout}
+                />
+              </Box>
+            </Box>
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
             <Flow
