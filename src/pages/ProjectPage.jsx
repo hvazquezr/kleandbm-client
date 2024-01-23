@@ -517,6 +517,7 @@ const ProjectPage = () => {
                 <UserAvatar 
                   user={user}
                   onLogout={logout}
+                  layoutType = "ProjectPage"
                 />
               </Box>
             </Box>
