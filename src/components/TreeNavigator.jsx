@@ -7,7 +7,7 @@ import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import TableViewIcon from '@mui/icons-material/TableView';
-import HomeIcon from '@mui/icons-material/Home';
+import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
@@ -108,7 +108,7 @@ export default function TreeNavigator({tableList}) {
       defaultEndIcon={<div style={{ width: 24 }} />}
       sx={{flexGrow: 1, width:'100%', overflowY: 'auto' }}
     >
-        <StyledTreeItem nodeId="home" labelText="Home" labelIcon={HomeIcon} onClick={() => handleNavigation('/dashboard')}/>
+        <StyledTreeItem nodeId="projects" labelText="Projects" labelIcon={GridViewOutlinedIcon} onClick={() => handleNavigation('/dashboard')}/>
         <StyledTreeItem nodeId="tables" labelText="Tables" labelIcon={TableViewIcon}>
         {tableList.map((table) => (
             <StyledTreeItem

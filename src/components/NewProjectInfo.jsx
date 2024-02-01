@@ -168,7 +168,7 @@ export default function NewProjectInfo({onCancel, user, isComplete, onSubmit}) {
     
 
     return (
-    <Modal open={true} onClose={onCancel}>
+    <Modal open={true} >
         <Box sx={style}>
             <FormControl>
                 <Grid container spacing={2} alignItems="end" alignContent="flex-end">

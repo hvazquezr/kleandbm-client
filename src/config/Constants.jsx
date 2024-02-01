@@ -131,10 +131,10 @@ export const databaseTechnologies = [
         name: 'SQL Server',
         active: true,
         dataTypes: [
-            { id: 1, name: "bigint", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 2, name: "int", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 3, name: "smallint", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 4, name: "tinyint", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
+            { id: 1, name: "bigint", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
+            { id: 2, name: "int", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
+            { id: 3, name: "smallint", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
+            { id: 4, name: "tinyint", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
             { id: 5, name: "bit", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
             { id: 6, name: "decimal", needsMaxLength: false, needsPrecision: true, needsScale: true, active: true },
             { id: 7, name: "numeric", needsMaxLength: false, needsPrecision: true, needsScale: true, active: true },
@@ -165,12 +165,12 @@ export const databaseTechnologies = [
         name: 'MySql',
         active: true,
         dataTypes: [
-            { id: 1, name: "INTEGER", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 2, name: "INT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 3, name: "SMALLINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 4, name: "TINYINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 5, name: "MEDIUMINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
-            { id: 6, name: "BIGINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
+            { id: 1, name: "INTEGER", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
+            { id: 2, name: "INT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
+            { id: 3, name: "SMALLINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
+            { id: 4, name: "TINYINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true , supportsAutoIncrement: true},
+            { id: 5, name: "MEDIUMINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
+            { id: 6, name: "BIGINT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
             { id: 7, name: "DECIMAL", needsMaxLength: false, needsPrecision: true, needsScale: true, active: true },
             { id: 8, name: "NUMERIC", needsMaxLength: false, needsPrecision: true, needsScale: true, active: true },
             { id: 9, name: "FLOAT", needsMaxLength: false, needsPrecision: true, needsScale: false, active: true },
@@ -211,8 +211,22 @@ export const columnProperties = [
         valueOptions: []
     },
     {
+        field: 'maxLength',
+        headerName: 'Length',
+        type: 'text',
+        width: 60,
+        editable: true
+    },
+    {
         field: 'primaryKey',
         headerName: 'PK',
+        type: 'boolean',
+        width: 50,
+        editable: true
+    },
+    {
+        field: 'canBeNull',
+        headerName: 'N',
         type: 'boolean',
         width: 50,
         editable: true

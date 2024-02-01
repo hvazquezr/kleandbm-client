@@ -558,7 +558,7 @@ const ProjectPage = () => {
     {activeTable && <TableEditor
                       node={activeTable}
                       projectId={id}
-                      dbTechnology={dbTechnology}
+                      dbTechnologyId={dbTechnology}
                       onCancel={() => {setActiveTable(null)}}
                       onDone={updateNode}
                       />}

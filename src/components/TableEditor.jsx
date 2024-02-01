@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { nanoid } from 'nanoid';
 
 import Modal from '@mui/material/Modal';
@@ -10,18 +10,15 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Tab from '@mui/material/Tab';
-import FormHelperText from '@mui/material/FormHelperText';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
+import { Portal } from '@mui/base/Portal';
 
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 
 import AITableEditor from './AITableEditor';
+import ColumnListEditor from './ColumnListEditor';
 
-import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
-
-import { columnProperties, databaseTechnologies } from '../config/Constants';
+import { databaseTechnologies } from '../config/Constants'
 
 const boxStyle = {
   position: 'absolute',
@@ -40,27 +37,30 @@ const buttonStyle = {
     width: 200
 };
 
-function CustomNoRowsOverlay() {
-    return (
-        <Box sx={{ mt:1, display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%'}}>No Columns</Box>
-    );
-};
-
-export default function TableEditor({node, projectId, dbTechnology, onDone, onCancel}) {
+export default function TableEditor({node, projectId, dbTechnologyId, onDone, onCancel}) {
     const [tableName, setTableName] = useState(node.data.name);
     const [columns, setColumns] = useState(node.data.columns);
     const [description, setDescription] = useState(node.data.description);
-    const [selectedColumnIds, setSelectedColumnIds] = useState([]);
     const [cancelDisabled, setCancelDisabled] = useState(false);
     const [tabValue, setTabValue] = useState('1');
     const [showAIEditor, setShowAIEditor] = useState(false);
-    
+    const [dbTechnology, setDbTechnology] = useState();
+    const [dataTypes, setDataTypes] = useState([]);    
 
-    const apiRef = useGridApiRef();
+    useEffect(() => {
+        const technology = databaseTechnologies.find(tech => tech.id === dbTechnologyId);
+    
+        if (technology) {
+            setDbTechnology(technology);
+            const tempDataTypes = technology.dataTypes.filter(dt => dt.active);
+            // Sort the array based on the 'name' attribute
+            tempDataTypes.sort((a, b) => {
+              // Use localeCompare for a case-insensitive comparison and to handle non-ASCII characters correctly
+              return a.name.localeCompare(b.name);
+            });
+            setDataTypes(tempDataTypes);
+        }
+      }, []);
 
 
     const handleEditTableName = (e) => {
@@ -85,36 +85,6 @@ export default function TableEditor({node, projectId, dbTechnology, onDone, onCa
         onDone(node);
     };
 
-    const handleAddColumn = () => {
-        let id = nanoid();
-        setColumns((oldColumns) => [...oldColumns, { id, key: id, name: '', dataType: '', primaryKey: false, description: '' }]);
-        apiRef.current.startRowEditMode({id});
-    };
-
-    const handleRowUpdate = (newColumn, oldColumn) => {
-        //const updatedColumn = { ...newRow, isNew: false };
-        setColumns(columns.map((column) => (column.id === newColumn.id ? newColumn : column)));
-        return newColumn;
-    };
-
-    function handleSelectionChange (ids) {
-        setSelectedColumnIds(ids);
-    };
-
-    function handleDeleteColumn(){
-        setColumns(columns.filter(column => !selectedColumnIds.includes(column.id)));
-    }
-
-    function getDataTypesByDbTechnologyId(id) {
-        const dbTechnology = databaseTechnologies.find(tech => tech.id === id);
-        return dbTechnology ? dbTechnology.dataTypes : null;
-    }
-
-    const dataTypeColumn = columnProperties.find(col => col.field === 'dataType');
-    if (dataTypeColumn) {
-        dataTypeColumn.valueOptions = getDataTypesByDbTechnologyId(dbTechnology);
-    }
-
     const handleAITableEditorRecommendations = (recommendations) => {
         setTableName(recommendations.name);
         setColumns(recommendations.columns);
@@ -122,9 +92,41 @@ export default function TableEditor({node, projectId, dbTechnology, onDone, onCa
         setShowAIEditor(false);
     }
 
+    function handleOnDragEnd(result) {
+        if (!result.destination) return;
+    
+        const items = Array.from(columns);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+    
+        setColumns(items);
+      }
+    
+      const updateColumn = (updatedColumn) => {
+        const newColumns = columns.map(column =>
+          column.id === updatedColumn.id ? updatedColumn : column
+        );
+        setColumns(newColumns);
+      };
+    
+      const addColumn = () => {
+        const newColumn = {
+          id: nanoid(),
+          name: '',
+          dataType: null
+          //dataType: dataTypes[0]?.name || '',
+          // other default values
+        };
+        setColumns([...columns, newColumn]);
+      };
+    
+      const removeColumn = (columnId) => {
+        setColumns(columns.filter(column => column.id !== columnId));
+      };    
+
     return(
         <>
-        <Modal open={true}>
+        <Modal open={true} drag>
             <Box sx={boxStyle}>
                 <Stack direction="column" spacing={1}>
                     <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
@@ -141,31 +143,15 @@ export default function TableEditor({node, projectId, dbTechnology, onDone, onCa
                             </TabList>
                         </Box>
                         <TabPanel value="1" sx={{height:400}}>
-                            <Stack direction="column" spacing={1} alignItems='flex-end'>
-                                <div sx={{width:'100%'}}>
-                                    <Tooltip title="Delete Column">
-                                        <span><Button variant='contained' size='small' onClick={handleDeleteColumn} color='error' disabled={selectedColumnIds.length === 0}><DeleteIcon /></Button></span>
-                                    </Tooltip>
-                                    <Tooltip title="Add Column">
-                                        <Button sx={{marginLeft:1}}variant='contained' size='small' onClick={handleAddColumn}><AddIcon /></Button>
-                                    </Tooltip>
-                                </div>
+                            <Stack direction="column" spacing={1}>
                                 <div style={{ height: 320, width: '100%' }}>
-                                    <DataGrid
-                                        apiRef={apiRef}
-                                        rows={columns}
-                                        columns={columnProperties}
-                                        checkboxSelection
-                                        disableRowSelectionOnClick
-                                        density='compact'
-                                        disableColumnMenu
-                                        processRowUpdate={handleRowUpdate}
-                                        slots={{
-                                            noRowsOverlay: CustomNoRowsOverlay
-                                        }}
-                                        editMode="row"
-                                        onRowSelectionModelChange = {handleSelectionChange}
-                                    />
+                                <ColumnListEditor columns={columns}
+                                    onDragEnd = {handleOnDragEnd}
+                                    onUpdateColumn = {updateColumn}
+                                    onAddColumn = {addColumn}
+                                    onRemoveColumn = {removeColumn}
+                                    dataTypes = {dataTypes}
+                                />
                                 </div>
                             </Stack>
                         </TabPanel>

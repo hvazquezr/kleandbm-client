@@ -14,6 +14,8 @@ npm i react-type-animation
 npm install --save html-to-image
 npm i react-code-blocks
 npm install react-copy-to-clipboard
+npm install react-beautiful-dnd --save (not used)
+npm i react-sortablejs
 
 //This is not a dependency for the app; but what I'm using for deployment
 npm i -g vercel

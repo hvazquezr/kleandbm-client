@@ -1,0 +1,67 @@
+import React, {useState, useEffect, useRef} from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Stack, Box, Tooltip, Typography, Button } from '@mui/material';
+import './css/ColumnEditor.css';
+import { ColumnEditor } from './ColumnEditor';
+import AddIcon from '@mui/icons-material/Add';
+
+const ColumnListEditor = ({ columns, dataTypes, onDragEnd, onUpdateColumn, onAddColumn, onRemoveColumn}) => {
+    const endOfListRef = useRef(null); // Ref to the end marker for scrolling
+    const prevColumnsLength = useRef(columns.length); // Ref to store the previous length of columns
+
+    useEffect(() => {
+        // Check if a new item was added by comparing lengths
+        if (columns.length > prevColumnsLength.current && endOfListRef.current) {
+            endOfListRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+        // Update the previous length for the next render
+        prevColumnsLength.current = columns.length;
+    }, [columns.length]);
+
+    return (
+    <Stack direction="column" p={0} s={1}>
+        <Box display="flex" justifyContent="flex-end" paddingBottom={2}>
+            <Tooltip title="Add Column">
+                <Button variant='contained' size='small' onClick={onAddColumn}><AddIcon /></Button>
+            </Tooltip>
+        </Box>
+        <Stack className="grid-header" direction="row">
+            <Box sx={{width:36}}></Box>
+            <Box sx={{width:184}}><Typography variant='overline'>Name</Typography></Box>
+            <Box sx={{width:162}}><Typography variant='overline'>Data Type</Typography></Box>
+            <Box sx={{width:78}}><Tooltip title="Max length"><Typography variant='overline'>ML</Typography></Tooltip></Box>
+            <Box sx={{width:78}}><Tooltip title="Precision"><Typography variant='overline'>P</Typography></Tooltip></Box>
+            <Box sx={{width:70}}><Tooltip title="Scale"><Typography variant='overline'>S</Typography></Tooltip></Box>
+            <Box sx={{width:30}}><Tooltip title="Primary Key"><Typography variant='overline'>PK</Typography></Tooltip></Box>
+            <Box sx={{width:26}}><Tooltip title="Can be Null"><Typography variant='overline'>N</Typography></Tooltip></Box>
+            <Box sx={{width:23}}><Tooltip title="Auto Increment"><Typography variant='overline'>A</Typography></Tooltip></Box>
+            <Box><Typography variant='overline'>Description</Typography></Box>
+        </Stack>
+        <Box overflow="auto" height={260} width={875} className="grid">
+            <DragDropContext onDragEnd={onDragEnd}> 
+                <Droppable droppableId="droppable-columns">
+                    {(provided) => (
+                    <Stack direction="column" spacing={0} {...provided.droppableProps} ref={provided.innerRef}>
+                        {columns.map((column, index) => (
+                        <Draggable key={column.id} draggableId={column.id} index={index}>
+                            {(provided, snapshot) => (
+                            <Stack direction="row" padding={.5} alignItems="center" justifyContent="flex-start" spacing={.5} sx={{width:850}} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} 
+                            className={snapshot.isDragging ? 'item-dragging' : 'item'}
+                            >
+                                <ColumnEditor column={column}  onColumnChange={onUpdateColumn} dataTypes={dataTypes} onRemoveColumn={onRemoveColumn} />
+                            </Stack>
+                            )}
+                        </Draggable>
+                        ))}
+                        {provided.placeholder}
+                        <div ref={endOfListRef} />  
+                    </Stack>
+                    )}
+                </Droppable>
+            </DragDropContext>
+        </Box>
+    </Stack>
+    );
+};
+
+export default ColumnListEditor;
