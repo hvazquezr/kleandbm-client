@@ -42,7 +42,6 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                 value={currentDataType || null}
                 options={dataTypes}
                 getOptionLabel={(option) => option.name}
-                getOptionKey={(option) => option.name}
                 renderInput={(params) => <TextField variant="filled" {...params} 
                 sx={{
                     '& .MuiInputBase-root': {

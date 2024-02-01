@@ -1,11 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { ReactSortable } from "react-sortablejs";
 import { Stack, Box, Tooltip, Typography, Button } from '@mui/material';
 import './css/ColumnEditor.css';
 import { ColumnEditor } from './ColumnEditor';
 import AddIcon from '@mui/icons-material/Add';
 
-const ColumnListEditor = ({ columns, dataTypes, onDragEnd, onUpdateColumn, onAddColumn, onRemoveColumn}) => {
+const ColumnListEditor = ({ columns, setColumns, dataTypes, onUpdateColumn, onAddColumn, onRemoveColumn}) => {
     const endOfListRef = useRef(null); // Ref to the end marker for scrolling
     const prevColumnsLength = useRef(columns.length); // Ref to store the previous length of columns
 
@@ -37,28 +37,25 @@ const ColumnListEditor = ({ columns, dataTypes, onDragEnd, onUpdateColumn, onAdd
             <Box sx={{width:23}}><Tooltip title="Auto Increment"><Typography variant='overline'>A</Typography></Tooltip></Box>
             <Box><Typography variant='overline'>Description</Typography></Box>
         </Stack>
-        <Box overflow="auto" height={260} width={875} className="grid">
-            <DragDropContext onDragEnd={onDragEnd}> 
-                <Droppable droppableId="droppable-columns">
-                    {(provided) => (
-                    <Stack direction="column" spacing={0} {...provided.droppableProps} ref={provided.innerRef}>
-                        {columns.map((column, index) => (
-                        <Draggable key={column.id} draggableId={column.id} index={index}>
-                            {(provided, snapshot) => (
-                            <Stack direction="row" padding={.5} alignItems="center" justifyContent="flex-start" spacing={.5} sx={{width:850}} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} 
-                            className={snapshot.isDragging ? 'item-dragging' : 'item'}
-                            >
-                                <ColumnEditor column={column}  onColumnChange={onUpdateColumn} dataTypes={dataTypes} onRemoveColumn={onRemoveColumn} />
-                            </Stack>
-                            )}
-                        </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        <div ref={endOfListRef} />  
+        <Box overflow="auto" className="grid">
+            <Stack direction="column" spacing={0} >
+            <ReactSortable
+                filter=".addImageButtonContainer"
+                dragClass="item-dragging"
+                list={columns}
+                setList={setColumns}
+                animation="200"
+                easing="ease-out"
+                dataIdAttr="id"
+            >
+                {columns.map((column) => (
+                    <Stack direction="row" padding={.5} alignItems="center" justifyContent="flex-start" spacing={.5} sx={{width:850}} key={column.id} className='item'>
+                        <ColumnEditor column={column}  onColumnChange={onUpdateColumn} dataTypes={dataTypes} onRemoveColumn={onRemoveColumn} />
                     </Stack>
-                    )}
-                </Droppable>
-            </DragDropContext>
+                    ))}
+                <div ref={endOfListRef} />  
+                </ReactSortable>
+            </Stack>
         </Box>
     </Stack>
     );

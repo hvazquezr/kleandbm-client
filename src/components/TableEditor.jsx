@@ -11,7 +11,6 @@ import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Tab from '@mui/material/Tab';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
-import { Portal } from '@mui/base/Portal';
 
 import PsychologyIcon from '@mui/icons-material/Psychology';
 
@@ -25,7 +24,7 @@ const boxStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '80%',
+  width: 1000,
   height: 650,
   bgcolor: 'background.paper',
   border: '1px solid #000',
@@ -91,16 +90,6 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         setDescription(recommendations.description);
         setShowAIEditor(false);
     }
-
-    function handleOnDragEnd(result) {
-        if (!result.destination) return;
-    
-        const items = Array.from(columns);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-    
-        setColumns(items);
-      }
     
       const updateColumn = (updatedColumn) => {
         const newColumns = columns.map(column =>
@@ -126,7 +115,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
 
     return(
         <>
-        <Modal open={true} drag>
+        <Modal open={true}>
             <Box sx={boxStyle}>
                 <Stack direction="column" spacing={1}>
                     <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
@@ -143,10 +132,10 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
                             </TabList>
                         </Box>
                         <TabPanel value="1" sx={{height:400}}>
-                            <Stack direction="column" spacing={1}>
-                                <div style={{ height: 320, width: '100%' }}>
+                            <Stack direction="column" spacing={1} alignItems="center">
+                                <div style={{ height: 320, width: 875 }}>
                                 <ColumnListEditor columns={columns}
-                                    onDragEnd = {handleOnDragEnd}
+                                    setColumns={setColumns}
                                     onUpdateColumn = {updateColumn}
                                     onAddColumn = {addColumn}
                                     onRemoveColumn = {removeColumn}
