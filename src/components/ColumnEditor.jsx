@@ -28,7 +28,7 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
 
     return (
         <React.Fragment>
-            <DragIndicatorIcon />
+            <DragIndicatorIcon sx={{ '&:hover': { cursor: 'pointer' } }}/>
             <TextField name="name" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.name} onChange={handleChange}
                 InputProps={{
                     inputProps: {
@@ -112,7 +112,7 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                         zIndex: isFocused ? 100 : 0, // Ensure it covers other elements
                         transition: 'all 0.3s ease', // Smooth transition for effect
                     }} />
-                </Tooltip>
+            </Tooltip>
             <IconButton aria-label="delete" size="small" sx={{display: (isFocused || editedColumn.primaryKey)?'none':'block'}} onClick={() => onRemoveColumn(editedColumn.id)}>
                 <DeleteIcon fontSize="small" />
             </IconButton>
