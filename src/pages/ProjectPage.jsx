@@ -147,6 +147,10 @@ const ProjectPage = () => {
       lastOperation();
     }
   };
+
+  const addToUndoStack = (operation) => {
+    setUndoStack((prevStack) => [...prevStack, operation]);
+  };
   
   //Helper functions
   async function updateRequest(path, payload) {
@@ -185,7 +189,7 @@ const ProjectPage = () => {
 
 
   const addRelationship = useCallback(
-      (params) => {
+      (params, addUndo = true) => {
       // Retrieve columns of source node
       const parentTable = (nodes.filter((n) => n.id === params.source)[0]).data;
       const childNode = (nodes.filter((n) => n.id === params.target)[0]);
@@ -214,6 +218,9 @@ const ProjectPage = () => {
                                 }
         updateRequest(`projects/${id}/relationships/${newRelationship.id}`, newRelationship.data);
         setEdges((eds) => addEdge(newRelationship, eds));
+        if (addUndo){
+          addToUndoStack(() => deleteRelationship(newRelationship, true, false));
+        }
       }
       else{
         setWarningMessage(<div><strong>{parentTable.name}</strong> does not have a primary key.</div>);
@@ -389,7 +396,7 @@ const ProjectPage = () => {
     setToDeleteRelationship(edge);
   }
 
-  const deleteRelationship = (relationshipToDelete, shouldUpdateNode = true) => {
+  const deleteRelationship = (relationshipToDelete, shouldUpdateNode = true, addUndo = true) => {
 
     if (shouldUpdateNode) {
       const targetNode = nodes.filter((n) => {return n.id === relationshipToDelete.target})[0];
@@ -401,6 +408,9 @@ const ProjectPage = () => {
     // Deleting actual edge from UI
     setEdges((es) => es.filter((e) => e.id !== relationshipToDelete.id));
     setToDeleteRelationship(null);
+    if (addUndo){
+      addToUndoStack(() => addRelationship({target: relationshipToDelete.target, source:relationshipToDelete.source}, addUndo=false))
+    }
   }
   
 
@@ -423,7 +433,7 @@ const ProjectPage = () => {
   const saveProjectName = async (e) => {
     const newName = {name: e.target.value};
     updateRequest(`projects/${id}`, newName);
-    setUndoStack((prevStack) => [...prevStack, () => {updateRequest(`projects/${id}`, {name: previousProjectName}); setProjectName(previousProjectName);}]);
+    addToUndoStack(() => {updateRequest(`projects/${id}`, {name: previousProjectName}); setProjectName(previousProjectName);})
     setPreviousProjectName(newName.name);
   };
 
@@ -434,13 +444,13 @@ const ProjectPage = () => {
   const saveProjectDescription = async (e) => {
     const newDescription = {description: e.target.value};
     updateRequest(`projects/${id}`, newDescription);
-    setUndoStack((prevStack) => [...prevStack, () => {updateRequest(`projects/${id}`, {description: previousProjectDescription}); setProjectDescription(previousProjectDescription);}]);
+    addToUndoStack(() => {updateRequest(`projects/${id}`, {description: previousProjectDescription}); setProjectDescription(previousProjectDescription);});
     setPreviousProjectDescription(newDescription.description);
   };
 
   const onNodeDragStop = useCallback(async (event, node) => {
     updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
-    setUndoStack((prevStack) => [...prevStack, () => {undoNodeDrag(node.id, node.data.oldPosition)}]);
+    addToUndoStack(() => {undoNodeDrag(node.id, node.data.oldPosition)});
   }, []);
 
   const undoNodeDrag = async (nodeId, position) => {
