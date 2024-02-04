@@ -440,6 +440,36 @@ const ProjectPage = () => {
 
   const onNodeDragStop = useCallback(async (event, node) => {
     updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
+    setUndoStack((prevStack) => [...prevStack, () => {undoNodeDrag(node.id, node.data.oldPosition)}]);
+  }, []);
+
+  const undoNodeDrag = async (nodeId, position) => {
+    updateRequest(`projects/${id}/nodes/${nodeId}`, position);
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === nodeId) {
+          // it's important that you create a new object here
+          // in order to notify react flow about the change
+          n = deepCopyObject(n);
+          n.position = position;
+        }
+        return n;
+      }
+    ));    
+  }
+
+  const onNodeDragStart = useCallback(async (event, node) => {
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === node.id) {
+          // it's important that you create a new object here
+          // in order to notify react flow about the change
+          n = deepCopyObject(node);
+          n.data.oldPosition = n.position;
+        }
+        return n;
+      }
+    ));
   }, []);
   
   useEffect(() => {
@@ -557,6 +587,7 @@ const ProjectPage = () => {
               edgeTypes = {edgeTypes}
               connectionLineComponent = {FloatingConnectionLine}
               onNodeDragStop = {onNodeDragStop}
+              onNodeDragStart = {onNodeDragStart}
               projectId = {id}
               projectName = {projectName}
               projectDescription = {projectDescription}
