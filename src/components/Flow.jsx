@@ -38,7 +38,9 @@ export default function Flow({
   onProjectDescriptionBlur,
   lastModified,
   projectCreatorName,
-  dbTechnology
+  dbTechnology,
+  undo,
+  undoStack
 }) {
 
   const [paneMenu, setPaneMenu] = useState(null);
@@ -140,7 +142,15 @@ export default function Flow({
             </Panel>
             <Controls />
             <MiniMap pannable = 'true' zoomable = 'true' />
-            {paneMenu && <PaneContextMenu onClick={onPaneClick} menuOptions={paneMenu} onAddTable={onAddTable} onAddTableWithAI={onAddTableWithAI} onAddNote={null}/>}
+            {paneMenu && <PaneContextMenu 
+              onClick={onPaneClick}
+              menuOptions={paneMenu}
+              onAddTable={onAddTable}
+              onAddTableWithAI={onAddTableWithAI}
+              onAddNote={null}
+              undo = {undo}
+              undoStack = {undoStack}
+            />}
             {nodeMenu && <TableContextMenu onClick={onPaneClick} menuOptions={nodeMenu} onDeleteTable={onDeleteTable} onEditTable={onEditTable}/>}
             {edgeMenu && <RelationshipContextMenu onClick={onPaneClick} menuOptions={edgeMenu} onDeleteRelationship={onDeleteRelationship}/>}
         </ReactFlow>

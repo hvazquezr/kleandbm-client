@@ -7,9 +7,10 @@ import { ListItemIcon, ListItemText } from '@mui/material';
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
 import PsychologyIcon from '@mui/icons-material/Psychology';
+import UndoIcon from '@mui/icons-material/Undo';
 
 
-export default function PaneContextMenu({onClick, menuOptions, onAddTable, onAddTableWithAI, onAddNote}){
+export default function PaneContextMenu({onClick, menuOptions, onAddTable, onAddTableWithAI, onAddNote, undo, undoStack}){
     const {project } = useReactFlow();
 
     const handleAddTable = useCallback(() => {
@@ -49,7 +50,13 @@ export default function PaneContextMenu({onClick, menuOptions, onAddTable, onAdd
                     <StickyNote2OutlinedIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Add Note</ListItemText>
-            </MenuItem>            
+            </MenuItem>
+            <MenuItem onClick={undo} disabled={undoStack.length == 0}>
+                <ListItemIcon>
+                    <UndoIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Undo</ListItemText>
+            </MenuItem>             
         </Menu>
     );
 }

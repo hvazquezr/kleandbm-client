@@ -119,14 +119,17 @@ import {apiUrl} from '../config/UrlConfig.jsx'
 const ProjectPage = () => {
   const {id} = useParams();
   const {user, logout, getAccessTokenSilently} = useAuth0();
+  const [undoStack, setUndoStack] = useState([]);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
+  const [previousProjectName, setPreviousProjectName] = useState("");
   const [dbTechnology, setDbTechnology] = useState(0);
   const [activeTable, setActiveTable] = useState(null);
   const [toDeleteTable, setToDeleteTable] = useState(null);
   const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
   const [warningMessage, setWarningMessage]= useState(null);
+  const [previousProjectDescription, setPreviousProjectDescription] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastModified, setLastModified] = useState(null);
@@ -136,6 +139,14 @@ const ProjectPage = () => {
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
+
+  const undo = () => {
+    const lastOperation = undoStack.pop();
+    setUndoStack([...undoStack]); // Update the undoStack state
+    if (lastOperation) {
+      lastOperation();
+    }
+  };
   
   //Helper functions
   async function updateRequest(path, payload) {
@@ -412,6 +423,8 @@ const ProjectPage = () => {
   const saveProjectName = async (e) => {
     const newName = {name: e.target.value};
     updateRequest(`projects/${id}`, newName);
+    setUndoStack((prevStack) => [...prevStack, () => {updateRequest(`projects/${id}`, {name: previousProjectName}); setProjectName(previousProjectName);}]);
+    setPreviousProjectName(newName.name);
   };
 
   const updateProjecDescription = (e) => {
@@ -419,8 +432,10 @@ const ProjectPage = () => {
   };
 
   const saveProjectDescription = async (e) => {
-    const newName = {description: e.target.value};
-    updateRequest(`projects/${id}`, newName);
+    const newDescription = {description: e.target.value};
+    updateRequest(`projects/${id}`, newDescription);
+    setUndoStack((prevStack) => [...prevStack, () => {updateRequest(`projects/${id}`, {description: previousProjectDescription}); setProjectDescription(previousProjectDescription);}]);
+    setPreviousProjectDescription(newDescription.description);
   };
 
   const onNodeDragStop = useCallback(async (event, node) => {
@@ -440,7 +455,9 @@ const ProjectPage = () => {
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
               const nodesAndEdges = readyNodesAndEdges(project);
               setProjectName(project.name);
+              setPreviousProjectName(project.name);
               setProjectDescription(project.description);
+              setPreviousProjectDescription(project.description);
               setProjectCreatorName(project.owner.name);
               setLastModified(project.lastModified);
               setNodes(nodesAndEdges.updatedNodes);
@@ -550,6 +567,8 @@ const ProjectPage = () => {
               lastModified = {lastModified}
               projectCreatorName = {projectCreatorName}
               dbTechnology={dbTechnology}
+              undo = {undo}
+              undoStack = {undoStack}
             />
           </Main>
         </ReactFlowProvider>

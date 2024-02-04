@@ -80,6 +80,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         node.data.name = tableName;
         node.data.columns = columns;
         node.data.description = description;
+        console.log(node);
         setCancelDisabled(true);
         onDone(node);
     };
@@ -102,9 +103,9 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         const newColumn = {
           id: nanoid(),
           name: '',
-          dataType: null
+          dataType: null,
           //dataType: dataTypes[0]?.name || '',
-          // other default values
+          description: ''
         };
         setColumns([...columns, newColumn]);
       };

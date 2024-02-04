@@ -47,7 +47,14 @@ export default memo(({data, isConnectable}) => {
                         <TableCell >
                         {column.name}
                         </TableCell>
-                        <TableCell align="right">{column.dataType}</TableCell>
+                        <TableCell align="right">
+                            {column.dataType +
+                                (column.maxLength ? `(${column.maxLength})` :
+                                column.precision && column.scale ? `(${column.precision}, ${column.scale})` :
+                                column.precision ? `(${column.precision})` :
+                                column.scale ? `(${column.scale})` : '')}
+                        </TableCell>
+
                         <TableCell align="right" sx={{color:green[800], fontWeight:'bold'}}>{column.primaryKey?'PK':''}</TableCell>
                     </TableRow>
                     ))}

@@ -8,14 +8,25 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
     const currentDataType = dataTypes.find(dt => dt.name === column.dataType);
     const [isFocused, setIsFocused] = useState(false);
 
-    const coverWidth = 520;
+    const coverWidth = 510;
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         const newValue = type === "checkbox" ? checked : value;
-        setEditedColumn({ ...editedColumn, [name]: newValue });
-        onColumnChange({ ...editedColumn, [name]: newValue });
+    
+        let updatedColumn = { ...editedColumn, [name]: newValue };
+    
+        // If primaryKey is being set to true, also set canBeNull to false
+        if (name === "primaryKey" && newValue === true) {
+            updatedColumn.canBeNull = false;
+        }
+    
+        // Log, set the edited column, and trigger column change callback with the updated column
+        console.log(updatedColumn);
+        setEditedColumn(updatedColumn);
+        onColumnChange(updatedColumn);
     };
+    
 
     const handleAutocompleteChange = (event, newValue) => {
         if (newValue) {
@@ -56,7 +67,7 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
   
                 isOptionEqualToValue={(option, value) => option.name === value.name}
             />
-            <TextField name="maxLength" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.maxLength} onChange={handleChange}
+            <TextField name="maxLength" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.maxLength ?? ''} onChange={handleChange}
                 type="number"
                 InputProps={{
                     inputProps: {
@@ -68,7 +79,7 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                     display: isFocused?'none':'block',
                     visibility: !(currentDataType && currentDataType.needsMaxLength)?'hidden':'visible'
                 }} />
-            <TextField name="precision" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.precision} onChange={handleChange}
+            <TextField name="precision" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.precision ?? ''} onChange={handleChange}
                 type="number"
                 InputProps={{
                     inputProps: {
@@ -80,7 +91,7 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                     display: isFocused?'none':'block',
                     visibility: !(currentDataType && currentDataType.needsPrecision)?'hidden':'visible'
                 }} />
-            <TextField name="scale" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.scale} onChange={handleChange}
+            <TextField name="scale" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.scale ?? ''} onChange={handleChange}
                 type="number"
                 InputProps={{
                     inputProps: {
@@ -92,9 +103,15 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                     display: isFocused?'none':'block',
                     visibility: !(currentDataType && currentDataType.needsScale)?'hidden':'visible'
                 }} />
-            <Checkbox name="primaryKey" checked={editedColumn.primaryKey} onChange={handleChange} sx={{ p: 0, display: isFocused?'none':'block'}} />
-            <Checkbox name="canBeNull" checked={editedColumn.canBeNull} onChange={handleChange} sx={{ p: 0, display: isFocused?'none':'block' }} />
-            <Checkbox name="autoIncrementOn" checked={editedColumn.autoIncrementOn} onChange={handleChange} sx={{ p: 0, display: isFocused?'none':'block' }} disabled={!currentDataType?.supportsAutoIncrement}/>
+            <Checkbox name="primaryKey" checked={editedColumn.primaryKey ?? false} onChange={handleChange} sx={{ p: 0, display: isFocused?'none':'block'}} />
+            <Checkbox
+                name="canBeNull"
+                checked={!column.primaryKey && (editedColumn.canBeNull ?? false)}
+                disabled={column.primaryKey}
+                onChange={handleChange}
+                sx={{ p: 0, display: isFocused ? 'none' : 'block' }}
+            />
+            <Checkbox name="autoIncrementOn" checked={editedColumn.autoIncrementOn ?? false} onChange={handleChange} sx={{ p: 0, display: isFocused?'none':'block' }} disabled={!currentDataType?.supportsAutoIncrement}/>
             <Tooltip title={editedColumn.description} arrow disableFocusListener disableTouchListener enterDelay={200} leaveDelay={200}>
                 <TextField name="description" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.description} onChange={handleChange}
                     onFocus={() => setIsFocused(true)}

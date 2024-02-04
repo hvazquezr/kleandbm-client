@@ -1,5 +1,5 @@
-import { Position, MarkerType } from 'reactflow'
-import { columnProperties, databaseTechnologies } from '../config/Constants'
+import { Position } from 'reactflow'
+import { databaseTechnologies } from '../config/Constants'
 
 // this helper function returns the intersection point
 // of the line between the center of the intersectionNode and the target node

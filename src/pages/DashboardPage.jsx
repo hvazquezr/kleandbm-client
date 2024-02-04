@@ -20,7 +20,6 @@ import ProjectCard from '../components/ProjectCard.jsx';
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
 import LoadingPage from './LoadingPage.jsx';
-import { databaseTechnologies } from '../config/Constants.jsx';
 import {apiUrl} from '../config/UrlConfig.jsx'
 
 

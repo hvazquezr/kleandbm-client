@@ -36,7 +36,7 @@ export default function LandingPage() {
                 justifyContent="center"
                 divider={<Divider orientation="vertical" flexItem/>}
                 sx={{width:'100%'}}>
-                    <img src={"./images/k.png"} style={{ borderRadius: '50%', width:'300px', height:'300px' }}/>
+                    <img src={"./images/projectsPlaceholder.png"} style={{ borderRadius: '50%', width:'300px', height:'300px' }}/>
                     <Stack direction="column" spacing={2}>
                         <Typography variant="h2" sx={{color:"#1080DB"}}>AI-Accelerated <span style={{color:"#535354" }}>Database Design</span></Typography>
                         <Typography variant="h6">

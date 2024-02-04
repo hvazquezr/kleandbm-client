@@ -24,3 +24,13 @@ npm i -g vercel
 
 Client ID: 963784957680-2hlh0on9junrh7prp31s5o7iis376j52.apps.googleusercontent.com
 Client Secret: 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
+
+Functions to handle undo
+addRelationship, deleteRelationship
+handleAITableCreatorDone, handleConfirmDeleteNode + deleteRelationship
+updateNode, updateNode (previous state)
+saveProjectName, saveProjectName (old name)
+saveProjectDescription, saveProjectDescription (old description)
+onNodeDragStop, onNodeDragStop (old coordinates)
+handleConfirmDeleteNode, updateNode (pre deletion)
+deleteRelationship, addRelationship
