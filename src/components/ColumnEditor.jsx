@@ -22,7 +22,6 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
         }
     
         // Log, set the edited column, and trigger column change callback with the updated column
-        console.log(updatedColumn);
         setEditedColumn(updatedColumn);
         onColumnChange(updatedColumn);
     };

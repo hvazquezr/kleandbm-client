@@ -325,7 +325,7 @@ const ProjectPage = () => {
 
   const handleEditTable = (id) =>{
     //const node = getNode(nodeId);
-    const node = nodes.filter((n) => {return n.id === id})[0];
+    const node = deepCopyObject(nodes.filter((n) => {return n.id === id})[0]);
     setActiveTable(node);
   };
 
@@ -342,7 +342,7 @@ const ProjectPage = () => {
 
     // Iterate over the array to delete the relationsihps.
     // Only in the cases where the node is the source the child objects should be updated
-    relatedRelationships.forEach(e => deleteRelationship(e, (e.source === nodeToDelete.id)));
+    relatedRelationships.forEach(e => deleteRelationship(e, (e.source === nodeToDelete.id), true, false));
 
     deleteRequest(`projects/${id}/tables/${nodeToDelete.data.id}`);
     deleteRequest(`projects/${id}/nodes/${nodeId}`);
@@ -354,7 +354,7 @@ const ProjectPage = () => {
   };
 
   const updateNode = (node, isNew = false) => {
-    console.log(node);
+    console.log('Calling updateNode');
     // Cleaning copy of the node
     const copyNode = {
       id: node.id, 
@@ -373,6 +373,7 @@ const ProjectPage = () => {
       delete node.new;
       const newN = deepCopyObject(node);
       setNodes((nds) => nds.concat(newN));
+      // undo is to call handleConfirmDeleteNode with newN
     }
     else{
       // Updating in Flow
@@ -381,6 +382,7 @@ const ProjectPage = () => {
           if (n.id === node.id) {
             // it's important that you create a new object here
             // in order to notify react flow about the change
+            // undo is to call updateNode with n before it's modified
             n = deepCopyObject(node);
           }
           return n;
@@ -388,6 +390,29 @@ const ProjectPage = () => {
       ));
     }
     setActiveTable(null);
+  };
+
+  const updateNodeWithUndo = async (node, isNew = false) => {
+    console.log('Calling updateNodeWithUndo');
+    let oldNode = null;
+    if (isNew || node.new){
+      // If it's new the undo action is to delete it
+      addToUndoStack(() => handleConfirmDeleteNode(node))
+    }
+    else{
+      // If it's an update find the current element and send it to to the undo stack
+      console.log(nodes);
+      nodes.forEach(n => {
+        if (n.id === node.id) {
+          console.log(n);
+          oldNode = deepCopyObject(n);
+          console.log(oldNode);
+          addToUndoStack(() => updateNode(oldNode));
+        }
+      });      
+    }
+    // Perform normal operaion after so that the previous node state can be saved before it's modified
+    updateNode(node, isNew);
   };
 
   const handleDeleteRelationship = (id) => {
@@ -620,7 +645,7 @@ const ProjectPage = () => {
                       projectId={id}
                       dbTechnologyId={dbTechnology}
                       onCancel={() => {setActiveTable(null)}}
-                      onDone={updateNode}
+                      onDone={updateNodeWithUndo}
                       />}
     {toDeleteTable && <DeleteConfirm
                       type='table' 

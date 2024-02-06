@@ -80,7 +80,6 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         node.data.name = tableName;
         node.data.columns = columns;
         node.data.description = description;
-        console.log(node);
         setCancelDisabled(true);
         onDone(node);
     };
