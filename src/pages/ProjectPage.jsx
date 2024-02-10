@@ -149,6 +149,8 @@ const ProjectPage = () => {
   };
 
   const addToUndoStack = (operation) => {
+    console.log('adding:');
+    console.log(operation);
     setUndoStack((prevStack) => [...prevStack, operation]);
   };
   
@@ -228,6 +230,11 @@ const ProjectPage = () => {
     }, [nodes, setEdges]
   );
 
+  async function undoAIRecommendations(nodesToUndo, edgesToUndo){
+    nodesToUndo.forEach(n => {handleConfirmDeleteNode(n)});
+    edgesToUndo.forEach(r => {deleteRelationship(r, false, false)});
+  };
+
   //Handlers
 
   async function handleAITableCreatorDone(instructions) {
@@ -264,14 +271,15 @@ const ProjectPage = () => {
                       
                       // Because state does not get refreshed right away addRelationship cannot be used.
                       // The relationships will be added here
-                      //recommendations.newEdges.forEach(e => addRelationship(e));
+                      //recommendations.newEdges.forEach(e => addRelationship(e, false));
                       for (const e of recommendations.newEdges) {
                         console.log(e);
                         updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
                         setEdges((eds) => addEdge(e, eds));
                       }
                       //setIsCompleteAITable(true);
-        
+
+                      addToUndoStack(() => undoAIRecommendations(recommendations.newNodes, recommendations.newEdges));
                       setShowAITableCreator(false);
                     }
                     else {
@@ -334,6 +342,7 @@ const ProjectPage = () => {
     setToDeleteTable(node);
   };
 
+
   const handleConfirmDeleteNode = (nodeToDelete) =>{
     const nodeId = nodeToDelete.id
 
@@ -342,7 +351,7 @@ const ProjectPage = () => {
 
     // Iterate over the array to delete the relationsihps.
     // Only in the cases where the node is the source the child objects should be updated
-    relatedRelationships.forEach(e => deleteRelationship(e, (e.source === nodeToDelete.id), true, false));
+    relatedRelationships.forEach(e => deleteRelationship(e, (e.source === nodeToDelete.id), false));
 
     deleteRequest(`projects/${id}/tables/${nodeToDelete.data.id}`);
     deleteRequest(`projects/${id}/nodes/${nodeId}`);
@@ -353,7 +362,15 @@ const ProjectPage = () => {
     setToDeleteTable(null);
   };
 
-  const updateNode = (node, isNew = false) => {
+  const undoDeleteNode = async (node, relationships) => {
+    // Restablish node
+    node.new = true;
+    updateNode(node, true);
+    relationships.forEach(r => addRelationship(r, false));
+  };
+
+
+  const updateNode = async (node, isNew = false) => {
     console.log('Calling updateNode');
     // Cleaning copy of the node
     const copyNode = {
@@ -390,6 +407,14 @@ const ProjectPage = () => {
       ));
     }
     setActiveTable(null);
+  };
+
+  const handleConfirmDeleteNodeWithUndo = async (node) => {
+    const relatedRelationships = edges.filter((edge) => edge.source === node.id || edge.target === node.id);
+    const nodeCopy = deepCopyObject(node);
+    addToUndoStack(() => undoDeleteNode(nodeCopy, relatedRelationships));
+    //addToUndoStack(() => {console.log('hello1'); updateNode(node, true); console.log('hello2');{relatedRelationships.forEach(r => addRelationship(r, false))};});
+    handleConfirmDeleteNode(node);
   };
 
   const updateNodeWithUndo = async (node, isNew = false) => {
@@ -650,7 +675,7 @@ const ProjectPage = () => {
     {toDeleteTable && <DeleteConfirm
                       type='table' 
                       object={toDeleteTable}
-                      onConfirm={handleConfirmDeleteNode}
+                      onConfirm={handleConfirmDeleteNodeWithUndo}
                       onCancel={() => {setToDeleteTable(null)}}
                       />}
     {toDeleteRelationship && <DeleteConfirm
