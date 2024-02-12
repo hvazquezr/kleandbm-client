@@ -128,7 +128,7 @@ const ProjectPage = () => {
   const [activeTable, setActiveTable] = useState(null);
   const [toDeleteTable, setToDeleteTable] = useState(null);
   const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
-  const [warningMessage, setWarningMessage]= useState(null);
+  const [Message, setWarningMessage]= useState(null);
   const [previousProjectDescription, setPreviousProjectDescription] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
@@ -664,7 +664,7 @@ const ProjectPage = () => {
           </Main>
         </ReactFlowProvider>
     </Box>
-    <Warning message={warningMessage} closeWarning={() => {setWarningMessage(null)}} />
+    <Warning message={Message} closeWarning={() => {setWarningMessage(null)}} />
     {activeTable && <TableEditor
                       node={activeTable}
                       projectId={id}

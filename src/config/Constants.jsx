@@ -100,7 +100,66 @@ export const databaseTechnologies = [
                 needsScale: false,
                 active: true
             }                            
-        ]
+        ],
+        columnNameValidator: function (columnName) {
+            // Define basic reserved Snowflake keywords (extend this list as needed)
+            // Note: This is a simplified list; consider referencing the full list from Snowflake documentation
+            const reservedKeywords = ['COLUMN', 'SELECT', 'INSERT', 'DELETE', 'UPDATE', 'CREATE', 'ALTER', 'DROP', 'TABLE', 'VIEW', 'FROM', 'WHERE'];
+        
+            // Check if the name is meaningful
+            if (!columnName || columnName.trim().length === 0) {
+                return 'Column name must not be empty.';
+            }
+        
+            // Check length (Snowflake supports up to 255 characters)
+            if (columnName.length > 255) {
+                return 'Column name must not exceed 255 characters.';
+            }
+        
+            // Check for reserved keywords (assuming columnName is provided in its normalized form or checking is case-insensitive)
+            if (reservedKeywords.includes(columnName.toUpperCase())) {
+                return 'Column name must not use reserved Snowflake keywords.';
+            }
+        
+            // Check for special characters in unquoted identifiers
+            if (!/^[A-Za-z0-9_]+$/.test(columnName)) {
+                return 'Column name must only contain alphanumeric characters and underscores for unquoted identifiers.';
+            }
+        
+            // If all checks pass
+            return '';
+        },
+        tableNameValidator: function (tableName) {
+            // Define basic reserved Snowflake keywords (this list might need adjustments for table-specific context)
+            const reservedKeywords = [
+                'COLUMN', 'SELECT', 'INSERT', 'DELETE', 'UPDATE', 'CREATE', 
+                'ALTER', 'DROP', 'TABLE', 'VIEW', 'FROM', 'WHERE', 'JOIN', 
+                'GROUP', 'ORDER', 'LIMIT'
+            ];
+        
+            // Check if the name is meaningful
+            if (!tableName || tableName.trim().length === 0) {
+                return 'Table name must not be empty.';
+            }
+        
+            // Check length (Snowflake supports up to 255 characters for identifiers)
+            if (tableName.length > 255) {
+                return 'Table name must not exceed 255 characters.';
+            }
+        
+            // Check for reserved keywords (assuming tableName is provided in its normalized form or checking is case-insensitive)
+            if (reservedKeywords.includes(tableName.toUpperCase())) {
+                return 'Table name must not use reserved Snowflake keywords.';
+            }
+        
+            // Check for special characters in unquoted identifiers
+            if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
+                return 'Table name must only contain alphanumeric characters and underscores for unquoted identifiers.';
+            }
+        
+            // If all checks pass
+            return '';
+        }                
     },
     {
         id: 2,
@@ -130,6 +189,60 @@ export const databaseTechnologies = [
         id: 3,
         name: 'SQL Server',
         active: true,
+        tableNameValidator: function(tableName) {
+            // Define basic reserved SQL keywords (extend this list as needed)
+            const reservedKeywords = ['TABLE', 'SELECT', 'INSERT', 'DELETE', 'UPDATE', 'CREATE', 'ALTER', 'DROP', 'EXEC', 'WHERE', 'FROM', 'JOIN'];
+        
+            // Check if the name is meaningful
+            if (!tableName || tableName.trim().length === 0) {
+              return 'Table name must not be empty.';
+            }
+        
+            // Check length
+            if (tableName.length > 128) {
+              return 'Table name must not exceed 128 characters.';
+            }
+        
+            // Check for reserved keywords
+            if (reservedKeywords.includes(tableName.toUpperCase())) {
+                return 'Table name must not use reserved SQL keywords.';
+            }
+        
+            // Check for special characters
+            if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
+                return 'Table name must only contain alphanumeric characters and underscores.';
+            }
+        
+            // If all checks pass
+            return '';
+        },
+        columnNameValidator: function(columnName) {
+            // Define basic reserved SQL keywords (extend this list as needed)
+            const reservedKeywords = ['COLUMN', 'SELECT', 'INSERT', 'DELETE', 'UPDATE', 'CREATE', 'ALTER', 'DROP', 'EXEC', 'WHERE', 'FROM', 'JOIN'];
+        
+            // Check if the name is meaningful
+            if (!columnName || columnName.trim().length === 0) {
+              return 'Column name must not be empty.';
+            }
+        
+            // Check length
+            if (columnName.length > 128) {
+              return 'Column name must not exceed 128 characters.';
+            }
+        
+            // Check for reserved keywords
+            if (reservedKeywords.includes(columnName.toUpperCase())) {
+                return 'Column name must not use reserved SQL keywords.';
+            }
+        
+            // Check for special characters
+            if (!/^[A-Za-z0-9_]+$/.test(columnName)) {
+                return 'Column name must only contain alphanumeric characters and underscores.';
+            }
+        
+            // If all checks pass
+            return '';
+        },
         dataTypes: [
             { id: 1, name: "bigint", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },
             { id: 2, name: "int", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true, supportsAutoIncrement: true },

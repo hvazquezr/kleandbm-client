@@ -3,7 +3,7 @@ import { Checkbox, TextField, Autocomplete, Tooltip, IconButton, Box } from '@mu
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes }) => {
+export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes, columnErrors }) => {
     const [editedColumn, setEditedColumn] = useState(column);
     const currentDataType = dataTypes.find(dt => dt.name === column.dataType);
     const [isFocused, setIsFocused] = useState(false);
@@ -45,7 +45,8 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                         style: { padding: '7px' } // Adjust the padding value as needed
                     }
                 }}
-                sx={{width: 180}} 
+                sx={{width: 180}}
+                error={columnErrors && (column.id in columnErrors)}
             />
             <Autocomplete
                 onChange={handleAutocompleteChange}

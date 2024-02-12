@@ -10,6 +10,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Tab from '@mui/material/Tab';
+import { useSnackbar } from 'notistack';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
 
 import PsychologyIcon from '@mui/icons-material/Psychology';
@@ -37,6 +38,7 @@ const buttonStyle = {
 };
 
 export default function TableEditor({node, projectId, dbTechnologyId, onDone, onCancel}) {
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [tableName, setTableName] = useState(node.data.name);
     const [columns, setColumns] = useState(node.data.columns);
     const [description, setDescription] = useState(node.data.description);
@@ -44,7 +46,9 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
     const [tabValue, setTabValue] = useState('1');
     const [showAIEditor, setShowAIEditor] = useState(false);
     const [dbTechnology, setDbTechnology] = useState();
-    const [dataTypes, setDataTypes] = useState([]);    
+    const [dataTypes, setDataTypes] = useState([]);
+    const [columnErrors, setColumnErrors] = useState({});
+    const [tableNameError, setTableNameError] = useState("");    
 
     useEffect(() => {
         const technology = databaseTechnologies.find(tech => tech.id === dbTechnologyId);
@@ -61,6 +65,37 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         }
       }, []);
 
+      const validateColumns = (columns) => {
+        const errors = {};
+        // Object to track occurrence of column names
+        const seenColumnNames = {};
+    
+        columns.forEach(column => {
+            // Perform other validations first
+            let error = dbTechnology.columnNameValidator(column.name);
+            if (error !== '') {
+                errors[column.id] = error; // Store the error message against the column's ID
+                enqueueSnackbar(error, {variant: 'error'});
+            }
+    
+            // Then check for repeated column names
+            if (seenColumnNames[column.name.toUpperCase()]) {
+                // If the name is repeated and no other validation error was recorded for this column
+                if (!errors[column.id]) {
+                    error = 'Column name is repeated.';
+                    errors[column.id] = error; // Associate the error with the second occurrence
+                    enqueueSnackbar(error, {variant: 'error'});
+                }
+            } else {
+                // Mark this column name as seen if no error was found
+                seenColumnNames[column.name.toUpperCase()] = true;
+            }
+        });
+    
+        return errors;
+    };    
+    
+
 
     const handleEditTableName = (e) => {
         setTableName(e.target.value);
@@ -75,13 +110,29 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
     };
 
     const handleDone = (e) => {
-        //@TODO: need to add description to the interface
-        //const data = {id: node.data.id, name: tableName, columns, description: ''};
-        node.data.name = tableName;
-        node.data.columns = columns;
-        node.data.description = description;
-        setCancelDisabled(true);
-        onDone(node);
+        let errors = {};
+        let tbNameError = "";
+        closeSnackbar();
+        setColumnErrors({});
+        errors = validateColumns(columns);
+        tbNameError = dbTechnology.tableNameValidator(tableName);
+        if (tbNameError !== ""){
+            setTableNameError(tbNameError);
+            enqueueSnackbar(tbNameError, {variant: 'error'});
+        }
+        // If there are no errors reported
+        if (Object.keys(errors).length === 0 && tbNameError===""){
+            //@TODO: need to add description to the interface
+            //const data = {id: node.data.id, name: tableName, columns, description: ''};
+            node.data.name = tableName;
+            node.data.columns = columns;
+            node.data.description = description;
+            setCancelDisabled(true);
+            onDone(node);
+        }
+        else{
+            setColumnErrors(errors);
+        }
     };
 
     const handleAITableEditorRecommendations = (recommendations) => {
@@ -119,7 +170,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
             <Box sx={boxStyle}>
                 <Stack direction="column" spacing={1}>
                     <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
-                        <TextField  sx={{width:'100%'}} label="Table Name" variant="outlined" value={tableName} onChange={handleEditTableName} required/>
+                        <TextField  sx={{width:'100%'}} label="Table Name" variant="outlined" value={tableName} onChange={handleEditTableName} required error={tableNameError !== ""}/>
                         <Tooltip title="Edit Table with AI">
                             <span><Button sx={{height:56, marginLeft:1}} variant='contained' size='large' onClick={() => {setShowAIEditor(true)}} color='secondary'><PsychologyIcon /></Button></span>
                         </Tooltip>
@@ -140,6 +191,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
                                     onAddColumn = {addColumn}
                                     onRemoveColumn = {removeColumn}
                                     dataTypes = {dataTypes}
+                                    columnErrors={columnErrors}
                                 />
                                 </div>
                             </Stack>

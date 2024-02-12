@@ -5,7 +5,7 @@ import './css/ColumnEditor.css';
 import { ColumnEditor } from './ColumnEditor';
 import AddIcon from '@mui/icons-material/Add';
 
-const ColumnListEditor = ({ columns, setColumns, dataTypes, onUpdateColumn, onAddColumn, onRemoveColumn}) => {
+const ColumnListEditor = ({ columns, setColumns, dataTypes, onUpdateColumn, onAddColumn, onRemoveColumn, columnErrors}) => {
     const endOfListRef = useRef(null); // Ref to the end marker for scrolling
     const prevColumnsLength = useRef(columns.length); // Ref to store the previous length of columns
 
@@ -17,6 +17,7 @@ const ColumnListEditor = ({ columns, setColumns, dataTypes, onUpdateColumn, onAd
         // Update the previous length for the next render
         prevColumnsLength.current = columns.length;
     }, [columns.length]);
+      
 
     return (
     <Stack direction="column" p={0} s={1}>
@@ -50,7 +51,7 @@ const ColumnListEditor = ({ columns, setColumns, dataTypes, onUpdateColumn, onAd
             >
                 {columns.map((column) => (
                     <Stack direction="row" padding={.5} alignItems="center" justifyContent="flex-start" spacing={.5} sx={{width:850}} key={column.id} className='item'>
-                        <ColumnEditor column={column}  onColumnChange={onUpdateColumn} dataTypes={dataTypes} onRemoveColumn={onRemoveColumn} />
+                        <ColumnEditor column={column}  onColumnChange={onUpdateColumn} dataTypes={dataTypes} onRemoveColumn={onRemoveColumn} columnErrors={columnErrors} />
                     </Stack>
                     ))}
                 <div ref={endOfListRef} />  

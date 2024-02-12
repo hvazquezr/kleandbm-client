@@ -16,6 +16,7 @@ npm i react-code-blocks
 npm install react-copy-to-clipboard
 npm install react-beautiful-dnd --save (not used)
 npm i react-sortablejs
+npm install notistack
 
 //This is not a dependency for the app; but what I'm using for deployment
 npm i -g vercel
