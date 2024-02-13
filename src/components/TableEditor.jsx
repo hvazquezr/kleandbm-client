@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
+import {useReactFlow} from 'reactflow';
 
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
@@ -39,6 +40,8 @@ const buttonStyle = {
 
 export default function TableEditor({node, projectId, dbTechnologyId, onDone, onCancel}) {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const { getNodes } = useReactFlow();
+
     const [tableName, setTableName] = useState(node.data.name);
     const [columns, setColumns] = useState(node.data.columns);
     const [description, setDescription] = useState(node.data.description);
@@ -48,7 +51,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
     const [dbTechnology, setDbTechnology] = useState();
     const [dataTypes, setDataTypes] = useState([]);
     const [columnErrors, setColumnErrors] = useState({});
-    const [tableNameError, setTableNameError] = useState("");    
+    const [tableNameError, setTableNameError] = useState("");  
 
     useEffect(() => {
         const technology = databaseTechnologies.find(tech => tech.id === dbTechnologyId);
@@ -109,13 +112,33 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         setTabValue(newValue);
     };
 
+    function validateTableAndData(tableName, dataArray) {
+        // Validate the table name first
+        const tableNameError = dbTechnology.tableNameValidator(tableName);
+        if (tableNameError !== '') {
+          // Return the table name validation error if it fails
+          return tableNameError;
+        }
+      
+        // Track seen names to identify duplicates
+        for (let item of dataArray) {
+            if (item.data.name.toUpperCase() === tableName.toUpperCase() && (node.data.id !== item.data.id)) {
+              // If tableName is found in dataArray, return an error message
+              return `Table name '${tableName}' already exists.`;
+            }
+          }
+      
+        // If no duplicates are found, return an empty string indicating no error
+        return '';
+      }
+
     const handleDone = (e) => {
         let errors = {};
         let tbNameError = "";
         closeSnackbar();
         setColumnErrors({});
         errors = validateColumns(columns);
-        tbNameError = dbTechnology.tableNameValidator(tableName);
+        tbNameError = validateTableAndData(tableName, getNodes());
         if (tbNameError !== ""){
             setTableNameError(tbNameError);
             enqueueSnackbar(tbNameError, {variant: 'error'});

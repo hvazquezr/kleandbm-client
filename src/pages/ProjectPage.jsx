@@ -662,16 +662,17 @@ const ProjectPage = () => {
               undoStack = {undoStack}
             />
           </Main>
-        </ReactFlowProvider>
-    </Box>
-    <Warning message={Message} closeWarning={() => {setWarningMessage(null)}} />
-    {activeTable && <TableEditor
+          {activeTable && <TableEditor
                       node={activeTable}
                       projectId={id}
                       dbTechnologyId={dbTechnology}
                       onCancel={() => {setActiveTable(null)}}
                       onDone={updateNodeWithUndo}
                       />}
+        </ReactFlowProvider>
+    </Box>
+    <Warning message={Message} closeWarning={() => {setWarningMessage(null)}} />
+
     {toDeleteTable && <DeleteConfirm
                       type='table' 
                       object={toDeleteTable}
