@@ -3,10 +3,10 @@ import { Checkbox, TextField, Autocomplete, Tooltip, IconButton, Box } from '@mu
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes, columnErrors }) => {
+export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes, columnErrors, isChildColumn }) => {
     const [editedColumn, setEditedColumn] = useState(column);
     const currentDataType = dataTypes.find(dt => dt.name === column.dataType);
-    const [isFocused, setIsFocused] = useState(false);
+    const [isDescriptionFocused, setIsDescriptionFocused] = useState(false);
 
     const coverWidth = 510;
 
@@ -32,7 +32,12 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
             setEditedColumn({ ...editedColumn, dataType: newValue.name });
             onColumnChange({ ...editedColumn, dataType: newValue.name });
         }
-      };
+    };
+
+    // Function to check if an error exists for a given columnId and fieldName
+    const hasError = (columnId, fieldName) => {
+        return (columnErrors[columnId] && columnErrors[columnId][fieldName]);
+    };
 
     //console.log(currentDataType)
 
@@ -46,14 +51,15 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                     }
                 }}
                 sx={{width: 180}}
-                error={columnErrors && (column.id in columnErrors)}
+                error={hasError(editedColumn.id, 'name')}
             />
             <Autocomplete
                 onChange={handleAutocompleteChange}
                 value={currentDataType || null}
                 options={dataTypes}
                 getOptionLabel={(option) => option.name}
-                renderInput={(params) => <TextField variant="filled" {...params} 
+                disabled={isChildColumn}
+                renderInput={(params) => <TextField error={hasError(editedColumn.id, 'dataType')} variant="filled" {...params} 
                 sx={{
                     '& .MuiInputBase-root': {
                       paddingTop: '0px', // Adjust top padding
@@ -61,14 +67,15 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                       // You can also adjust paddingLeft and paddingRight if needed
                     },
                     width:160,
-                    display: isFocused?'none':'block'
+                    display: isDescriptionFocused?'none':'block'
                   }}              
                 />}
-  
+                
                 isOptionEqualToValue={(option, value) => option.name === value.name}
             />
             <TextField name="maxLength" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.maxLength ?? ''} onChange={handleChange}
                 type="number"
+                error={hasError(editedColumn.id, 'maxLength')}
                 InputProps={{
                     inputProps: {
                         style: { padding: '7px' } // Adjust the padding value as needed
@@ -76,11 +83,12 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                 }}
                 sx={{
                     width: 70,
-                    display: isFocused?'none':'block',
+                    display: isDescriptionFocused?'none':'block',
                     visibility: !(currentDataType && currentDataType.needsMaxLength)?'hidden':'visible'
                 }} />
             <TextField name="precision" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.precision ?? ''} onChange={handleChange}
                 type="number"
+                error={hasError(editedColumn.id, 'precision')}
                 InputProps={{
                     inputProps: {
                         style: { padding: '7px' } // Adjust the padding value as needed
@@ -88,11 +96,12 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                 }}
                 sx={{
                     width: 70,
-                    display: isFocused?'none':'block',
+                    display: isDescriptionFocused?'none':'block',
                     visibility: !(currentDataType && currentDataType.needsPrecision)?'hidden':'visible'
                 }} />
             <TextField name="scale" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.scale ?? ''} onChange={handleChange}
                 type="number"
+                error={hasError(editedColumn.id, 'scale')}
                 InputProps={{
                     inputProps: {
                         style: { padding: '7px' } // Adjust the padding value as needed
@@ -100,22 +109,22 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                 }}
                 sx={{
                     width: 70,
-                    display: isFocused?'none':'block',
+                    display: isDescriptionFocused?'none':'block',
                     visibility: !(currentDataType && currentDataType.needsScale)?'hidden':'visible'
                 }} />
-            <Checkbox name="primaryKey" checked={editedColumn.primaryKey ?? false} onChange={handleChange} sx={{ p: 0, display: isFocused?'none':'block'}} />
+            <Checkbox name="primaryKey" checked={editedColumn.primaryKey ?? false} onChange={handleChange} sx={{ p: 0, display: isDescriptionFocused?'none':'block'}} />
             <Checkbox
                 name="canBeNull"
                 checked={!column.primaryKey && (editedColumn.canBeNull ?? false)}
                 disabled={column.primaryKey}
                 onChange={handleChange}
-                sx={{ p: 0, display: isFocused ? 'none' : 'block' }}
+                sx={{ p: 0, display: isDescriptionFocused ? 'none' : 'block' }}
             />
-            <Checkbox name="autoIncrementOn" checked={editedColumn.autoIncrementOn ?? false} onChange={handleChange} sx={{ p: 0, display: isFocused?'none':'block' }} disabled={!currentDataType?.supportsAutoIncrement}/>
+            <Checkbox name="autoIncrementOn" checked={editedColumn.autoIncrementOn ?? false} onChange={handleChange} sx={{ p: 0, display: isDescriptionFocused?'none':'block' }} disabled={!currentDataType?.supportsAutoIncrement}/>
             <Tooltip title={editedColumn.description} arrow disableFocusListener disableTouchListener enterDelay={200} leaveDelay={200}>
                 <TextField name="description" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.description} onChange={handleChange}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
+                    onFocus={() => setIsDescriptionFocused(true)}
+                    onBlur={() => setIsDescriptionFocused(false)}
                     sx={{
                         '& input': {
                             padding: '7px',
@@ -124,13 +133,13 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                             whiteSpace: 'nowrap',
                             width: '100%' // Adjust width when focused
                         },
-                        marginLeft: isFocused ? `-${coverWidth}px` : 0, // Negative margin when focused
-                        width: isFocused ? 120 + coverWidth: 120, // Adjust width when focused
-                        zIndex: isFocused ? 100 : 0, // Ensure it covers other elements
+                        marginLeft: isDescriptionFocused ? `-${coverWidth}px` : 0, // Negative margin when focused
+                        width: isDescriptionFocused ? 120 + coverWidth: 120, // Adjust width when focused
+                        zIndex: isDescriptionFocused ? 100 : 0, // Ensure it covers other elements
                         transition: 'all 0.3s ease', // Smooth transition for effect
                     }} />
             </Tooltip>
-            <IconButton aria-label="delete" size="small" sx={{display: (isFocused || editedColumn.primaryKey)?'none':'block'}} onClick={() => onRemoveColumn(editedColumn.id)}>
+            <IconButton aria-label="delete" size="small" sx={{display: (isDescriptionFocused || editedColumn.primaryKey || isChildColumn)?'none':'block'}} onClick={() => onRemoveColumn(editedColumn.id)}>
                 <DeleteIcon fontSize="small" />
             </IconButton>
         </React.Fragment>

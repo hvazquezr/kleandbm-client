@@ -183,7 +183,75 @@ export const databaseTechnologies = [
             { id: 15, name: "ARRAY", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
             { id: 16, name: "MAP", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
             { id: 17, name: "STRUCT", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true }
-        ]
+        ],
+        columnNameValidator: function (columnName) {
+            // Define basic reserved Databricks/Spark SQL keywords (extend this list as needed)
+            // Note: This is a simplified list; consider referencing the full list from Spark SQL documentation
+            const reservedKeywords = [
+                'SELECT', 'INSERT', 'DELETE', 'UPDATE', 'CREATE', 'ALTER', 'DROP', 'TABLE',
+                'VIEW', 'FROM', 'WHERE', 'COLUMN', 'DATABASE', 'FUNCTION'
+            ];
+        
+            // Check if the name is meaningful
+            if (!columnName || columnName.trim().length === 0) {
+                return 'Column name must not be empty.';
+            }
+        
+            // Optional: Check length for practical limits (e.g., 128 characters)
+            if (columnName.length > 128) {
+                return 'Column name must not exceed 128 characters for compatibility reasons.';
+            }
+        
+            // Check for reserved keywords (assuming columnName is provided in its normalized form or checking is case-insensitive)
+            if (reservedKeywords.includes(columnName.toUpperCase())) {
+                return 'Column name must not use reserved Databricks/Spark SQL keywords.';
+            }
+        
+            // Check for special characters in unquoted identifiers
+            // Spark SQL is more permissive in terms of identifier characters, but sticking to
+            // alphanumeric and underscores for simplicity and compatibility
+            if (!/^[A-Za-z0-9_]+$/.test(columnName)) {
+                return 'Column name must only contain alphanumeric characters and underscores for unquoted identifiers.';
+            }
+        
+            // If all checks pass
+            return '';
+        },
+        tableNameValidator:function (tableName) {
+            // Define basic reserved Databricks/Spark SQL keywords (extend this list as needed)
+            // Note: This is a simplified list; consider referencing the full list from Spark SQL documentation
+            const reservedKeywords = [
+                'SELECT', 'INSERT', 'DELETE', 'UPDATE', 'CREATE', 'ALTER', 'DROP', 'TABLE',
+                'VIEW', 'FROM', 'WHERE', 'DATABASE', 'FUNCTION', 'JOIN'
+            ];
+        
+            // Check if the name is meaningful
+            if (!tableName || tableName.trim().length === 0) {
+                return 'Table name must not be empty.';
+            }
+        
+            // Optional: Check length for practical limits (e.g., 128 characters)
+            if (tableName.length > 128) {
+                return 'Table name must not exceed 128 characters for compatibility reasons.';
+            }
+        
+            // Check for reserved keywords (assuming tableName is provided in its normalized form or checking is case-insensitive)
+            if (reservedKeywords.includes(tableName.toUpperCase())) {
+                return 'Table name must not use reserved Databricks/Spark SQL keywords.';
+            }
+        
+            // Check for special characters in unquoted identifiers
+            // Spark SQL is more permissive in terms of identifier characters, but sticking to
+            // alphanumeric and underscores for simplicity and compatibility
+            if (!/^[A-Za-z0-9_]+$/.test(tableName)) {
+                return 'Table name must only contain alphanumeric characters and underscores for unquoted identifiers.';
+            }
+        
+            // If all checks pass
+            return '';
+        }
+        
+        
     },
     {
         id: 3,
@@ -302,6 +370,58 @@ export const databaseTechnologies = [
             { id: 22, name: "ENUM", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
             { id: 23, name: "SET", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true },
             { id: 24, name: "JSON", needsMaxLength: false, needsPrecision: false, needsScale: false, active: true }
-        ]
+        ],
+    columnNameValidator: function (columnName) {
+        // Reusing the reservedKeywords from the table name validation as an example
+        const reservedKeywords = ['SELECT', 'CREATE', 'INSERT', 'UPDATE', 'DELETE', 'COLUMN'];
+    
+        if (!columnName || columnName.trim().length === 0) {
+            return 'Column name must not be empty.';
+        }
+    
+        if (columnName.length > 64) {
+            return 'Column name must not exceed 64 characters.';
+        }
+    
+        if (/^[0-9]/.test(columnName)) {
+            return 'Column name must not start with a number.';
+        }
+    
+        if (!/^[A-Za-z0-9$_]+$/.test(columnName)) {
+            return 'Column name must only contain alphanumeric characters, dollar signs, and underscores.';
+        }
+    
+        if (reservedKeywords.includes(columnName.toUpperCase())) {
+            return `Column name must not use reserved MySQL keywords: ${columnName}`;
+        }
+    
+        return '';
+    },
+    tableNameValidator: function (tableName) {
+        // Define basic reserved MySQL keywords (this is not a comprehensive list)
+        const reservedKeywords = ['SELECT', 'CREATE', 'INSERT', 'UPDATE', 'DELETE', 'TABLE'];
+    
+        if (!tableName || tableName.trim().length === 0) {
+            return 'Table name must not be empty.';
+        }
+    
+        if (tableName.length > 64) {
+            return 'Table name must not exceed 64 characters.';
+        }
+    
+        if (/^[0-9]/.test(tableName)) {
+            return 'Table name must not start with a number.';
+        }
+    
+        if (!/^[A-Za-z0-9$_]+$/.test(tableName)) {
+            return 'Table name must only contain alphanumeric characters, dollar signs, and underscores.';
+        }
+    
+        if (reservedKeywords.includes(tableName.toUpperCase())) {
+            return `Table name must not use reserved MySQL keywords: ${tableName}`;
+        }
+    
+        return '';
     }
+}
 ];

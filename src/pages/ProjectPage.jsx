@@ -322,7 +322,7 @@ const ProjectPage = () => {
       data:{
         id: nanoid(),
         projectId: id,
-        name: 'New Table',
+        name: '',
         columns: [],
         active: true,
         description: ''

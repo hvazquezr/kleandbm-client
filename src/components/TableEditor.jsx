@@ -40,7 +40,7 @@ const buttonStyle = {
 
 export default function TableEditor({node, projectId, dbTechnologyId, onDone, onCancel}) {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const { getNodes } = useReactFlow();
+    const { getNodes, getEdges } = useReactFlow();
 
     const [tableName, setTableName] = useState(node.data.name);
     const [columns, setColumns] = useState(node.data.columns);
@@ -68,6 +68,11 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         }
       }, []);
 
+      function isChildColumn(columnId) {
+        const isChild = getEdges().some(item => item.data.childColumn === columnId)
+        return isChild;
+      }
+
       const validateColumns = (columns) => {
         const errors = {};
         // Object to track occurrence of column names
@@ -76,17 +81,55 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
         columns.forEach(column => {
             // Perform other validations first
             let error = dbTechnology.columnNameValidator(column.name);
+            let currentDataType = null;
             if (error !== '') {
-                errors[column.id] = error; // Store the error message against the column's ID
+                errors[column.id] = {};
+                errors[column.id].name = true; // Store the error message against the column's ID
                 enqueueSnackbar(error, {variant: 'error'});
+            }
+            if (!column.dataType || column.dataType === ''){
+                if (!errors[column.id]){
+                    errors[column.id] = {};
+                }
+                errors[column.id].dataType = true;
+                enqueueSnackbar('A data type must be selected.', {variant: 'error'});
+            }
+            else{
+                // Validate maxLength, Precision and scale
+                currentDataType = dbTechnology.dataTypes.find(dt => dt.name === column.dataType);
+
+                if (currentDataType.needsMaxLength && !column.maxLength){
+                    if (!errors[column.id]){
+                        errors[column.id] = {};
+                    }
+                    errors[column.id].maxLength = true;
+                    enqueueSnackbar('Max Length needs to be specified.', {variant: 'error'});                    
+                }
+
+                if (currentDataType.needsPrecision && !column.precision){
+                    if (!errors[column.id]){
+                        errors[column.id] = {};
+                    }
+                    errors[column.id].precision = true;
+                    enqueueSnackbar('Precision needs to be specified.', {variant: 'error'});                    
+                }
+
+                if (currentDataType.needsScale && !column.scale){
+                    if (!errors[column.id]){
+                        errors[column.id] = {};
+                    }
+                    errors[column.id].scale = true;
+                    enqueueSnackbar('Precision needs to be specified.', {variant: 'error'});                    
+                }
             }
     
             // Then check for repeated column names
             if (seenColumnNames[column.name.toUpperCase()]) {
                 // If the name is repeated and no other validation error was recorded for this column
                 if (!errors[column.id]) {
+                    errors[column.id] = {};
                     error = 'Column name is repeated.';
-                    errors[column.id] = error; // Associate the error with the second occurrence
+                    errors[column.id].name = true; // Associate the error with the second occurrence
                     enqueueSnackbar(error, {variant: 'error'});
                 }
             } else {
@@ -143,8 +186,11 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
             setTableNameError(tbNameError);
             enqueueSnackbar(tbNameError, {variant: 'error'});
         }
+        if (columns.length === 0){
+            enqueueSnackbar('There should be at least 1 column.', {variant: 'error'});
+        }
         // If there are no errors reported
-        if (Object.keys(errors).length === 0 && tbNameError===""){
+        if (Object.keys(errors).length === 0 && tbNameError==="" && columns.length > 0){
             //@TODO: need to add description to the interface
             //const data = {id: node.data.id, name: tableName, columns, description: ''};
             node.data.name = tableName;
@@ -215,6 +261,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
                                     onRemoveColumn = {removeColumn}
                                     dataTypes = {dataTypes}
                                     columnErrors={columnErrors}
+                                    isChildColumn={isChildColumn}
                                 />
                                 </div>
                             </Stack>
