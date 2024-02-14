@@ -86,7 +86,7 @@ function readyNodesAndEdges(jsonData) {
   const updatedNodes = nodes.map(({ active, tableId, x, y, ...rest }) => {
       return {
           ...rest,
-          type: 'tableNode',
+          //type: 'tableNode',
           data: tableMap[tableId],
           position: { x, y }
       };
@@ -379,7 +379,8 @@ const ProjectPage = () => {
       projectId: id,
       x: node.position.x,
       y: node.position.y,
-      active: true
+      active: true,
+      type: node.type
     }
     
     updateRequest(`projects/${id}/nodes/${node.id}`, copyNode),

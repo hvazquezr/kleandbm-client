@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 
 import Table from '@mui/material/Table';

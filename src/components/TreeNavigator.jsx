@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import {useReactFlow} from 'reactflow';
 import { TreeView } from '@mui/x-tree-view/TreeView';
@@ -91,9 +91,18 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
 
 
 export default function TreeNavigator({tableList}) {
+  const [sortedTables, setSortedTables] = useState([]);
   const navigate = useNavigate();
-
   const {fitView } = useReactFlow();
+
+  //Use useEffect to update the sorted array whenever the passed array changes
+  useEffect(() => {
+    // Create a copy of the array and sort it to avoid modifying the original array
+    let sortedCopy = tableList.filter(element => element.type === 'tableNode');
+    sortedCopy.sort((a, b) => a.data.name.localeCompare(b.data.name));
+    // Update the component's state with the sorted array
+    setSortedTables(sortedCopy);
+  }, [tableList]); 
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -110,7 +119,7 @@ export default function TreeNavigator({tableList}) {
     >
         <StyledTreeItem nodeId="projects" labelText="Projects" labelIcon={GridViewOutlinedIcon} onClick={() => handleNavigation('/dashboard')}/>
         <StyledTreeItem nodeId="tables" labelText="Tables" labelIcon={TableViewIcon}>
-        {tableList.map((table) => (
+        {sortedTables.map((table) => (
             <StyledTreeItem
               onClick={() => {fitView({nodes: [{id: table.id}], duration:500, maxZoom:1.5})}}
               nodeId={table.id}
