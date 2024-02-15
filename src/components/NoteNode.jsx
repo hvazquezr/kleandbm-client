@@ -12,7 +12,8 @@ const style = {
     padding: 1,
     background: "#fcfce6",
     width: '100%',
-    height: '100%'
+    height: '100%',
+    overflow: 'hidden'
   };
 
 const NoteNode = ({ data, selected }) => {
@@ -24,8 +25,8 @@ const NoteNode = ({ data, selected }) => {
 
   return (
     <>
-      <NodeResizer color="#ff0071" isVisible={selected} minWidth={100} minHeight={30} />
-      <Box sx={style}>
+      <NodeResizer color="#047cdc" lineStyle={{borderWidth: 1.5}} isVisible={selected} minWidth={150} minHeight={40} />
+      <Box sx={style} >
         <TextField multiline value={value} onChange={handleChange} fullWidth variant="outlined"
             InputProps={{
                     style: { padding: '0px', color: '#80553a', border: 'none'} // Adjust the padding value as needed
