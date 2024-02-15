@@ -99,7 +99,7 @@ export function DashboardPage() {
         <AppBar position="static" sx={{paddingLeft:5, paddingRight:5}}>
         <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
-                    <img src={"./images/logo.png"} width="150" height="24"/>
+                    <img src={"./images/kleandbmaiWhite.png"} width="195" height="24"/>
                     <UserAvatar user={user} onLogout={logout} />                  
                 </Stack>
             </Toolbar>

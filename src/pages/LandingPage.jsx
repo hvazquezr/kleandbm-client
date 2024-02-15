@@ -19,7 +19,7 @@ export default function LandingPage() {
         <AppBar position="static" sx={{ bgcolor: "white", paddingLeft:7, paddingRight:7}}>
             <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
-                    <img src={"./images/bluelogo.png"} width="150" height="24"/>
+                    <img src={"./images/kleandbmaiBlue.png"} width="195" height="24"/>
                     <LoginButton />                    
                 </Stack>
             </Toolbar>

@@ -31,7 +31,7 @@ export default function DrawerControl({
             <MenuIcon sx={{ width: 30, height: 30, color:'#DDD' }}/>
           </IconButton>
         </Tooltip>
-        <img src={"/images/graylogo.png"} style={{ opacity: 0.5 }} width="100" height="16"/>
+        <img src={"/images/kleandbmaiWhite.png"} style={{ opacity: .5, filter: 'brightness(50%) contrast(150%)' }} width="130" height="16"/>
       </Box>
     </React.Fragment>
   );
