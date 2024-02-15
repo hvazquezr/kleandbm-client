@@ -101,7 +101,7 @@ export const ColumnEditor = ({ column, onColumnChange, onRemoveColumn, dataTypes
                 }} />
             <TextField name="scale" hiddenLabel variant="filled" size="small" margin="dense" value={editedColumn.scale ?? ''} onChange={handleChange}
                 type="number"
-                error={hasError(editedColumn.id, 'scale')}
+                error={hasError(editedColumn.id, 'precision')}
                 InputProps={{
                     inputProps: {
                         style: { padding: '7px' } // Adjust the padding value as needed

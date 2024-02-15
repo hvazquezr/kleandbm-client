@@ -23,6 +23,7 @@ import {
 import Flow from '../components/Flow';
 import TreeNavigator from '../components/TreeNavigator';
 import TableNode from '../components/TableNode';
+import NoteNode from '../components/NoteNode';
 import TableEditor from '../components/TableEditor';
 import DeleteConfirm from '../components/DeleteConfirm';
 import FloatingEdge from '../components/FloatingEdge';
@@ -137,7 +138,7 @@ const ProjectPage = () => {
   const [paneContextMenuPosition, setPaneContextMenuPosition] = useState(null);
   const [isCompleteAITable, setIsCompleteAITable] = useState(false);
 
-  const nodeTypes = useMemo(() => ({tableNode: TableNode }), []);
+  const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
 
   const undo = () => {
@@ -329,6 +330,19 @@ const ProjectPage = () => {
       }
     };
     setActiveTable(newNode);
+  };
+
+  const handleAddNote = (position={x:600, y:80}) => {
+    const newNode = {
+      id:nanoid(),
+      new:true,
+      type: 'noteNode',
+      position,
+      active: true,
+      projectId: id,
+      data: {text: 'This is a note'}
+    };
+    setNodes((nds) => nds.concat(newNode));
   };
 
   const handleEditTable = (id) =>{
@@ -638,6 +652,7 @@ const ProjectPage = () => {
               onEdgesChange = {onEdgesChange}
               onNodesChange = {onNodesChange}
               onAddTable = {handleAddTable}
+              onAddNote = {handleAddNote}
               onAddTableWithAI = {handleAddTableWithAI}
               handleDrawerOpen = {handleDrawerOpen}
               openDrawer = {openDrawer} 

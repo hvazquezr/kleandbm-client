@@ -14,7 +14,7 @@ const style = {
     border: 1,
     color: '#666666',
     minWidth: 100,
-    borderRadius: 2,
+    borderRadius: 1.5,
     background: "#ffffff"
   };
 

@@ -23,7 +23,7 @@ export default function PaneContextMenu({onClick, menuOptions, onAddTable, onAdd
     }, [menuOptions]);
 
     const handleAddNote = useCallback(() => {
-        onAddNote(menuOptions.id);
+        onAddNote(project({x:menuOptions.left-menuOptions.pane.x, y:menuOptions.top-menuOptions.pane.y}));
     }, [menuOptions]);
 
     return (

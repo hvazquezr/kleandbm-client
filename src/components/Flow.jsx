@@ -19,6 +19,7 @@ export default function Flow({
   onEdgesChange,
   onNodesChange,
   onAddTable,
+  onAddNote,
   onAddTableWithAI,
   handleDrawerOpen,
   openDrawer, 
@@ -149,7 +150,7 @@ export default function Flow({
               menuOptions={paneMenu}
               onAddTable={onAddTable}
               onAddTableWithAI={onAddTableWithAI}
-              onAddNote={null}
+              onAddNote={onAddNote}
               undo = {undo}
               undoStack = {undoStack}
             />}
