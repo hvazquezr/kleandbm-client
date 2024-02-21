@@ -63,6 +63,7 @@ export default function Flow({
 
       setNodeMenu({
         id: node.id,
+        type: node.type,
         top: event.clientY,
         left: event.clientX});
     },

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
@@ -31,6 +31,7 @@ import FloatingConnectionLine from '../components/FloatingConnectionLine';
 import Warning from '../components/Warning';
 import AITableCreator from '../components/aITableCreator.jsx';
 import UserAvatar from '../components/UserAvatar.jsx';
+import UndoContext from '../components/UndoContext';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 
@@ -76,6 +77,24 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 function readyNodesAndEdges(jsonData) {
   // Destructure the jsonData
   const { tables, relationships, nodes } = jsonData;
+  
+  // Filter nodes for those with nodeType equal to 'tableNode'
+  const tableNodes = nodes.filter(node => node.type === 'tableNode');
+
+  // Filter and transform noteNode types
+  const noteNodes = nodes.filter(node => node.type === 'noteNode').map(node => {
+    const { text, x, y, width, height, ...rest } = node;
+    const newData = { ...rest.data, text }; // Include text under data
+
+    // Prepare the transformed node object
+    const transformedNode = { ...rest, position: {x, y}, data: newData };
+
+    // Include width and height directly under the node if they are not null
+    if (width != null) transformedNode.width = width;
+    if (height != null) transformedNode.height = height;
+
+    return transformedNode;
+  });
 
   // Map of tableId to table data
   const tableMap = tables.reduce((acc, table) => {
@@ -84,7 +103,7 @@ function readyNodesAndEdges(jsonData) {
   }, {});
 
   // Update nodes with table data and consolidate x and y into position, exclude certain attributes
-  const updatedNodes = nodes.map(({ active, tableId, x, y, ...rest }) => {
+  let updatedNodes = tableNodes.map(({ active, tableId, x, y, ...rest }) => {
       return {
           ...rest,
           //type: 'tableNode',
@@ -111,6 +130,9 @@ function readyNodesAndEdges(jsonData) {
       };
   });
 
+  updatedNodes = [...updatedNodes, ...noteNodes];
+  console.log(updatedNodes);
+
   return { updatedNodes, edges };
 }
 
@@ -124,13 +146,14 @@ const ProjectPage = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
-  const [previousProjectName, setPreviousProjectName] = useState("");
+  const previousProjectNameRef = useRef();
+  const previousProjectDescriptionRef = useRef();
   const [dbTechnology, setDbTechnology] = useState(0);
   const [activeTable, setActiveTable] = useState(null);
   const [toDeleteTable, setToDeleteTable] = useState(null);
   const [toDeleteRelationship, setToDeleteRelationship] = useState(null);
+  const [toDeleteNote, setToDeleteNote] = useState(null);
   const [Message, setWarningMessage]= useState(null);
-  const [previousProjectDescription, setPreviousProjectDescription] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastModified, setLastModified] = useState(null);
@@ -150,8 +173,6 @@ const ProjectPage = () => {
   };
 
   const addToUndoStack = (operation) => {
-    console.log('adding:');
-    console.log(operation);
     setUndoStack((prevStack) => [...prevStack, operation]);
   };
   
@@ -340,10 +361,18 @@ const ProjectPage = () => {
       position,
       active: true,
       projectId: id,
-      data: {text: 'This is a note'}
+      data: {text: ''}
     };
     setNodes((nds) => nds.concat(newNode));
+    updateNote(newNode);
+    addToUndoStack(() => {deleteNote(newNode)});
+    //updateNote(nodes.find(node => node.id === newNode.id));
   };
+
+  const restoreNote = (node) => {
+    updateNote(node);
+    setNodes((nds) => nds.concat(node));
+  }
 
   const handleEditTable = (id) =>{
     //const node = getNode(nodeId);
@@ -351,9 +380,14 @@ const ProjectPage = () => {
     setActiveTable(node);
   };
 
-  const handleDeleteTable = (id) =>{
-    const node = nodes.filter((n) => {return n.id === id})[0];
-    setToDeleteTable(node);
+  const handleDeleteNode = (menuOptions) =>{
+    const node = nodes.filter((n) => {return n.id === menuOptions.id})[0];
+    if (menuOptions.type === 'tableNode'){
+      setToDeleteTable(node);
+    }
+    else {
+      setToDeleteNote(node);
+    }
   };
 
 
@@ -383,9 +417,33 @@ const ProjectPage = () => {
     relationships.forEach(r => addRelationship(r, false));
   };
 
+  const updateNote = async (node) => {
+    const copyNode = {
+      id: node.id, 
+      projectId: id,
+      x: node.position.x,
+      y: node.position.y,
+      active: true,
+      type: node.type,
+      text: node.data.text,
+      width: node.width,
+      height: node.height
+    }
+    updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
+  };
+
+  const deleteNote = async (node) => {
+    deleteRequest(`projects/${id}/nodes/${node.id}`);
+    setNodes((nds) => nds.filter((n) => n.id !== node.id));
+  };
+
+  const confirmDeleteNote = async(node) => {
+    deleteNote(node);
+    addToUndoStack(() => restoreNote(node));
+    setToDeleteNote(null);
+  };
 
   const updateNode = async (node, isNew = false) => {
-    console.log('Calling updateNode');
     // Cleaning copy of the node
     const copyNode = {
       id: node.id, 
@@ -397,8 +455,8 @@ const ProjectPage = () => {
       type: node.type
     }
     
-    updateRequest(`projects/${id}/nodes/${node.id}`, copyNode),
-    updateRequest(`projects/${id}/tables/${node.data.id}`, node.data)
+    updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
+    updateRequest(`projects/${id}/tables/${node.data.id}`, node.data);
 
     // Adding node in array if new
     if (isNew || node.new){
@@ -433,7 +491,6 @@ const ProjectPage = () => {
   };
 
   const updateNodeWithUndo = async (node, isNew = false) => {
-    console.log('Calling updateNodeWithUndo');
     let oldNode = null;
     if (isNew || node.new){
       // If it's new the undo action is to delete it
@@ -496,10 +553,22 @@ const ProjectPage = () => {
   };
 
   const saveProjectName = async (e) => {
-    const newName = {name: e.target.value};
+    const newName = { name: e.target.value };
+
+    // Use .current to access the ref's value
+    const previousName = previousProjectNameRef.current;
+
     updateRequest(`projects/${id}`, newName);
-    addToUndoStack(() => {updateRequest(`projects/${id}`, {name: previousProjectName}); setProjectName(previousProjectName);})
-    setPreviousProjectName(newName.name);
+
+    // Use the ref's current value for the undo action
+    addToUndoStack(() => {
+      if (previousName !== undefined) { // Check if there was a previous name
+        updateRequest(`projects/${id}`, { name: previousName });
+        setProjectName(previousName); // Assuming `setProjectName` updates local state or context
+      }
+    });
+    // Update the ref with the new name after the request
+    previousProjectNameRef.current = newName.name;
   };
 
   const updateProjecDescription = (e) => {
@@ -508,12 +577,27 @@ const ProjectPage = () => {
 
   const saveProjectDescription = async (e) => {
     const newDescription = {description: e.target.value};
+    const previousDescription = previousProjectDescriptionRef.current;
     updateRequest(`projects/${id}`, newDescription);
-    addToUndoStack(() => {updateRequest(`projects/${id}`, {description: previousProjectDescription}); setProjectDescription(previousProjectDescription);});
-    setPreviousProjectDescription(newDescription.description);
+    // Use the ref's current value for the undo action
+    addToUndoStack(() => {
+      if (previousDescription !== undefined) { // Check if there was a previous name
+        updateRequest(`projects/${id}`, { description: previousDescription });
+        setProjectDescription(previousDescription); // Assuming `setProjectName` updates local state or context
+      }
+    });
+    // Update the ref with the new name after the request
+    previousProjectDescriptionRef.current = newDescription.description;
   };
 
+  const onNodeResizeStop = useCallback(async (event, params, node) => {
+    console.log('onNodeResizeStop');
+    //updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
+    //addToUndoStack(() => {undoNodeDrag(node.id, node.data.oldPosition)});
+  }, []);  
+
   const onNodeDragStop = useCallback(async (event, node) => {
+    console.log('onNodeDragStop');
     updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
     addToUndoStack(() => {undoNodeDrag(node.id, node.data.oldPosition)});
   }, []);
@@ -560,9 +644,9 @@ const ProjectPage = () => {
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
               const nodesAndEdges = readyNodesAndEdges(project);
               setProjectName(project.name);
-              setPreviousProjectName(project.name);
+              previousProjectNameRef.current = project.name;
               setProjectDescription(project.description);
-              setPreviousProjectDescription(project.description);
+              previousProjectDescriptionRef.current = project.description;
               setProjectCreatorName(project.owner.name);
               setLastModified(project.lastModified);
               setNodes(nodesAndEdges.updatedNodes);
@@ -645,38 +729,40 @@ const ProjectPage = () => {
             </Box>
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
-            <Flow
-              nodes = {nodes}
-              edges = {edges}
-              onConnect = {addRelationship}
-              onEdgesChange = {onEdgesChange}
-              onNodesChange = {onNodesChange}
-              onAddTable = {handleAddTable}
-              onAddNote = {handleAddNote}
-              onAddTableWithAI = {handleAddTableWithAI}
-              handleDrawerOpen = {handleDrawerOpen}
-              openDrawer = {openDrawer} 
-              onEditTable = {handleEditTable}
-              onDeleteTable = {handleDeleteTable}
-              onDeleteRelationship = {handleDeleteRelationship}
-              nodeTypes = {nodeTypes}
-              edgeTypes = {edgeTypes}
-              connectionLineComponent = {FloatingConnectionLine}
-              onNodeDragStop = {onNodeDragStop}
-              onNodeDragStart = {onNodeDragStart}
-              projectId = {id}
-              projectName = {projectName}
-              projectDescription = {projectDescription}
-              onProjectNameChange = {updateProjectName}
-              onProjectNameBlur = {saveProjectName}
-              onProjectDescriptionChange = {updateProjecDescription}
-              onProjectDescriptionBlur = {saveProjectDescription}
-              lastModified = {lastModified}
-              projectCreatorName = {projectCreatorName}
-              dbTechnology={dbTechnology}
-              undo = {undo}
-              undoStack = {undoStack}
-            />
+            <UndoContext.Provider value={{ onNodeResizeStop }}>
+              <Flow
+                nodes = {nodes}
+                edges = {edges}
+                onConnect = {addRelationship}
+                onEdgesChange = {onEdgesChange}
+                onNodesChange = {onNodesChange}
+                onAddTable = {handleAddTable}
+                onAddNote = {handleAddNote}
+                onAddTableWithAI = {handleAddTableWithAI}
+                handleDrawerOpen = {handleDrawerOpen}
+                openDrawer = {openDrawer} 
+                onEditTable = {handleEditTable}
+                onDeleteTable = {handleDeleteNode}
+                onDeleteRelationship = {handleDeleteRelationship}
+                nodeTypes = {nodeTypes}
+                edgeTypes = {edgeTypes}
+                connectionLineComponent = {FloatingConnectionLine}
+                onNodeDragStop = {onNodeDragStop}
+                onNodeDragStart = {onNodeDragStart}
+                projectId = {id}
+                projectName = {projectName}
+                projectDescription = {projectDescription}
+                onProjectNameChange = {updateProjectName}
+                onProjectNameBlur = {saveProjectName}
+                onProjectDescriptionChange = {updateProjecDescription}
+                onProjectDescriptionBlur = {saveProjectDescription}
+                lastModified = {lastModified}
+                projectCreatorName = {projectCreatorName}
+                dbTechnology={dbTechnology}
+                undo = {undo}
+                undoStack = {undoStack}
+              />
+            </UndoContext.Provider>
           </Main>
           {activeTable && <TableEditor
                       node={activeTable}
@@ -701,6 +787,12 @@ const ProjectPage = () => {
                       onConfirm={deleteRelationship}
                       onCancel={() => {setToDeleteRelationship(null)}}
                       nodes = {nodes}
+                      />}
+    {toDeleteNote && <DeleteConfirm
+                      type='note' 
+                      object={toDeleteNote}
+                      onConfirm={confirmDeleteNote}
+                      onCancel={() => {setToDeleteNote(null)}}
                       />}
     {showAITableCreator && <AITableCreator
                       projectId = {id}

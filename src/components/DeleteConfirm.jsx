@@ -34,19 +34,24 @@ export default function DeleteConfirm({type, object, onConfirm, onCancel, nodes}
     };
 
     const getConfirmationMessage = () => {
-        if (type=='table'){
+        if (type === 'table') {
             return (
-                <>Are you sure you want to delete table <span style={{fontWeight:"bold" }}>{object.data.name}</span>?</>
-            )
-        }
-        else{
-            const parentNode = nodes.filter((n) => {return n.id === object.source})[0]
-            const childNode = nodes.filter((n) => {return n.id === object.target})[0]
+                <>Are you sure you want to delete table <span style={{fontWeight: "bold"}}>{object.data.name}</span>?</>
+            );
+        } else if (type === 'note') {
+            // Assuming object.data.name holds the name for the note as well
             return (
-                <>Are you sure you want to delete the relationship between <span style={{fontWeight:"bold" }}>{parentNode.data.name}</span> and <span style={{fontWeight:"bold" }}>{childNode.data.name}</span>?</>
-            )
+                <>Are you sure you want to delete this note?</>
+            );
+        } else {
+            const parentNode = nodes.find((n) => n.id === object.source);
+            const childNode = nodes.find((n) => n.id === object.target);
+            return (
+                <>Are you sure you want to delete the relationship between <span style={{fontWeight: "bold"}}>{parentNode.data.name}</span> and <span style={{fontWeight: "bold"}}>{childNode.data.name}</span>?</>
+            );
         }
-    }
+    };
+    
 
     return(
         <Modal

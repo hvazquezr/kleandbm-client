@@ -13,7 +13,7 @@ export default function TableContextMenu({onClick, menuOptions, onEditTable, onD
     }, [menuOptions]);
 
     const handleDelete = useCallback(() => {
-        onDeleteTable(menuOptions.id);
+        onDeleteTable(menuOptions);
     }, [menuOptions]);
 
     return (
@@ -22,13 +22,13 @@ export default function TableContextMenu({onClick, menuOptions, onEditTable, onD
             anchorReference="anchorPosition"
             anchorPosition={{top: menuOptions.top, left: menuOptions.left}}
             onClick={onClick} 
-        >
+        >   {menuOptions.type === 'tableNode' &&
             <MenuItem onClick={handleEdit} >
                 <ListItemIcon>
                     <EditIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Edit</ListItemText>
-            </MenuItem>
+            </MenuItem>}
             <MenuItem onClick={handleDelete} >
                 <ListItemIcon>
                     <DeleteIcon fontSize="small" />
