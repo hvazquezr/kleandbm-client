@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext, useRef} from 'react';
+import React, { memo, useState, useContext, useRef, useCallback, useEffect} from 'react';
 import { NodeResizer } from 'reactflow';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -18,28 +18,41 @@ const style = {
     overflow: 'hidden'
   };
 
-const NoteNode = ({ data, selected }) => {
+const NoteNode = ({ id, data, selected }) => {
     const [value, setValue] = useState(data.text);
-    const { onNodeResizeStop } = useContext(UndoContext); 
+    const { addToUndoStack, updateNotePartial, restoreNotePartial } = useContext(UndoContext); 
     const previousTextRef = useRef(data.text);
+    const previousWidthRef = useRef(150);
+    const previousHeightRef = useRef(40);
 
-    const handleChange = (e) => {
-        setValue(e.target.value);
-    };
+    useEffect(() => {
+      setValue(data.text);
+    }, [data]);
+
+    const handleChange = useCallback((evt) => {
+        setValue(evt.target.value);
+      }, []);
 
     const handleResizeEnd = (event, params) => {
         onNodeResizeStop(event, params, 'test');
     };
 
     const saveText = () => {
-        console.log('saving text');
+        updateNotePartial({id, text: value});
+        addToUndoStack(() => restoreNotePartial({id, text:previousTextRef.current}));
+    };
+
+    const savePreviousText = () => {
+        previousTextRef.current = value;
     };
 
   return (
     <>
       <NodeResizer color="#047cdc" lineStyle={{borderWidth: 1.5}} isVisible={selected} minWidth={150} minHeight={40} onResizeEnd={handleResizeEnd} />
       <Box sx={style} >
-        <TextField multiline value={value} onChange={handleChange} fullWidth variant="outlined" className="nodrag" onBlur={saveText}
+        <TextField multiline value={value} onChange={handleChange} fullWidth variant="outlined" className="nodrag"
+        onBlur={saveText}
+        onFocus={savePreviousText}
             placeholder='Enter comments here.'
             InputProps={{
                     style: { padding: '0px', color: '#80553a', border: 'none'} // Adjust the padding value as needed

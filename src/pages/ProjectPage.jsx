@@ -131,7 +131,6 @@ function readyNodesAndEdges(jsonData) {
   });
 
   updatedNodes = [...updatedNodes, ...noteNodes];
-  console.log(updatedNodes);
 
   return { updatedNodes, edges };
 }
@@ -262,7 +261,6 @@ const ProjectPage = () => {
   async function handleAITableCreatorDone(instructions) {
     try {
         const token = await getAccessTokenSilently();
-        console.log(paneContextMenuPosition);
 
         // Initial request to start the job and get jobId
         const startResponse = await axios.post(`${apiUrl}/projects/${id}/aisuggestedtables`, { prompt: instructions, position: paneContextMenuPosition }, {
@@ -295,7 +293,6 @@ const ProjectPage = () => {
                       // The relationships will be added here
                       //recommendations.newEdges.forEach(e => addRelationship(e, false));
                       for (const e of recommendations.newEdges) {
-                        console.log(e);
                         updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
                         setEdges((eds) => addEdge(e, eds));
                       }
@@ -429,8 +426,67 @@ const ProjectPage = () => {
       width: node.width,
       height: node.height
     }
-    updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
+    await updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
   };
+
+  const updateNotePartial = async (node) => {
+    await updateRequest(`projects/${id}/nodes/${node.id}`, node);
+    setNodes((nds) =>
+    nds.map((n) => {
+      if (n.id === node.id) {
+        // it's important that you create a new object here
+        // in order to notify react flow about the change
+        n = deepCopyObject(n);
+
+          // Check and copy 'data' if it exists
+          if (node.text !== undefined) {
+             n.data.text = node.text;
+          }
+
+          // Check and copy 'width' if it exists
+          if (node.width !== undefined) {
+            n.width = node.width;
+          }
+
+          // Check and copy 'height' if it exists
+          if (node.height !== undefined) {
+            n.height = node.height;
+          }
+      }
+      return n;
+    }
+  ));  
+  }
+
+  const restoreNotePartial = async (node) => {
+    await (updateRequest(`projects/${id}/nodes/${node.id}`, node));
+    setNodes((nds) =>
+      nds.map((n) => {
+        if (n.id === node.id) {
+          // it's important that you create a new object here
+          // in order to notify react flow about the change
+          n = deepCopyObject(n);
+
+            // Check and copy 'data' if it exists
+            if (node.text !== undefined) {
+               n.data.text = node.text;
+            }
+
+            // Check and copy 'width' if it exists
+            if (node.width !== undefined) {
+              n.width = node.width;
+            }
+
+            // Check and copy 'height' if it exists
+            if (node.height !== undefined) {
+              n.height = node.height;
+            }
+        }
+      return n;
+    }
+  ));  
+
+  }
 
   const deleteNote = async (node) => {
     deleteRequest(`projects/${id}/nodes/${node.id}`);
@@ -498,12 +554,9 @@ const ProjectPage = () => {
     }
     else{
       // If it's an update find the current element and send it to to the undo stack
-      console.log(nodes);
       nodes.forEach(n => {
         if (n.id === node.id) {
-          console.log(n);
           oldNode = deepCopyObject(n);
-          console.log(oldNode);
           addToUndoStack(() => updateNode(oldNode));
         }
       });      
@@ -514,7 +567,6 @@ const ProjectPage = () => {
 
   const handleDeleteRelationship = (id) => {
     const edge = edges.filter((e) => {return e.id === id})[0];
-    console.log(edge);
     setToDeleteRelationship(edge);
   }
 
@@ -590,14 +642,8 @@ const ProjectPage = () => {
     previousProjectDescriptionRef.current = newDescription.description;
   };
 
-  const onNodeResizeStop = useCallback(async (event, params, node) => {
-    console.log('onNodeResizeStop');
-    //updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
-    //addToUndoStack(() => {undoNodeDrag(node.id, node.data.oldPosition)});
-  }, []);  
 
   const onNodeDragStop = useCallback(async (event, node) => {
-    console.log('onNodeDragStop');
     updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
     addToUndoStack(() => {undoNodeDrag(node.id, node.data.oldPosition)});
   }, []);
@@ -615,7 +661,7 @@ const ProjectPage = () => {
         return n;
       }
     ));    
-  }
+  };
 
   const onNodeDragStart = useCallback(async (event, node) => {
     setNodes((nds) =>
@@ -729,7 +775,7 @@ const ProjectPage = () => {
             </Box>
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
-            <UndoContext.Provider value={{ onNodeResizeStop }}>
+            <UndoContext.Provider value={{ addToUndoStack, updateNotePartial, restoreNotePartial }}>
               <Flow
                 nodes = {nodes}
                 edges = {edges}

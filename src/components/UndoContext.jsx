@@ -2,7 +2,9 @@
 import React from 'react';
 
 const UndoContext = React.createContext({
-    onNodeResizeStop: () => {}, // Placeholder function
+    addToUndoStack: () => {}, // Placeholder function
+    updateNotePartial: () => {},
+    restoreNotePartial: () => {}
 });
 
 export default UndoContext;
