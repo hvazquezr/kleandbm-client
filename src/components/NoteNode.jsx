@@ -20,10 +20,8 @@ const style = {
 
 const NoteNode = ({ id, data, selected }) => {
     const [value, setValue] = useState(data.text);
-    const { addToUndoStack, updateNotePartial, restoreNotePartial } = useContext(UndoContext); 
+    const { addToUndoStack, updateNotePartial } = useContext(UndoContext); 
     const previousTextRef = useRef(data.text);
-    const previousWidthRef = useRef(150);
-    const previousHeightRef = useRef(40);
 
     useEffect(() => {
       setValue(data.text);
@@ -33,13 +31,14 @@ const NoteNode = ({ id, data, selected }) => {
         setValue(evt.target.value);
       }, []);
 
-    const handleResizeEnd = (event, params) => {
-        onNodeResizeStop(event, params, 'test');
-    };
-
     const saveText = () => {
         updateNotePartial({id, text: value});
-        addToUndoStack(() => restoreNotePartial({id, text:previousTextRef.current}));
+        addToUndoStack(() => updateNotePartial({id, text:previousTextRef.current}));
+    };
+
+    const saveNewSize = (e, params) => {
+      updateNotePartial({id, width: params.width, height: params.height});
+      addToUndoStack(() => updateNotePartial({id, width:data.previousWidth, height:data.previousHeight}));
     };
 
     const savePreviousText = () => {
@@ -48,7 +47,7 @@ const NoteNode = ({ id, data, selected }) => {
 
   return (
     <>
-      <NodeResizer color="#047cdc" lineStyle={{borderWidth: 1.5}} isVisible={selected} minWidth={150} minHeight={40} onResizeEnd={handleResizeEnd} />
+      <NodeResizer color="#047cdc" lineStyle={{borderWidth: 1.5}} isVisible={selected} minWidth={150} minHeight={40} onResizeEnd={saveNewSize} />
       <Box sx={style} >
         <TextField multiline value={value} onChange={handleChange} fullWidth variant="outlined" className="nodrag"
         onBlur={saveText}

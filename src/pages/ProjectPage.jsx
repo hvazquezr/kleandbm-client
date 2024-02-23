@@ -90,9 +90,15 @@ function readyNodesAndEdges(jsonData) {
     const transformedNode = { ...rest, position: {x, y}, data: newData };
 
     // Include width and height directly under the node if they are not null
-    if (width != null) transformedNode.width = width;
-    if (height != null) transformedNode.height = height;
-
+    
+    if (width != null && height != null) {
+      const newStyle = {};
+      newStyle.height = height;
+      newStyle.width = width;
+      transformedNode.style = newStyle;
+      transformedNode.data.previousHeight = height;
+      transformedNode.data.previousWidth = width;
+    }
     return transformedNode;
   });
 
@@ -358,7 +364,9 @@ const ProjectPage = () => {
       position,
       active: true,
       projectId: id,
-      data: {text: ''}
+      width: 150,
+      height: 50,
+      data: {text: '', previousHeight: 50, previousWidth: 150}
     };
     setNodes((nds) => nds.concat(newNode));
     updateNote(newNode);
@@ -444,13 +452,10 @@ const ProjectPage = () => {
           }
 
           // Check and copy 'width' if it exists
-          if (node.width !== undefined) {
-            n.width = node.width;
-          }
-
-          // Check and copy 'height' if it exists
-          if (node.height !== undefined) {
-            n.height = node.height;
+          if (node.width !== undefined && node.height !== undefined) {
+            n.data.previousWidth = node.width;
+            n.data.previousHeight = node.height;
+            n.style = {height: node.height, width: node.width};
           }
       }
       return n;
@@ -542,7 +547,6 @@ const ProjectPage = () => {
     const relatedRelationships = edges.filter((edge) => edge.source === node.id || edge.target === node.id);
     const nodeCopy = deepCopyObject(node);
     addToUndoStack(() => undoDeleteNode(nodeCopy, relatedRelationships));
-    //addToUndoStack(() => {console.log('hello1'); updateNode(node, true); console.log('hello2');{relatedRelationships.forEach(r => addRelationship(r, false))};});
     handleConfirmDeleteNode(node);
   };
 
@@ -583,7 +587,7 @@ const ProjectPage = () => {
     setEdges((es) => es.filter((e) => e.id !== relationshipToDelete.id));
     setToDeleteRelationship(null);
     if (addUndo){
-      addToUndoStack(() => addRelationship({target: relationshipToDelete.target, source:relationshipToDelete.source}, addUndo=false))
+      addToUndoStack(() => addRelationship({target: relationshipToDelete.target, source:relationshipToDelete.source}, addUndo=false));
     }
   }
   

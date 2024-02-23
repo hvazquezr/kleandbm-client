@@ -3,8 +3,7 @@ import React from 'react';
 
 const UndoContext = React.createContext({
     addToUndoStack: () => {}, // Placeholder function
-    updateNotePartial: () => {},
-    restoreNotePartial: () => {}
+    updateNotePartial: () => {}
 });
 
 export default UndoContext;
