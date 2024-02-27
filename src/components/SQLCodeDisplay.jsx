@@ -54,53 +54,22 @@ export default function SQLCodeDisplay({projectId, handleClose}) {
     const {getAccessTokenSilently} = useAuth0();
 
     useEffect(() => {
-      let pollingInterval;
-      const pollJobStatus = async (jobId) => {
-          try {
-              const token = await getAccessTokenSilently();
-              const statusResponse = await axios.get(`${apiUrl}/jobs/${jobId}`, {
-                  headers: {
+        const fetchSql = async () => {
+            try {
+                const token = await getAccessTokenSilently();
+                const response = await axios.get(`${apiUrl}/projects/${projectId}/sql`, {
+                    headers: {
                       Authorization: `Bearer ${token}`,
-                  },
-              });
-  
-              if (statusResponse.data && statusResponse.data.result !== null) {
-                  clearInterval(pollingInterval);
-                  setSql(statusResponse.data.result.sql); // Assuming result has the SQL data
-              }
-          } catch (error) {
-              console.error("Error polling job status", error);
-              clearInterval(pollingInterval);
-          }
-      };
-  
-      const fetchSql = async () => {
-          try {
-              const token = await getAccessTokenSilently();
-              const response = await axios.get(`${apiUrl}/projects/${projectId}/sql`, {
-                  headers: {
-                      Authorization: `Bearer ${token}`,
-                  },
-              });
-  
-              const jobId = response.data.jobId; // Assuming jobId is returned
-              // Wait for 15 seconds before starting to poll
-              setTimeout(() => {
-                  pollingInterval = setInterval(() => pollJobStatus(jobId), 5000);
-              }, 15000);
-  
-          } catch (error) {
-              console.error("Error fetching sql", error);
-          }
-      };
-  
-      fetchSql();
-  
-      return () => {
-          clearInterval(pollingInterval); // Clear polling interval on cleanup
-      };
-  }, [projectId]);
-  
+                    },
+                  });
+                  console.log(response);
+                  setSql(response.data.sql);
+            } catch (error) {
+                console.error("Error fetching sql", error);
+            }
+        };
+        fetchSql();
+    }, [projectId]);
 
     return(
         <Modal open={true}>
