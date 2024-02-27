@@ -43,14 +43,6 @@ function ProjectCard({ project, user }) {
             }}
             onClick={handleClick}
         >
-            <CardMedia
-                component="img"
-                sx={{ width: 151 }} // Adjust width as needed
-                //image="/images/projectsPlaceholder.png"
-
-                image={`${apiUrl}/image/${project.id}`}
-                alt="Project image"
-            />
             <Grid container direction="row" sx={{ flex: 1 }}>
                 <Grid item sx={{width:'100%'}}>
                     <CardHeader
