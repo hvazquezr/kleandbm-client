@@ -109,3 +109,19 @@ export function getEdgeParams(source, target) {
     const dbTechnology = databaseTechnologies.find(dbTechnology => dbTechnology.id === id);
     return dbTechnology ? dbTechnology.name : null;
 }
+
+export function getUniqueColumnName(columns, name) {
+  let newName = name;
+  let counter = 1;
+
+  // A function to check if the newName exists in the columns array
+  const nameExists = (nameToCheck) => columns.some(column => column.name === nameToCheck);
+
+  // While newName exists in the array, append/increment the counter
+  while (nameExists(newName)) {
+    newName = `${name}_${counter}`;
+    counter += 1;
+  }
+
+  return newName;
+}

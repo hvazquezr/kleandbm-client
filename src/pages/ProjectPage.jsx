@@ -39,7 +39,7 @@ import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
 import '../components/css/kalmdbm.css';
-import { deepCopyObject, getCurrentUnixTime} from '../components/utils.jsx';
+import { deepCopyObject, getCurrentUnixTime, getUniqueColumnName} from '../components/utils.jsx';
 
 const drawerWidth = 240;
 
@@ -217,6 +217,8 @@ const ProjectPage = () => {
   };
 
 
+
+
   const addRelationship = useCallback(
       (params, addUndo = true) => {
       // Retrieve columns of source node
@@ -226,9 +228,12 @@ const ProjectPage = () => {
       // Making sure the source table has at least one pk
       if (pkColumns.length > 0){
         const pkColumn = pkColumns[0]; //@TODO: For now it only supports one primary key
+
+        // Making sure the column name is not present in the chld column already
+        const newColumnName = getUniqueColumnName(childNode.data.columns, pkColumn.name);
         const newChildColumn = {
                                 id:nanoid(),
-                                name: pkColumn.name, //@TODO: Need to validate to when name already exists
+                                name: newColumnName, //@TODO: Need to validate to when name already exists
                                 dataType: pkColumn.dataType,
                                 description: 'Foreign Key to ' + parentTable.name,
                                 primaryKey: false //@TODO: Needs to revisit when implemeting identifying relationsihps
