@@ -45,11 +45,10 @@ const style = {
     border: '1px solid #000',
   };
   
-export default function NewProjectInfo({onCancel, user, isComplete, onSubmit}) {
+export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
     const [tabValue, setTabValue] = useState('1');
     // Owner should have id
-    user['id'] = user['sub'];
-    const [project, setProject] = useState({id: nanoid(), owner: user, active: true, description:'Default description. To be changed by AI.'});
+    const [project, setProject] = useState({id: nanoid(), active: true, description:'Default description. To be changed by AI.'});
     const [submitting, setSubmitting] = useState(false);
     const [validation, setValidation] = useState({
         name: {error:false, helperText: ''},

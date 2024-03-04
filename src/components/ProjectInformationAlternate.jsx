@@ -120,7 +120,7 @@ export default function ProjectInformation({
   const open = Boolean(anchorEl);
 
   const { getNodes, getEdges } = useReactFlow();
-  const countTables = getNodes().length;
+  const countTables = getNodes().filter(node => node.type === 'tableNode').length;
   const countColumns = totalCountOfColumns(getNodes());
   const countRels = getEdges().length;
 

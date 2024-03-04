@@ -146,7 +146,7 @@ export function DashboardPage() {
                 </Stack>
             )}
             {newProjectOpen&&
-                <NewProjectInfo onCancel={handleNewProjectClose} user={user} onSubmit={handleSaveNewProject} isComplete={isComplete}/>
+                <NewProjectInfo onCancel={handleNewProjectClose} onSubmit={handleSaveNewProject} isComplete={isComplete}/>
             }
         </Box>
     </Box>

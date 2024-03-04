@@ -34,6 +34,7 @@ import UserAvatar from '../components/UserAvatar.jsx';
 import UndoContext from '../components/UndoContext';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import { useSnackbar } from 'notistack';
 
 import LoadingPage from './LoadingPage.jsx';
 
@@ -168,6 +169,8 @@ const ProjectPage = () => {
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
+
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const undo = () => {
     const lastOperation = undoStack.pop();
@@ -708,7 +711,7 @@ const ProjectPage = () => {
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
         } catch (error) {
-            console.error("Error fetching project", error);
+            enqueueSnackbar(error.message, {variant: 'error'});
         }
     };
     fetchProject();
@@ -812,7 +815,7 @@ const ProjectPage = () => {
                 onProjectDescriptionChange = {updateProjecDescription}
                 onProjectDescriptionBlur = {saveProjectDescription}
                 lastModified = {lastModified}
-                projectCreatorName = {projectCreatorName}
+                projectCreatorName = {user.name}
                 dbTechnology={dbTechnology}
                 undo = {undo}
                 undoStack = {undoStack}
