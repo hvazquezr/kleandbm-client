@@ -31,9 +31,7 @@ function UserAvatar({user, onLogout, layoutType = 'HomePage'}) {
       <Box sx={{ flexGrow: 0 }}>
       <Tooltip title={user.name}>
           <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-          <Avatar alt={user.name} src={user.picture}     style={{
-               border: '1px solid lightgray'
-            }}/>
+          <Avatar alt={user.name} src={user.picture}/>
           </IconButton>
       </Tooltip>
       <Menu
@@ -72,12 +70,6 @@ function UserAvatar({user, onLogout, layoutType = 'HomePage'}) {
           <Typography variant="h6">{user.name}</Typography>
       </Stack>
       <Divider />
-      <MenuItem key="account">
-          <ListItemIcon>
-              <ManageAccountsIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Manage Account</ListItemText>
-      </MenuItem>
       <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: appUrl } })}>
           <ListItemIcon>
               <LogoutIcon fontSize="small" />

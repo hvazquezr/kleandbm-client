@@ -10,6 +10,11 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { TypeAnimation } from 'react-type-animation';
 import Button from '@mui/material/Button';
 
+const logoStyle = {
+    width: '140px',
+    height: 'auto',
+  };
+
 
 
 export default function LandingPage() {
@@ -19,7 +24,7 @@ export default function LandingPage() {
         <AppBar position="static" sx={{ bgcolor: "white", paddingLeft:7, paddingRight:7}}>
             <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
-                    <img src={"./images/kleandbmaiBlue.png"} width="195" height="24"/>
+                    <img src={"./images/kleandbmaiBlue.svg"} style={logoStyle}/>
                     <LoginButton />                    
                 </Stack>
             </Toolbar>

@@ -22,7 +22,10 @@ import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import LoadingPage from './LoadingPage.jsx';
 import {apiUrl} from '../config/UrlConfig.jsx'
 
-
+const logoStyle = {
+    width: '140px',
+    height: 'auto',
+  };
 
 export function DashboardPage() {
     const { user, logout, getAccessTokenSilently } = useAuth0();
@@ -99,7 +102,7 @@ export function DashboardPage() {
         <AppBar position="static" sx={{paddingLeft:5, paddingRight:5}}>
         <Toolbar>
                 <Stack direction="row" spacing={0} alignItems="center" justifyContent="space-between" sx={{width:'100%'}}>
-                    <img src={"./images/kleandbmaiWhite.png"} width="195" height="24"/>
+                    <img src={"./images/kleandbmaiWhite.svg"} style={logoStyle}/>
                     <UserAvatar user={user} onLogout={logout} />                  
                 </Stack>
             </Toolbar>

@@ -162,7 +162,8 @@ export default function ProjectInformation({
 
     // Addiing footer image
     const imageDiv = document.createElement('div');
-    imageDiv.innerHTML = '<img src="/images/bluelogo.png" width="150" height="24"/>';
+    imageDiv.innerHTML = '<img src="/images/kleandbmaiBlue.svg" width="140px" height="17px"/>';
+
 
     imageDiv.style.position = 'absolute';
     imageDiv.style.left = `${nodesBounds.x+nodesBounds.width-150}px`;

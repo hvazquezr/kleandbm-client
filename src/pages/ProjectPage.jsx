@@ -44,6 +44,7 @@ import { deepCopyObject, getCurrentUnixTime, getUniqueColumnName} from '../compo
 
 const drawerWidth = 240;
 
+
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
     flexGrow: 1,
@@ -777,7 +778,7 @@ const ProjectPage = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <TreeNavigator  tableList={nodes} sx={{ flexGrow: 1, overflow: 'auto' }} />
               <Divider />
-              <Box sx={{ height: '150px' }}> {/* Fixed height */}
+              <Box sx={{ height: '95px' }}> {/* Fixed height */}
                 <UserAvatar 
                   user={user}
                   onLogout={logout}

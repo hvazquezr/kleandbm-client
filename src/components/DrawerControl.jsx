@@ -5,6 +5,13 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import MenuIcon from '@mui/icons-material/Menu';
 
+const logoGrayStyle = {
+  width: 'auto',
+  height: '15px',
+  opacity: .5, 
+  filter: 'brightness(50%) contrast(150%)'
+};
+
 export default function DrawerControl({
     handleDrawerOpen,
     openDrawer
@@ -31,7 +38,7 @@ export default function DrawerControl({
             <MenuIcon sx={{ width: 30, height: 30, color:'#DDD' }}/>
           </IconButton>
         </Tooltip>
-        <img src={"/images/kleandbmaiWhite.png"} style={{ opacity: .5, filter: 'brightness(50%) contrast(150%)' }} width="130" height="16"/>
+        <img src={"/images/kleandbmaiWhite.svg"} style={logoGrayStyle}/>
       </Box>
     </React.Fragment>
   );
