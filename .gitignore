@@ -24,4 +24,5 @@ dist-ssr
 *.sln
 *.sw?
 .env.development
+.env.production
 setup.txt

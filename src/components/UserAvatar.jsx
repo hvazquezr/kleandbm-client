@@ -6,13 +6,12 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import LogoutIcon from '@mui/icons-material/Logout';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { Typography } from '@mui/material';
 import Divider from '@mui/material/Divider';
 
-import {appUrl} from '../config/UrlConfig'
+import {landingUrl} from '../config/UrlConfig'
 
 
 function UserAvatar({user, onLogout, layoutType = 'HomePage'}) {
@@ -50,7 +49,7 @@ function UserAvatar({user, onLogout, layoutType = 'HomePage'}) {
           onClose={handleCloseUserMenu}
       >
           
-          <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: appUrl } })}>
+          <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: landingUrl } })}>
               <ListItemIcon>
                   <LogoutIcon fontSize="small" />
               </ListItemIcon>
@@ -70,7 +69,7 @@ function UserAvatar({user, onLogout, layoutType = 'HomePage'}) {
           <Typography variant="h6">{user.name}</Typography>
       </Stack>
       <Divider />
-      <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: appUrl } })}>
+      <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: landingUrl } })}>
           <ListItemIcon>
               <LogoutIcon fontSize="small" />
           </ListItemIcon>
