@@ -156,8 +156,8 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
     };
 
     function validateTableAndData(tableName, dataArray) {
-        console.log(tableName);
-        console.log(dataArray);
+        //console.log(tableName);
+        //console.log(dataArray);
         // Validate the table name first
         const tableNameError = dbTechnology.tableNameValidator(tableName);
         if (tableNameError !== '') {
@@ -167,7 +167,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
       
         // Track seen names to identify duplicates
         for (let item of dataArray) {
-            console.log(item);
+            //console.log(item);
             if (item.data.name.toUpperCase() === tableName.toUpperCase() && (node.data.id !== item.data.id)) {
               // If tableName is found in dataArray, return an error message
               return `Table name '${tableName}' already exists.`;

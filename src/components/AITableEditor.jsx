@@ -103,7 +103,9 @@ export default function AITableEditor({onDone, onCancel, projectId, currentTable
                     <TextField 
                                     id="desc"
                                     label="Instructions"
-                                    placeholder="Provide instructions to modify this table, this can include adding, removing or modifying existing columns as well as description."
+                                    placeholder="Provide instructions to modify this table, this can include adding, removing or modifying existing columns as well as description.
+For example:
+Add a column for website, lat, long and since when it's been a customer."
                                     variant="outlined" 
                                     onChange={() => {setInstructions(event.target.value)}}
                                     multiline 

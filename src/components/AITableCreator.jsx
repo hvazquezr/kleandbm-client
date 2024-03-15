@@ -48,7 +48,9 @@ export default function AITableCreator({onDone, onCancel, isComplete}) {
                     <TextField 
                                     id="desc"
                                     label="Table Instructions"
-                                    placeholder="Provide instructions that describe the intended content or fields for the new table."
+                                    placeholder="Provide instructions that describe the intended content or fields for the new table.
+For example:
+Create an Industry table, include a field for naics code and in the description of the field include a url for futher reference."
                                     variant="outlined" 
                                     onChange={() => {setInstructions(event.target.value)}}
                                     multiline 

@@ -132,7 +132,7 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
 
     const handleSubmit = async (e) => {
         //Validation
-        console.log(project);
+        //console.log(project);
         const newValidation = validation;
 
         //Validating name
@@ -151,7 +151,7 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
         newValidation.questions.helperText = validateQuestions(project.questions);
         newValidation.questions.error = (newValidation.questions.helperText!=='');
 
-        console.log(newValidation);
+        //console.log(newValidation);
         //setValidation(newValidation);
         setValidation({...validation, newValidation});
         
@@ -218,7 +218,12 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
                                     id="questions"
                                     label="Questions"
                                     variant="outlined"
-                                    placeholder="Enter the list of business questions the data model should be able to answer."
+                                    placeholder="Enter the list of business questions the data model should be able to answer. 
+For example:
+Which products have the highest demand across different demographics?
+What are the distribution channels with the highest sales volumes?
+How do seasonality and trends affect sales of specific product categories?
+What is the impact of promotions and discounts on product sales?"
                                     onChange={handleQuestions}
                                     multiline 
                                     minRows={10}
@@ -235,7 +240,11 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
                                     id="additionalInfo"
                                     label="Additional Information"
                                     variant="outlined"
-                                    placeholder="Provide additional information that should be taken into consideration. i.e. Relationships that change over time, etc."
+                                    placeholder="Provide additional information that should be taken into consideration.
+For example:
+Implement slowly changing dimension (SCD) type 2 for employee data to track historical changes in employee attributes and hierarchies over time.
+Include a 'last_updated' timestamp column in each table to track the date and time of the last data modification, supporting auditing and data lineage.
+Ensure that customer addresses are stored as separate fields for street, city, state, and zip code, allowing for easy address validation and geocoding."
                                     onChange={handleAdditionalInfo}
                                     multiline 
                                     minRows={10}
@@ -249,7 +258,14 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
                                     id="namingRules"
                                     label="Naming Conventions"
                                     variant="outlined"
-                                    placeholder="List naming conventions or abbreviations that need to be observed. i.e. Camelcase, etc."
+                                    placeholder='List naming conventions that need to be observed.
+For example:
+Fact Table Prefix: All fact tables start with the prefix "FACT_" to distinguish them from dimension tables.
+Dimension Table Prefix: All dimension tables start with the prefix "DIM_" for clear identification.
+Table Naming Convention: Use descriptive, uppercase names for tables, such as "CUSTOMER_DIM" or "PRODUCT_FACT".
+Column Naming Convention: Use lowercase names for columns, separated by underscores, ensuring readability and consistency.
+Primary Key Naming: Primary keys should be named with the format "table_name_ID" to denote uniqueness, such as "customer_id" in the "CUSTOMER_DIM" table.
+Numeric Columns: Numeric columns should have clear and concise names, such as "quantity_sold" or "unit_price", to convey their purpose effectively.'
                                     onChange={handleNamingRules}
                                     multiline 
                                     minRows={10}

@@ -62,7 +62,7 @@ export default function SQLCodeDisplay({projectId, handleClose}) {
                       Authorization: `Bearer ${token}`,
                     },
                   });
-                  console.log(response);
+                  //console.log(response);
                   setSql(response.data.sql);
             } catch (error) {
                 console.error("Error fetching sql", error);
