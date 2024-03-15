@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     }}
   >
 
-      <SnackbarProvider>
+      <SnackbarProvider maxSnack={4}>
         <App />
       </SnackbarProvider>
     </Auth0Provider>

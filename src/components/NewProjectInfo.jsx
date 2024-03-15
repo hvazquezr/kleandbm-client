@@ -7,12 +7,14 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Modal from '@mui/material/Modal';
 import {TextField, FormControl, ToggleButtonGroup, ToggleButton, Autocomplete, Typography} from '@mui/material';
 import Tab from '@mui/material/Tab';
-import FormHelperText from '@mui/material/FormHelperText';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
 
 import CircularWithValueLabel from './CircularProgressWithLabel';
+import { useSnackbar } from 'notistack';
 
 import { databaseTechnologies } from '../config/Constants';
+
+import '../components/css/kalmdbm.css';
 
 const supportedDbTypes = [
     {id:1, label:'Snowflake'},
@@ -47,6 +49,7 @@ const style = {
   
 export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
     const [tabValue, setTabValue] = useState('1');
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     // Owner should have id
     const [project, setProject] = useState({id: nanoid(), active: true, description:'Default description. To be changed by AI.'});
     const [submitting, setSubmitting] = useState(false);
@@ -56,6 +59,11 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
         projectType: {error:false, helperText: ''},
         questions: {error:false, helperText: ''}
     });
+
+    const handleCancel = () => {
+        closeSnackbar();
+        onCancel();
+    }
 
     const validateProjectName = (name) => {
         if (!name || name.length < 1 || name.length > 255) {
@@ -85,13 +93,17 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
     };
 
     const handleProjectName = (e) => {
+        setProject({...project, name: e.target.value});
+    };
+
+    const handleProjectNameOnBlur = (e) => {
         const helperText = validateProjectName(e.target.value);
         const error = (helperText!=='');
         if (validation.name.error){
             setValidation({...validation, name: {helperText, error}});
+            error && enqueueSnackbar(helperText, {variant: 'error'});
         }
-        setProject({...project, name: e.target.value});
-    };
+    }
 
     const handleDbTechnology = (e, newValue) => {
         const newValueId = (!newValue)?null:newValue.id;
@@ -99,6 +111,7 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
         const error = (helperText!=='');
         if (validation.dbTechnology.error){
             setValidation({...validation, dbTechnology: {helperText, error}});
+            error && enqueueSnackbar(helperText, {variant: 'error'});
         }
         (!newValue)
         setProject({...project, dbTechnology: newValueId});
@@ -109,19 +122,23 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
         const error = (helperText!=='');
         if (validation.projectType.error){
             setValidation({...validation, projectType: {helperText, error}});
+            error && enqueueSnackbar(helperText, {variant: 'error'});
         }
         setProject({...project, projectType: e.target.value});
     };
 
     const handleQuestions = (e) => {
+        setProject({...project, questions: e.target.value});
+    };
+
+    const handleQuestionsOnBlur = (e) => {
         const helperText = validateQuestions(e.target.value);
         const error = (helperText!=='');
         if (validation.questions.error){
             setValidation({...validation, questions: {helperText, error}});
+            error && enqueueSnackbar(helperText, {variant: 'error'});
         }
-        setProject({...project, questions: e.target.value});
     };
-
     const handleAdditionalInfo = (e) => {
         setProject({...project, additionalInfo: e.target.value});
     };
@@ -134,22 +151,35 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
         //Validation
         //console.log(project);
         const newValidation = validation;
+        closeSnackbar();
 
         //Validating name
         newValidation.name.helperText = validateProjectName(project.name);
         newValidation.name.error = (newValidation.name.helperText!=='');
+        if (newValidation.name.error){
+            enqueueSnackbar(newValidation.name.helperText, {variant: 'error'});
+        }
 
         //Validating dbTechnology
         newValidation.dbTechnology.helperText = validateDbTechnology(project.dbTechnology);
         newValidation.dbTechnology.error = (newValidation.dbTechnology.helperText!=='');
+        if (newValidation.dbTechnology.error){
+            enqueueSnackbar(newValidation.dbTechnology.helperText, {variant: 'error'});
+        }
 
         //Validating projectType
         newValidation.projectType.helperText = validateProjectType(project.projectType);
         newValidation.projectType.error = (newValidation.projectType.helperText!=='');
+        if (newValidation.projectType.error){
+            enqueueSnackbar(newValidation.projectType.helperText, {variant: 'error'});
+        }
 
         //Validating questions
         newValidation.questions.helperText = validateQuestions(project.questions);
         newValidation.questions.error = (newValidation.questions.helperText!=='');
+        if (newValidation.questions.error){
+            enqueueSnackbar(newValidation.questions.helperText, {variant: 'error'});
+        }
 
         //console.log(newValidation);
         //setValidation(newValidation);
@@ -174,9 +204,10 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
                     <Grid item xs={12}>
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                                <TextField id="projectName" label="Project Name" variant="outlined" required onChange={handleProjectName}
+                                <TextField id="projectName" label="Project Name" variant="outlined" required
+                                    onChange={handleProjectName}
+                                    onBlur={handleProjectNameOnBlur}
                                     error = {validation.name.error}
-                                    helperText={validation.name.helperText}
                                 />
                                 <Autocomplete
                                     disablePortal
@@ -186,20 +217,19 @@ export default function NewProjectInfo({onCancel, isComplete, onSubmit}) {
                                     onChange={handleDbTechnology}
                                     renderInput={(params) => <TextField {...params} required sx={{minWidth:200}} label="DB Technology"
                                     error={validation.dbTechnology.error}
-                                    helperText={validation.dbTechnology.helperText}/>}
+                                />}
                                 />
                                 <Box>
                                     <ToggleButtonGroup
-                                        color= {validation.projectType.error?"error":"primary"}
                                         exclusive
                                         aria-label="Project Type"
                                         value={project.projectType}
                                         onChange={handleProjectType}
+                                        className={validation.projectType.error ? 'error-border' : ''}
                                     >
                                         <ToggleButton value="analytical">Analytical</ToggleButton>
                                         <ToggleButton value="transactional">Transactional</ToggleButton>
                                     </ToggleButtonGroup>
-                                    <FormHelperText error={validation.projectType.error}>{validation.projectType.helperText}</FormHelperText>
                                 </Box>
                             </Box>
                         </div>
@@ -225,13 +255,13 @@ What are the distribution channels with the highest sales volumes?
 How do seasonality and trends affect sales of specific product categories?
 What is the impact of promotions and discounts on product sales?"
                                     onChange={handleQuestions}
+                                    onBlur={handleQuestionsOnBlur}
                                     multiline 
                                     minRows={10}
                                     maxRows={10} 
                                     sx={{width:'100%'}}
                                     required
                                     error={validation.questions.error}
-                                    helperText={validation.questions.helperText}
                                     value = {project.questions}
                                 />                            
                             </TabPanel>
@@ -279,7 +309,7 @@ Numeric Columns: Numeric columns should have clear and concise names, such as "q
                     <Grid item xs={12} >
                         <div sx={{width:'100%'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                                <Button variant="outlined" onClick={onCancel}>Cancel</Button>
+                                <Button variant="outlined" onClick={handleCancel}>Cancel</Button>
                                 <LoadingButton variant="contained" onClick={handleSubmit} loading={submitting}>Submit</LoadingButton>
                             </Box>
                         </div>

@@ -66,3 +66,7 @@
 #infoTable tr:last-child th,  #infoTable tr:last-child td{
   border-bottom: none;
 }
+
+.error-border {
+  border: 1px solid red;
+}
