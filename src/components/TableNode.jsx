@@ -29,7 +29,7 @@ export default memo(({data, isConnectable}) => {
             //isConnectableStart={false}
         />
         <TableContainer sx={style}>
-            <Table size="small" aria-label="{data.label}">
+            <Table size="small" aria-label="{data.label}" className="node-table">
                 <TableHead>
                     <TableRow>
                         <TableCell colSpan={3} sx={{fontWeight: 'bold', backgroundColor: '#EEE'}}>
@@ -67,6 +67,7 @@ export default memo(({data, isConnectable}) => {
             style={{ background: '#555' }}
             id="a"
             isConnectable={isConnectable}
+            className="handler"
         >
       </Handle>
     </>

@@ -55,18 +55,47 @@ export default function Flow({
   const [run, setRun] = useState(false);
   const [steps, setSteps] = useState([
     {
-      content: <h2>Let's begin our journey!</h2>,
-      locale: { skip: <strong aria-label="skip">S-K-I-P</strong> },
-      placement: 'center',
+      title: 'Navigation Panel',
+      content: 'Click on this icon to access the Navigation Panel.',
+      event: 'hover',
+      disableBeacon: true,
       target: '.drawer-icon',
     },
     {
-      content: <h2>Sticky elements</h2>,
-      floaterProps: {
-        disableAnimation: true,
-      },
-      spotlightPadding: 20,
+      title: 'More',
+      content: 'Rename the diagram, generate DDL SQL and download an image from this menu.',
+      event: 'hover',
+      disableBeacon: true,
       target: '.more-icon',
+    },
+    {
+      title: 'Edit Table',
+      content: 'Right-click on a table to edit or delete a table.',
+      event: 'hover',
+      disableBeacon: true,
+      target: '.node-table',
+    },
+    {
+      title: 'Create Relationships',
+      content: 'Drag the bottom handlers and connect them to the top handlers to establish a parent-child relationship.',
+      event: 'hover',
+      disableBeacon: true,
+      target: '.handler',
+    },
+    {
+      title: 'Delete Relationships',
+      content: 'Right-click on the relantionship handle to delete a relantionshp.',
+      event: 'hover',
+      disableBeacon: true,
+      placement: 'center',
+      target: 'body'
+    },
+    {
+      title: 'Panel Context Menu',
+      content: 'Right-click on an empty space in the panel to access additional actions.',
+      disableBeacon: true,
+      placement: 'center',
+      target: 'body'
     }])
 
     const handleJoyrideCallback = (data) => {
@@ -74,6 +103,7 @@ export default function Flow({
       const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
   
       if (finishedStatuses.includes(status)) {
+        // ask if they don't want to see it again
         setRun(false);
       }  
     };
@@ -144,7 +174,12 @@ export default function Flow({
         steps={steps}
         styles={{
           options: {
-            zIndex: 10000,
+            arrowColor: '#fff',
+            backgroundColor: '#fff',
+            overlayColor: 'rgba(0, 0, 0, 0.4)',
+            primaryColor: '#00f',
+            textColor: '#000',
+            zIndex: 1000,
           },
         }}
       />
@@ -173,7 +208,7 @@ export default function Flow({
               <DrawerControl
                 handleDrawerOpen = {handleDrawerOpen}
                 openDrawer = {openDrawer}
-                class = "drawer-icon"
+                targetClass = "drawer-icon"
               />
             </Panel>
             <Panel position="top-right" className='more-icon'>
