@@ -27,6 +27,7 @@
     "react-code-blocks": "^0.1.5",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
+    "react-joyride": "^2.8.1",
     "react-router-dom": "^6.17.0",
     "react-sortablejs": "^6.1.4",
     "react-type-animation": "^3.2.0",

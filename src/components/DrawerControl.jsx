@@ -14,7 +14,8 @@ const logoGrayStyle = {
 
 export default function DrawerControl({
     handleDrawerOpen,
-    openDrawer
+    openDrawer,
+    targetClass
     }) {
 
   return (
@@ -35,7 +36,7 @@ export default function DrawerControl({
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
           >
-            <MenuIcon sx={{ width: 30, height: 30, color:'#DDD' }}/>
+            <MenuIcon sx={{ width: 30, height: 30, color:'#DDD' }} className={targetClass}/>
           </IconButton>
         </Tooltip>
         <img src={"/images/kleandbmaiWhite.svg"} style={logoGrayStyle}/>

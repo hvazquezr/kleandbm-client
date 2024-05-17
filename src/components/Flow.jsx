@@ -9,6 +9,7 @@ import RelationshipContextMenu from './RelationshipContextMenu';
 import PaneContextMenu from './PaneContextMenu';
 import ProjectInformation from './ProjectInformationAlternate';
 import DrawerControl from './DrawerControl';
+import Joyride, {STATUS } from 'react-joyride';
 
 const proOptions = { hideAttribution: true };
 
@@ -51,7 +52,37 @@ export default function Flow({
   const deletePressed = useKeyPress(['Delete', 'Backspace']) 
   const ref = useRef(null);
 
-  useEffect(() => {
+  const [run, setRun] = useState(false);
+  const [steps, setSteps] = useState([
+    {
+      content: <h2>Let's begin our journey!</h2>,
+      locale: { skip: <strong aria-label="skip">S-K-I-P</strong> },
+      placement: 'center',
+      target: '.drawer-icon',
+    },
+    {
+      content: <h2>Sticky elements</h2>,
+      floaterProps: {
+        disableAnimation: true,
+      },
+      spotlightPadding: 20,
+      target: '.more-icon',
+    }])
+
+    const handleJoyrideCallback = (data) => {
+      const { status, type } = data;
+      const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
+  
+      if (finishedStatuses.includes(status)) {
+        setRun(false);
+      }  
+    };
+
+    useEffect(() => {
+      setRun(true);
+    }, [])
+
+    useEffect(() => {
     // This is only preventing being able to delete using Delete key
     //alert('Trying to detete');
   }, [deletePressed])
@@ -103,6 +134,20 @@ export default function Flow({
 
   return (
     <div className='kalmdbm'>
+      <Joyride
+        callback={handleJoyrideCallback}
+        continuous
+        run={run}
+        scrollToFirstStep
+        showProgress
+        showSkipButton
+        steps={steps}
+        styles={{
+          options: {
+            zIndex: 10000,
+          },
+        }}
+      />
         <ReactFlow
         ref={ref}
         nodes={nodes}
@@ -127,10 +172,11 @@ export default function Flow({
             <Panel position="top-left">
               <DrawerControl
                 handleDrawerOpen = {handleDrawerOpen}
-                openDrawer = {openDrawer} 
+                openDrawer = {openDrawer}
+                class = "drawer-icon"
               />
             </Panel>
-            <Panel position="top-right">
+            <Panel position="top-right" className='more-icon'>
               <ProjectInformation
                 projectId = {projectId}
                 projectName = {projectName} 
