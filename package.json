@@ -21,6 +21,7 @@
     "@mui/x-tree-view": "^6.17.0",
     "axios": "^1.6.0",
     "html-to-image": "^1.11.11",
+    "js-cookie": "^3.0.5",
     "nanoid": "^5.0.3",
     "notistack": "^3.0.1",
     "react": "^18.2.0",

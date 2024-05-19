@@ -14,7 +14,7 @@ import Tab from '@mui/material/Tab';
 import { useSnackbar } from 'notistack';
 import {TabContext, TabList, TabPanel}  from '@mui/lab';
 
-import PsychologyIcon from '@mui/icons-material/Psychology';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 import AITableEditor from './AITableEditor';
 import ColumnListEditor from './ColumnListEditor';
@@ -244,7 +244,7 @@ export default function TableEditor({node, projectId, dbTechnologyId, onDone, on
                     <Box sx={{display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%'}}>
                         <TextField  sx={{width:'100%'}} label="Table Name" variant="outlined" value={tableName} onChange={handleEditTableName} required error={tableNameError !== ""}/>
                         <Tooltip title="Edit Table with AI">
-                            <span><Button sx={{height:56, marginLeft:1}} variant='contained' size='large' onClick={() => {setShowAIEditor(true)}} color='secondary'><PsychologyIcon /></Button></span>
+                            <span><Button sx={{height:56, marginLeft:1}} variant='contained' size='large' onClick={() => {setShowAIEditor(true)}} color='secondary'><AutoAwesomeIcon /></Button></span>
                         </Tooltip>
                     </Box>
                     <TabContext value={tabValue} sx={{width:'100%'}}>

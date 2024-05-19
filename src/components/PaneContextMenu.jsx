@@ -6,7 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { ListItemIcon, ListItemText } from '@mui/material';
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 import TableChartOutlinedIcon from '@mui/icons-material/TableChartOutlined';
-import PsychologyIcon from '@mui/icons-material/Psychology';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import UndoIcon from '@mui/icons-material/Undo';
 
 
@@ -33,17 +33,17 @@ export default function PaneContextMenu({onClick, menuOptions, onAddTable, onAdd
             anchorPosition={{top: menuOptions.top, left: menuOptions.left}}
             onClick={onClick} 
         >
+            <MenuItem onClick={handleAddTableWithAI} >
+                <ListItemIcon>
+                    <AutoAwesomeIcon fontSize="small" color="secondary"/>
+                </ListItemIcon>
+                <ListItemText>Add Table with AI</ListItemText>
+            </MenuItem>
             <MenuItem onClick={handleAddTable} >
                 <ListItemIcon>
                     <TableChartOutlinedIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Add Table</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={handleAddTableWithAI} >
-                <ListItemIcon>
-                    <PsychologyIcon fontSize="small" color="secondary"/>
-                </ListItemIcon>
-                <ListItemText>Add Table with AI</ListItemText>
             </MenuItem>
             <MenuItem onClick={handleAddNote} >
                 <ListItemIcon>

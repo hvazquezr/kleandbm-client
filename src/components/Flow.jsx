@@ -10,6 +10,8 @@ import PaneContextMenu from './PaneContextMenu';
 import ProjectInformation from './ProjectInformationAlternate';
 import DrawerControl from './DrawerControl';
 import Joyride, {STATUS } from 'react-joyride';
+import TourToolTip from './TourToolTip';
+import Cookies from 'js-cookie';
 
 const proOptions = { hideAttribution: true };
 
@@ -59,32 +61,42 @@ export default function Flow({
       content: 'Click on this icon to access the Navigation Panel.',
       event: 'hover',
       disableBeacon: true,
+      placement: 'auto',
       target: '.drawer-icon',
     },
     {
-      title: 'More',
-      content: 'Rename the diagram, generate DDL SQL and download an image from this menu.',
+      title: 'More Options',
+      content: 'Rename the diagram, generate DDL SQL, and download an image from this menu.',
       event: 'hover',
       disableBeacon: true,
+      placement: 'auto',
       target: '.more-icon',
     },
     {
       title: 'Edit Table',
       content: 'Right-click on a table to edit or delete a table.',
+      image: '/images/table_context_menu.png',
+      imageAlt: 'Edit Table',
       event: 'hover',
       disableBeacon: true,
+      placement: 'auto',
       target: '.node-table',
     },
     {
       title: 'Create Relationships',
       content: 'Drag the bottom handlers and connect them to the top handlers to establish a parent-child relationship.',
+      image: '/images/relationship_animated.gif',
+      imageAlt: 'Create Relationships',
       event: 'hover',
       disableBeacon: true,
+      placement: 'auto',
       target: '.handler',
     },
     {
       title: 'Delete Relationships',
-      content: 'Right-click on the relantionship handle to delete a relantionshp.',
+      content: 'Right-click on the relationship handle to delete a relationship.',
+      image: '/images/relationship_context_menu.png',
+      imageAlt: 'Delete Relationships',
       event: 'hover',
       disableBeacon: true,
       placement: 'center',
@@ -93,10 +105,13 @@ export default function Flow({
     {
       title: 'Panel Context Menu',
       content: 'Right-click on an empty space in the panel to access additional actions.',
+      image: '/images/pane_context_menu.png',
+      imageAlt: 'Panel Context Menu',
       disableBeacon: true,
       placement: 'center',
       target: 'body'
-    }])
+    }
+  ]);
 
     const handleJoyrideCallback = (data) => {
       const { status, type } = data;
@@ -109,7 +124,11 @@ export default function Flow({
     };
 
     useEffect(() => {
-      setRun(true);
+      const tourSeen = Cookies.get('tour_seen');
+      //if (true) {
+      if (!tourSeen) {
+        setRun(true);
+      }
     }, [])
 
     useEffect(() => {
@@ -166,19 +185,17 @@ export default function Flow({
     <div className='kalmdbm'>
       <Joyride
         callback={handleJoyrideCallback}
+        tooltipComponent={TourToolTip}
         continuous
         run={run}
         scrollToFirstStep
+        disableScrolling
         showProgress
         showSkipButton
         steps={steps}
         styles={{
           options: {
-            arrowColor: '#fff',
-            backgroundColor: '#fff',
-            overlayColor: 'rgba(0, 0, 0, 0.4)',
-            primaryColor: '#00f',
-            textColor: '#000',
+            overlayColor: 'rgba(0, 0, 0, .6)',
             zIndex: 1000,
           },
         }}
