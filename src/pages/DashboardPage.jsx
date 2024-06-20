@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { nanoid } from 'nanoid';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -61,7 +62,9 @@ export function DashboardPage() {
 
     const handleSaveNewProject = async (newProject) => {
         try {
+            newProject["changeId"] = nanoid(21);
             const token = await getAccessTokenSilently();
+            console.log(newProject);
             let response = await axios.post(`${apiUrl}/projects`, newProject, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,7 +92,7 @@ export function DashboardPage() {
                     console.error("Error polling project status", pollError);
                     clearInterval(pollInterval); // Optional: stop polling on error
                 }
-            }, 5000); // Poll every 5 seconds
+            }, 2500); // Poll every 2.5 seconds
     
         } catch (error) {
             console.error("Error saving project", error);

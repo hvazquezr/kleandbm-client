@@ -37,7 +37,7 @@ export default function PaneContextMenu({onClick, menuOptions, onAddTable, onAdd
                 <ListItemIcon>
                     <AutoAwesomeIcon fontSize="small" color="secondary"/>
                 </ListItemIcon>
-                <ListItemText>Add Table with AI</ListItemText>
+                <ListItemText>Add Table(s) with AI</ListItemText>
             </MenuItem>
             <MenuItem onClick={handleAddTable} >
                 <ListItemIcon>

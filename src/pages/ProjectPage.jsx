@@ -189,6 +189,7 @@ const ProjectPage = () => {
   async function updateRequest(path, payload) {
     try {
       const token = await getAccessTokenSilently();
+      console.log(`payload: ${payload}`);
       const response = await axios.patch(`${apiUrl}/`+ path, payload, {
           headers: {
               'Content-Type': 'application/json',
@@ -203,28 +204,34 @@ const ProjectPage = () => {
     }
   };  
 
-  async function deleteRequest(path) {
+  async function deleteRequest(path, changeId = null) {
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.delete(`${apiUrl}/` + path, {
-          headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-          },
-          });
-          setLastModified(getCurrentUnixTime());
-          return response;
+      console.log(`changeId: ${changeId}`);
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      };
+  
+      if (changeId) {
+        headers['Change-Id'] = changeId;
+      }
+  
+      const response = await axios.delete(`${apiUrl}/` + path, { headers });
+  
+      setLastModified(getCurrentUnixTime());
+      return response;
     } catch (error) {
       console.error("Error deleting data", error);
       throw error;
     }
-  };
-
-
-
+  };  
 
   const addRelationship = useCallback(
       (params, addUndo = true) => {
+      
+      const changeId = params.changeId || nanoid(21);
+
       // Retrieve columns of source node
       const parentTable = (nodes.filter((n) => n.id === params.source)[0]).data;
       const childNode = (nodes.filter((n) => n.id === params.target)[0]);
@@ -243,6 +250,7 @@ const ProjectPage = () => {
                                 primaryKey: false //@TODO: Needs to revisit when implemeting identifying relationsihps
         };
         childNode.data.columns = childNode.data.columns.concat(newChildColumn);
+        childNode.changeId = changeId;
         updateNode(childNode);
         const newRelationship = { ...params, id: nanoid(), type: 'floating', markerEnd: 'endMarker', markerStart: 'startMarker' };
         newRelationship.data =  {
@@ -252,11 +260,13 @@ const ProjectPage = () => {
                                   projectId: id,
                                   active: true,
                                   parentColumn: pkColumn.id,
-                                  childColumn: newChildColumn.id
+                                  childColumn: newChildColumn.id,
+                                  changeId
                                 }
         updateRequest(`projects/${id}/relationships/${newRelationship.id}`, newRelationship.data);
         setEdges((eds) => addEdge(newRelationship, eds));
         if (addUndo){
+          newRelationship.changeId = nanoid(21);
           addToUndoStack(() => deleteRelationship(newRelationship, true, false));
         }
       }
@@ -266,10 +276,19 @@ const ProjectPage = () => {
     }, [nodes, setEdges]
   );
 
-  async function undoAIRecommendations(nodesToUndo, edgesToUndo){
-    nodesToUndo.forEach(n => {handleConfirmDeleteNode(n)});
-    edgesToUndo.forEach(r => {deleteRelationship(r, false, false)});
-  };
+  async function undoAIRecommendations(nodesToUndo, edgesToUndo) {
+    const changeId = nanoid(21); // Create changeId
+
+    nodesToUndo.forEach(n => {
+        n.changeId = changeId; // Set changeId for each node
+        handleConfirmDeleteNode(n);
+    });
+
+    edgesToUndo.forEach(r => {
+        r.changeId = changeId; // Set changeId for each edge
+        deleteRelationship(r, false, false);
+    });
+}
 
   //Handlers
 
@@ -299,18 +318,23 @@ const ProjectPage = () => {
 
                 if (statusResponse.data && statusResponse.data.result !== null) {
                     clearInterval(pollingInterval);
-
+                    const changeId = nanoid(21);
                     const recommendations = statusResponse.data.result;
                     if (recommendations.newNodes.length > 0){
-                      recommendations.newNodes.forEach(n => {n.type='tableNode'; updateNode(n, true)});
+                      recommendations.newNodes.forEach(n => {
+                        n.type = 'tableNode';
+                        n.changeId = changeId;  // Add changeId to each node
+                        updateNode(n, true);
+                      });
                       
                       // Because state does not get refreshed right away addRelationship cannot be used.
                       // The relationships will be added here
                       //recommendations.newEdges.forEach(e => addRelationship(e, false));
                       for (const e of recommendations.newEdges) {
+                        e.data.changeId = changeId;  // Add changeId to each edge's data object
                         updateRequest(`projects/${id}/relationships/${e.data.id}`, e.data);
                         setEdges((eds) => addEdge(e, eds));
-                      }
+                    }
                       //setIsCompleteAITable(true);
 
                       addToUndoStack(() => undoAIRecommendations(recommendations.newNodes, recommendations.newEdges));
@@ -406,17 +430,21 @@ const ProjectPage = () => {
 
 
   const handleConfirmDeleteNode = (nodeToDelete) =>{
-    const nodeId = nodeToDelete.id
+    const nodeId = nodeToDelete.id;
+    const changeId = nodeToDelete.changeId;
 
     // Determine relationships where the node acts a source/parent or target/child
     const relatedRelationships = edges.filter((edge) => edge.source === nodeToDelete.id || edge.target === nodeToDelete.id);
 
     // Iterate over the array to delete the relationsihps.
     // Only in the cases where the node is the source the child objects should be updated
-    relatedRelationships.forEach(e => deleteRelationship(e, (e.source === nodeToDelete.id), false));
+    relatedRelationships.forEach(e => {
+      e.changeId = changeId; // Set the changeId attribute in e to the constant changeId
+      deleteRelationship(e, (e.source === nodeToDelete.id), false);
+    });
 
-    deleteRequest(`projects/${id}/tables/${nodeToDelete.data.id}`);
-    deleteRequest(`projects/${id}/nodes/${nodeId}`);
+    deleteRequest(`projects/${id}/tables/${nodeToDelete.data.id}`, changeId);
+    deleteRequest(`projects/${id}/nodes/${nodeId}`, changeId);
 
     //Delete node from UI
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
@@ -427,8 +455,13 @@ const ProjectPage = () => {
   const undoDeleteNode = async (node, relationships) => {
     // Restablish node
     node.new = true;
+    const changeId = nanoid(21);
+    node.changeId = changeId;
     updateNode(node, true);
-    relationships.forEach(r => addRelationship(r, false));
+    relationships.forEach(r => {
+      r.changeId = changeId; // Set the changeId attribute in r to the constant changeId
+      addRelationship(r, false);
+    });
   };
 
   const updateNote = async (node) => {
@@ -441,12 +474,14 @@ const ProjectPage = () => {
       type: node.type,
       text: node.data.text,
       width: node.width,
-      height: node.height
+      height: node.height,
+      changeId: nanoid(21)
     }
     await updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
   };
 
   const updateNotePartial = async (node) => {
+    node.changeId = nanoid(21);
     await updateRequest(`projects/${id}/nodes/${node.id}`, node);
     setNodes((nds) =>
     nds.map((n) => {
@@ -503,7 +538,7 @@ const ProjectPage = () => {
   }
 
   const deleteNote = async (node) => {
-    deleteRequest(`projects/${id}/nodes/${node.id}`);
+    deleteRequest(`projects/${id}/nodes/${node.id}`, nanoid(21));
     setNodes((nds) => nds.filter((n) => n.id !== node.id));
   };
 
@@ -522,9 +557,12 @@ const ProjectPage = () => {
       x: node.position.x,
       y: node.position.y,
       active: true,
-      type: node.type
+      type: node.type,
+      changeId: node.changeId
     }
-    
+
+    node.data.changeId = node.changeId;
+  
     updateRequest(`projects/${id}/nodes/${node.id}`, copyNode);
     updateRequest(`projects/${id}/tables/${node.data.id}`, node.data);
 
@@ -555,6 +593,7 @@ const ProjectPage = () => {
   const handleConfirmDeleteNodeWithUndo = async (node) => {
     const relatedRelationships = edges.filter((edge) => edge.source === node.id || edge.target === node.id);
     const nodeCopy = deepCopyObject(node);
+    node.changeId = nanoid(21);
     addToUndoStack(() => undoDeleteNode(nodeCopy, relatedRelationships));
     handleConfirmDeleteNode(node);
   };
@@ -563,18 +602,21 @@ const ProjectPage = () => {
     let oldNode = null;
     if (isNew || node.new){
       // If it's new the undo action is to delete it
-      addToUndoStack(() => handleConfirmDeleteNode(node))
+      node.changeId = nanoid(21);
+      addToUndoStack(() => handleConfirmDeleteNode(node));
     }
     else{
       // If it's an update find the current element and send it to to the undo stack
       nodes.forEach(n => {
         if (n.id === node.id) {
           oldNode = deepCopyObject(n);
+          oldNode.changeId = nanoid(21);
           addToUndoStack(() => updateNode(oldNode));
         }
       });      
     }
     // Perform normal operaion after so that the previous node state can be saved before it's modified
+    node.changeId = nanoid(21);
     updateNode(node, isNew);
   };
 
@@ -584,13 +626,16 @@ const ProjectPage = () => {
   }
 
   const deleteRelationship = (relationshipToDelete, shouldUpdateNode = true, addUndo = true) => {
-
+    const changeId = relationshipToDelete.changeId || nanoid(21);
+    //const changeId = nanoid(21);
     if (shouldUpdateNode) {
       const targetNode = nodes.filter((n) => {return n.id === relationshipToDelete.target})[0];
       targetNode.data.columns = (targetNode.data.columns).filter(column => column.id !== relationshipToDelete.data.childColumn);
+      targetNode.changeId = changeId;
       updateNode(targetNode);
     }
-    deleteRequest(`projects/${id}/relationships/${relationshipToDelete.id}`);
+
+    deleteRequest(`projects/${id}/relationships/${relationshipToDelete.id}`, changeId);
 
     // Deleting actual edge from UI
     setEdges((es) => es.filter((e) => e.id !== relationshipToDelete.id));
@@ -618,7 +663,7 @@ const ProjectPage = () => {
   };
 
   const saveProjectName = async (e) => {
-    const newName = { name: e.target.value };
+    const newName = { name: e.target.value, changeId: nanoid(21) };
 
     // Use .current to access the ref's value
     const previousName = previousProjectNameRef.current;
@@ -628,7 +673,7 @@ const ProjectPage = () => {
     // Use the ref's current value for the undo action
     addToUndoStack(() => {
       if (previousName !== undefined) { // Check if there was a previous name
-        updateRequest(`projects/${id}`, { name: previousName });
+        updateRequest(`projects/${id}`, { name: previousName, changeId: nanoid(21) });
         setProjectName(previousName); // Assuming `setProjectName` updates local state or context
       }
     });
@@ -641,13 +686,13 @@ const ProjectPage = () => {
   };
 
   const saveProjectDescription = async (e) => {
-    const newDescription = {description: e.target.value};
+    const newDescription = {description: e.target.value, changeId: nanoid(21) };
     const previousDescription = previousProjectDescriptionRef.current;
     updateRequest(`projects/${id}`, newDescription);
     // Use the ref's current value for the undo action
     addToUndoStack(() => {
       if (previousDescription !== undefined) { // Check if there was a previous name
-        updateRequest(`projects/${id}`, { description: previousDescription });
+        updateRequest(`projects/${id}`, { description: previousDescription, changeId: nanoid(21)  });
         setProjectDescription(previousDescription); // Assuming `setProjectName` updates local state or context
       }
     });
@@ -657,8 +702,14 @@ const ProjectPage = () => {
 
 
   const onNodeDragStop = useCallback(async (event, node) => {
-    updateRequest(`projects/${id}/nodes/${node.id}`, node.position);
-    addToUndoStack(() => {undoNodeDrag(node.id, node.data.oldPosition)});
+    // Copy node.position and add changeId attribute
+    const newPosition = { ...node.position, changeId: nanoid(21) };
+
+    // Copy node.data.oldPosition and add changeId attribute
+    const oldPosition = { ...node.data.oldPosition, changeId: nanoid(21) };
+
+    updateRequest(`projects/${id}/nodes/${node.id}`, newPosition);
+    addToUndoStack(() => {undoNodeDrag(node.id, oldPosition)});
   }, []);
 
   const undoNodeDrag = async (nodeId, position) => {

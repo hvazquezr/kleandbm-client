@@ -15,11 +15,14 @@ import Tooltip from '@mui/material/Tooltip';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import SourceIcon from '@mui/icons-material/Source';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import HistoryIcon from '@mui/icons-material/History';
+import SpellcheckIcon from '@mui/icons-material/Spellcheck';
 import { AccessTime as AccessTimeIcon } from '@mui/icons-material';
 import Popover from '@mui/material/Popover';
 import { TextField , Avatar} from '@mui/material';
 
 import SQLCodeDisplay from './SQLCodeDisplay';
+import NamingRulesEditor from './NamingRulesEditor';
 
 import { lookupDbTechnology } from './utils';
 
@@ -109,6 +112,8 @@ export default function ProjectInformation({
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openSqlWindow, setOpenSqlWindow] = React.useState(false);
+  const [openNamingRules, setOpenNamigRules] = React.useState(false);
+
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -304,6 +309,18 @@ export default function ProjectInformation({
             </Stack>
           </Stack>
           <Divider /> 
+          <MenuItem  onClick={() => {setOpenNamigRules(true)}}>
+              <ListItemIcon>
+                  <SpellcheckIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit naming conventions</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={onDownloadClick}>
+              <ListItemIcon>
+                  <HistoryIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Version History</ListItemText>
+          </MenuItem>
           <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
               <ListItemIcon>
                   <SourceIcon fontSize="small" />
@@ -319,6 +336,11 @@ export default function ProjectInformation({
           {openSqlWindow && <SQLCodeDisplay 
               projectId={projectId}
               handleClose={() => {setOpenSqlWindow(false), handleClose()}}
+          />}
+          {openNamingRules && <NamingRulesEditor 
+              projectId={projectId}
+              onDone={() => {setOpenNamigRules(false), handleClose()}}
+              onCancel={() => {setOpenNamigRules(false), handleClose()}}
           />}
         </Popover>
     </React.Fragment>
