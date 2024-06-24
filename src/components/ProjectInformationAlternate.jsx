@@ -17,31 +17,48 @@ import SourceIcon from '@mui/icons-material/Source';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import HistoryIcon from '@mui/icons-material/History';
 import SpellcheckIcon from '@mui/icons-material/Spellcheck';
+import EmojiFlagsIcon from '@mui/icons-material/EmojiFlags';
 import { AccessTime as AccessTimeIcon } from '@mui/icons-material';
 import Popover from '@mui/material/Popover';
 import { TextField , Avatar} from '@mui/material';
+import { useSnackbar } from 'notistack';
 
 import SQLCodeDisplay from './SQLCodeDisplay';
 import NamingRulesEditor from './NamingRulesEditor';
+
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 import { lookupDbTechnology } from './utils';
 
 const headerStyle = {fontWeight:'bold', fontFamily:'sans-serif', color:'text.primary'};
 const labelStyle = {color:'text.secondary'};
 
-function convertTimestampToReadable(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString(undefined, {
+function toLocalTime(isoDate) {
+  const localDate = new Date(isoDate + 'Z');
+
+  const formattedDate = localDate.toLocaleDateString(undefined, {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+  });
+  
+  const formattedTime = localDate.toLocaleTimeString(undefined, {
       hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true // Set to true if you want 12-hour format with AM/PM
+  });
+  
+  return `${formattedDate} ${formattedTime}`;
+}
   
 
-  function createProjectInfoTable(x, y,  projectName, projectDescription, projectCreatorName, lastModified, countTables, countColumns, countRels) {
+  function createProjectInfoTable(x, y,  projectName, projectDescription, projectCreatorName, lastChange, countTables, countColumns, countRels) {
     // Create a new div element
     const newDiv = document.createElement('div');
   
@@ -69,7 +86,7 @@ function convertTimestampToReadable(timestamp) {
       </tr>
       <tr>
           <th>Last Modified</th>
-          <td colspan="2">${lastModified}</td>
+          <td colspan="2">${lastChange.timestamp}</td>
       </tr>
       <tr>
         <td width="33%"><b>Tables:</b>&nbsp;${countTables}</td>
@@ -105,15 +122,19 @@ export default function ProjectInformation({
     onProjectDescriptionBlur,
     onProjectNameChange,
     onProjectNameBlur,
-    lastModified,
+    lastChange,
     projectCreatorName,
-    dbTechnology
+    dbTechnology,
+    onSubmitChangeName
     }) {
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openSqlWindow, setOpenSqlWindow] = React.useState(false);
   const [openNamingRules, setOpenNamigRules] = React.useState(false);
-
+  const [openVersionName, setOpenVersionName] = React.useState(false);
+  const [changeName, setChangeName] = React.useState(lastChange.name || "");
+  const [changeNameError, setChangeNameError] = React.useState("");
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -128,6 +149,21 @@ export default function ProjectInformation({
   const countTables = getNodes().filter(node => node.type === 'tableNode').length;
   const countColumns = totalCountOfColumns(getNodes());
   const countRels = getEdges().length;
+
+  const handleDialogSubmit = () => {
+    closeSnackbar();
+    let error = ""
+    if (!changeName) {
+      error = 'Version name is required.'
+      enqueueSnackbar(error, {variant: 'error'});  
+      setChangeNameError(error);
+      return;
+    }
+    setChangeNameError("");
+    onSubmitChangeName(changeName);
+    setOpenVersionName(false);
+    setAnchorEl(null);
+  };
 
   const onDownloadClick = () => {
 
@@ -159,7 +195,7 @@ export default function ProjectInformation({
     content.appendChild(endMarker);
     content.appendChild(startMarker); 
 
-    const infoTable = createProjectInfoTable(nodesBounds.x, nodesBounds.y+nodesBounds.height+30, projectName, projectDescription, projectCreatorName, convertTimestampToReadable(lastModified), countTables, countColumns, countRels);
+    const infoTable = createProjectInfoTable(nodesBounds.x, nodesBounds.y+nodesBounds.height+30, projectName, projectDescription, projectCreatorName, lastChange, countTables, countColumns, countRels);
     content.appendChild(infoTable);
 
     const tableInfoHeight = infoTable.offsetHeight;
@@ -192,6 +228,7 @@ export default function ProjectInformation({
 
   return (
     <React.Fragment>
+
       <Box sx={{ display: 'flex', alignItems: 'flex-start', textAlign: 'center' }}>
         <Tooltip title="More">
           <IconButton
@@ -288,7 +325,7 @@ export default function ProjectInformation({
                 <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center'}}>
                     <AccessTimeIcon sx={{width:16, height:16}}/>
                     <span style={{ marginLeft: 4 }}>
-                        Last Modified: {convertTimestampToReadable(lastModified)}
+                        Last Modified: {toLocalTime(lastChange.timestamp)}
                     </span>
                 </Typography>
               </Box>      
@@ -308,18 +345,25 @@ export default function ProjectInformation({
               <Typography variant="body2" sx={labelStyle}>Relationships</Typography>
             </Stack>
           </Stack>
+          <Divider />
+          <MenuItem>
+              <ListItemIcon>
+                  <HistoryIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>See version history</ListItemText>
+          </MenuItem> 
+          <MenuItem onClick={() => {setOpenVersionName(true)}}>
+              <ListItemIcon>
+                  <EmojiFlagsIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Name this version</ListItemText>
+          </MenuItem>
           <Divider /> 
           <MenuItem  onClick={() => {setOpenNamigRules(true)}}>
               <ListItemIcon>
                   <SpellcheckIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText>Edit naming conventions</ListItemText>
-          </MenuItem>
-          <MenuItem onClick={onDownloadClick}>
-              <ListItemIcon>
-                  <HistoryIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Version History</ListItemText>
           </MenuItem>
           <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
               <ListItemIcon>
@@ -342,6 +386,33 @@ export default function ProjectInformation({
               onDone={() => {setOpenNamigRules(false), handleClose()}}
               onCancel={() => {setOpenNamigRules(false), handleClose()}}
           />}
+      <Dialog
+        open={openVersionName}
+      >
+        <DialogContent>
+          <DialogContentText>
+            Assign a name to this version to easily identify it.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="versionName"
+            label="Version Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={changeName} // Set the value of the TextField
+            onChange={(e) => setChangeName(e.target.value)} 
+            error={changeNameError !== ""}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {setOpenVersionName(false)}}>Cancel</Button>
+          <Button variant="contained" onClick={handleDialogSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
         </Popover>
     </React.Fragment>
   );

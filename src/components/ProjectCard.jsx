@@ -7,21 +7,24 @@ import { lookupDbTechnology } from './utils';
 import {apiUrl} from '../config/UrlConfig'
 
 
-function epochToLocalTime(epoch) {
-    const date = new Date(epoch);
-    const formattedDate = date.toLocaleDateString('en-US', {
-        year: '2-digit',
+function toLocalTime(isoDate) {
+    const localDate = new Date(isoDate + 'Z');
+  
+    const formattedDate = localDate.toLocaleDateString(undefined, {
+        year: 'numeric',
         month: '2-digit',
         day: '2-digit'
     });
-    const formattedTime = date.toLocaleTimeString('en-US', {
+    
+    const formattedTime = localDate.toLocaleTimeString(undefined, {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
+        hour12: true // Set to true if you want 12-hour format with AM/PM
     });
+    
     return `${formattedDate} ${formattedTime}`;
-}
+  }
 
 function ProjectCard({ project, user }) {
     const navigate = useNavigate();
@@ -69,7 +72,7 @@ function ProjectCard({ project, user }) {
                         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center'}}>
                             <AccessTimeIcon sx={{width:16, height:16}}/>
                             <span style={{ marginLeft: 4 }}>
-                                Last Modified: {epochToLocalTime(project.lastModified)}
+                                Last Modified: {toLocalTime(project.lastChange.timestamp)}
                             </span>
                         </Typography>
                     </CardContent>

@@ -41,11 +41,12 @@ export default function Flow({
   projectDescription,
   onProjectDescriptionChange,
   onProjectDescriptionBlur,
-  lastModified,
+  lastChange,
   projectCreatorName,
   dbTechnology,
   undo,
-  undoStack
+  undoStack,
+  onSubmitChangeName
 }) {
 
   const [paneMenu, setPaneMenu] = useState(null);
@@ -112,6 +113,8 @@ export default function Flow({
       target: 'body'
     }
   ]);
+
+    console.log(`Last Change at Flow: ${lastChange}`)
 
     const handleJoyrideCallback = (data) => {
       const { status, type } = data;
@@ -237,9 +240,10 @@ export default function Flow({
                 projectDescription = {projectDescription}
                 onProjectDescriptionChange = {onProjectDescriptionChange}
                 onProjectDescriptionBlur = {onProjectDescriptionBlur}
-                lastModified = {lastModified}
+                lastChange = {lastChange}
                 projectCreatorName = {projectCreatorName}
                 dbTechnology={dbTechnology}
+                onSubmitChangeName = {onSubmitChangeName}
               />
             </Panel>
             <Controls />

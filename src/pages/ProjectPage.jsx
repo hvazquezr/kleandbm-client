@@ -40,7 +40,7 @@ import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
 import '../components/css/kalmdbm.css';
-import { deepCopyObject, getCurrentUnixTime, getUniqueColumnName} from '../components/utils.jsx';
+import { deepCopyObject, getCurrentIsoTime, getUniqueColumnName} from '../components/utils.jsx';
 
 const drawerWidth = 240;
 
@@ -163,7 +163,7 @@ const ProjectPage = () => {
   const [Message, setWarningMessage]= useState(null);
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
-  const [lastModified, setLastModified] = useState(null);
+  const [lastChange, setLastChange] = useState(null);
   const [showAITableCreator, setShowAITableCreator] = useState(false);
   const [paneContextMenuPosition, setPaneContextMenuPosition] = useState(null);
   const [isCompleteAITable, setIsCompleteAITable] = useState(false);
@@ -186,23 +186,31 @@ const ProjectPage = () => {
   };
   
   //Helper functions
-  async function updateRequest(path, payload) {
+  async function updateRequest(path, payload, update_lastchange = true) {
     try {
-      const token = await getAccessTokenSilently();
-      console.log(`payload: ${payload}`);
-      const response = await axios.patch(`${apiUrl}/`+ path, payload, {
-          headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-          },
-          });
-          setLastModified(getCurrentUnixTime());
-          return response;
+        const token = await getAccessTokenSilently();
+        console.log(`payload: ${payload}`);
+        const response = await axios.patch(`${apiUrl}/${path}`, payload, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (update_lastchange) {
+            setLastChange({
+                'projectId': id,
+                'id': payload.changeId,
+                'timestamp': getCurrentIsoTime()
+            });
+        }
+
+        return response;
     } catch (error) {
-      console.error("Error updataing data", error);
-      throw error;
+        console.error("Error updating data", error);
+        throw error;
     }
-  };  
+}
 
   async function deleteRequest(path, changeId = null) {
     try {
@@ -218,8 +226,7 @@ const ProjectPage = () => {
       }
   
       const response = await axios.delete(`${apiUrl}/` + path, { headers });
-  
-      setLastModified(getCurrentUnixTime());
+      setLastChange({'projectId':id, 'id': changeId, 'timestamp': getCurrentIsoTime()});
       return response;
     } catch (error) {
       console.error("Error deleting data", error);
@@ -662,6 +669,14 @@ const ProjectPage = () => {
     setProjectName(e.target.value);
   };
 
+
+  const updateChangeName = (value) => {
+    console.log(lastChange);
+    setLastChange({ ...lastChange, name: value })
+    // TODO: Implement change
+    updateRequest(`projects/${id}/change/${lastChange.id}`, {'name': value}, false);
+  }
+
   const saveProjectName = async (e) => {
     const newName = { name: e.target.value, changeId: nanoid(21) };
 
@@ -758,7 +773,8 @@ const ProjectPage = () => {
               setProjectDescription(project.description);
               previousProjectDescriptionRef.current = project.description;
               setProjectCreatorName(project.owner.name);
-              setLastModified(project.lastModified);
+              console.log(project.lastChange)
+              setLastChange(project.lastChange);
               setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
@@ -840,7 +856,7 @@ const ProjectPage = () => {
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
             <UndoContext.Provider value={{ addToUndoStack, updateNotePartial, restoreNotePartial }}>
-              <Flow
+              {lastChange && <Flow
                 nodes = {nodes}
                 edges = {edges}
                 onConnect = {addRelationship}
@@ -866,12 +882,14 @@ const ProjectPage = () => {
                 onProjectNameBlur = {saveProjectName}
                 onProjectDescriptionChange = {updateProjecDescription}
                 onProjectDescriptionBlur = {saveProjectDescription}
-                lastModified = {lastModified}
+                lastChange = {lastChange}
+
                 projectCreatorName = {user.name}
                 dbTechnology={dbTechnology}
                 undo = {undo}
                 undoStack = {undoStack}
-              />
+                onSubmitChangeName = {updateChangeName}
+              />}
             </UndoContext.Provider>
           </Main>
           {activeTable && <TableEditor

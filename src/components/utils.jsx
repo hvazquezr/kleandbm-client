@@ -100,9 +100,10 @@ export function getEdgeParams(source, target) {
     throw new Error("Unable to copy object!");
   }
 
-  export function getCurrentUnixTime() {
+  export function getCurrentIsoTime() {
     const now = new Date(); // Create a new date object with the current date and time
-    return now.getTime(); // Return the UNIX timestamp in milliseconds
+    return now.toISOString().replace('Z', '');
+    //return now.getTime(); // Return the UNIX timestamp in milliseconds
   }
 
   export function lookupDbTechnology(id) {
