@@ -67,7 +67,7 @@ export default function Flow({
     },
     {
       title: 'More Options',
-      content: 'Rename the diagram, generate DDL SQL, and download an image from this menu.',
+      content: 'Rename the diagram, see version history, generate DDL SQL, and download an image from this menu.',
       event: 'hover',
       disableBeacon: true,
       placement: 'auto',
@@ -113,8 +113,6 @@ export default function Flow({
       target: 'body'
     }
   ]);
-
-    console.log(`Last Change at Flow: ${lastChange}`)
 
     const handleJoyrideCallback = (data) => {
       const { status, type } = data;

@@ -188,8 +188,8 @@ const ProjectPage = () => {
   //Helper functions
   async function updateRequest(path, payload, update_lastchange = true) {
     try {
+        console.log(update_lastchange);
         const token = await getAccessTokenSilently();
-        console.log(`payload: ${payload}`);
         const response = await axios.patch(`${apiUrl}/${path}`, payload, {
             headers: {
                 'Content-Type': 'application/json',
@@ -198,6 +198,7 @@ const ProjectPage = () => {
         });
 
         if (update_lastchange) {
+            console.log('Updating state with new change info.')
             setLastChange({
                 'projectId': id,
                 'id': payload.changeId,
@@ -671,10 +672,8 @@ const ProjectPage = () => {
 
 
   const updateChangeName = (value) => {
-    console.log(lastChange);
-    setLastChange({ ...lastChange, name: value })
-    // TODO: Implement change
     updateRequest(`projects/${id}/change/${lastChange.id}`, {'name': value}, false);
+    setLastChange({ ...lastChange, name: value })
   }
 
   const saveProjectName = async (e) => {

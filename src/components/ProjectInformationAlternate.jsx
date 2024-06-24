@@ -136,6 +136,10 @@ export default function ProjectInformation({
   const [changeName, setChangeName] = React.useState(lastChange.name || "");
   const [changeNameError, setChangeNameError] = React.useState("");
 
+  React.useEffect(() => {
+    setChangeName(lastChange.name || "");
+  }, [lastChange]);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
