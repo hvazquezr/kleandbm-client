@@ -361,8 +361,8 @@ const ProjectPage = () => {
             }
         };
 
-        // Start polling every 5 seconds
-        const pollingInterval = setInterval(pollJobStatus, 5000);
+        // Start polling every 2.5 seconds
+        const pollingInterval = setInterval(pollJobStatus, 2500);
 
     } catch (error) {
         console.error("Error initiating AI table creation", error);
@@ -844,7 +844,7 @@ const ProjectPage = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <TreeNavigator  tableList={nodes} sx={{ flexGrow: 1, overflow: 'auto' }} />
               <Divider />
-              <Box sx={{ height: '95px' }}> {/* Fixed height */}
+              <Box sx={{ height: '105px' }}> {/* Fixed height */}
                 <UserAvatar 
                   user={user}
                   onLogout={logout}

@@ -34,6 +34,11 @@
   stroke-width: 2;
 }
 
+#versionHistoryTree {
+  height: 100vh;
+  border-left: thin solid rgba(0,0,0,0.12);
+}
+
  #infoTable {
   border-spacing: 0;
   border: 1px solid #AAA;

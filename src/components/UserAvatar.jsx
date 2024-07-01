@@ -69,7 +69,7 @@ function UserAvatar({user, onLogout, layoutType = 'HomePage'}) {
           <Typography variant="h6">{user.name}</Typography>
       </Stack>
       <Divider />
-      <MenuItem key="logout" onClick={() => onLogout({ logoutParams: { returnTo: landingUrl } })}>
+      <MenuItem sx={{height:45}} key="logout" onClick={() => onLogout({ logoutParams: { returnTo: landingUrl } })}>
           <ListItemIcon>
               <LogoutIcon fontSize="small" />
           </ListItemIcon>

@@ -82,10 +82,10 @@ export default function AITableEditor({onDone, onCancel, projectId, currentTable
             };
     
             // Delay the start of polling by 15 seconds, then poll every 5 seconds
-            const initialDelay = 15000; // 15 seconds
+            const initialDelay = 5000; // 5 seconds
             setTimeout(() => {
                 pollJobStatus(); // Execute once after the initial delay
-                pollingInterval = setInterval(pollJobStatus, 5000); // Continue polling every 5 seconds
+                pollingInterval = setInterval(pollJobStatus, 2500); // Continue polling every 2.5 seconds
             }, initialDelay);
     
         } catch (error) {
