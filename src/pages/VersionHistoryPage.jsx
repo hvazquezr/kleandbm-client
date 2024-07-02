@@ -1,8 +1,7 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
-import { nanoid } from 'nanoid';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -16,14 +15,13 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import {
   useNodesState,
   useEdgesState,
-  addEdge,
   ReactFlowProvider
 } from 'reactflow';
 
 import Flow from '../components/Flow.jsx';
 import TreeNavigator from '../components/TreeNavigator.jsx';
 import TreeVersionHistory from '../components/TreeVersionHistory.jsx';
-import TableNode from '../components/TableNode.jsx';
+import TableNode from '../components/TableNodeVersionHistory.jsx';
 import NoteNode from '../components/NoteNode.jsx';
 import FloatingEdge from '../components/FloatingEdge.jsx';
 import FloatingConnectionLine from '../components/FloatingConnectionLine.jsx'
@@ -36,7 +34,7 @@ import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
 import '../components/css/kalmdbm.css';
-import { deepCopyObject, getCurrentIsoTime, getUniqueColumnName} from '../components/utils.jsx';
+import { getCurrentIsoTime} from '../components/utils.jsx';
 
 const drawerWidth = 240;
 const versionDrawerWidth = 240;
@@ -146,7 +144,6 @@ import {apiUrl} from '../config/UrlConfig.jsx'
 const VersionHistoryPage = () => {
   const {id} = useParams();
   const {user, logout, getAccessTokenSilently} = useAuth0();
-  const [undoStack, setUndoStack] = useState([]);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
@@ -156,25 +153,12 @@ const VersionHistoryPage = () => {
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastChange, setLastChange] = useState(null);
-  const [paneContextMenuPosition, setPaneContextMenuPosition] = useState(null);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const undo = () => {
-    const lastOperation = undoStack.pop();
-    setUndoStack([...undoStack]); // Update the undoStack state
-    if (lastOperation) {
-      lastOperation();
-    }
-  };
-
-  const addToUndoStack = (operation) => {
-    setUndoStack((prevStack) => [...prevStack, operation]);
-  };
-  
   //Helper functions
   async function updateRequest(path, payload, update_lastchange = true) {
     try {
@@ -344,9 +328,10 @@ const VersionHistoryPage = () => {
 
                 projectCreatorName = {user.name}
                 dbTechnology={dbTechnology}
-                undo = {undo}
+                undo = {null}
                 undoStack = {null}
                 onSubmitChangeName = {null}
+                isVersionHistory = {true}
               />}
           </Main>
           <Box id="versionHistoryTree" sx={{ display: 'flex', flexDirection: 'column', width: versionDrawerWidth}}>

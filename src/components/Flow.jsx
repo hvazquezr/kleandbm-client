@@ -46,7 +46,8 @@ export default function Flow({
   dbTechnology,
   undo,
   undoStack,
-  onSubmitChangeName
+  onSubmitChangeName,
+  isVersionHistory = false
 }) {
 
   const [paneMenu, setPaneMenu] = useState(null);
@@ -182,6 +183,19 @@ export default function Flow({
   // Close the context menu if it's open whenever the window is clicked.
   const onPaneClick = useCallback(() => {setPaneMenu(null), setNodeMenu(null), setEdgeMenu(null)}, [setPaneMenu, setNodeMenu, setEdgeMenu]);
 
+  // In order to support dynamic behavior
+  const eventHandlers = isVersionHistory ? {} : {
+    onConnect: onConnect,
+    onEdgesChange: onEdgesChange,
+    onNodesChange: onNodesChange,
+    onPaneClick: onPaneClick,
+    onPaneContextMenu: onPaneContextMenu,
+    onNodeContextMenu: onNodeContextMenu,
+    onEdgeContextMenu: onEdgeContextMenu,
+    onNodeDragStop: onNodeDragStop,
+    onNodeDragStart: onNodeDragStart,
+};
+
   return (
     <div className='kalmdbm'>
       <Joyride
@@ -201,27 +215,19 @@ export default function Flow({
           },
         }}
       />
-        <ReactFlow
-        ref={ref}
-        nodes={nodes}
-        edges={edges}
-        fitView
-        minZoom = {.3}
-        onConnect={onConnect}
-        onEdgesChange = {onEdgesChange}
-        onNodesChange = {onNodesChange}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        connectionLineComponent = {connectionLineComponent}
-        proOptions={proOptions}
-        onPaneClick={onPaneClick}
-        onPaneContextMenu={onPaneContextMenu}
-        onNodeContextMenu={onNodeContextMenu}
-        onEdgeContextMenu={onEdgeContextMenu}
-        onNodeDragStop={onNodeDragStop}
-        onNodeDragStart={onNodeDragStart}
-        deleteKeyCode={[]} // This is done to prvent deleting objects by pressing the delete key
-        >
+<ReactFlow
+    ref={ref}
+    nodes={nodes}
+    edges={edges}
+    fitView
+    minZoom={0.3}
+    nodeTypes={nodeTypes}
+    edgeTypes={edgeTypes}
+    connectionLineComponent={connectionLineComponent}
+    proOptions={proOptions}
+    deleteKeyCode={[]} // This prevents deleting objects by pressing the delete key
+    {...eventHandlers} // Spread the conditional event handlers here
+>
             <Panel position="top-left">
               <DrawerControl
                 handleDrawerOpen = {handleDrawerOpen}
