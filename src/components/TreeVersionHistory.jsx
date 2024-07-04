@@ -7,9 +7,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { IconButton } from '@mui/material';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
-import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
 
 import MenuItem from '@mui/material/MenuItem';
@@ -21,8 +19,8 @@ const groupChangesByDate = (changes) => {
         const localRawDate = new Date(change.timestamp + 'Z');
         const localDate = localRawDate.toLocaleDateString(undefined, {
             year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
+            month: 'short', // Use 'long' to get the full month name
+            day: 'numeric'
         }); 
       //const localDate = new Date(parseISO(change.timestamp)).toLocaleDateString();
         if (!acc[localDate]) {
@@ -33,23 +31,26 @@ const groupChangesByDate = (changes) => {
     }, {});
   };
 
+const filterItemsWithNonNullName = (items) => {
+    return items.filter(item => item.name !== null);
+};
+
 function toLocalTime(isoDate) {
     const localDate = new Date(isoDate + 'Z');
   
     const formattedDate = localDate.toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
+      year: 'numeric',
+      month: 'short', // Use 'long' to get the full month name
+      day: 'numeric'
     });
     
     const formattedTime = localDate.toLocaleTimeString(undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true // Set to true if you want 12-hour format with AM/PM
+      hour: 'numeric', // Use 'numeric' to avoid leading zeros
+      minute: '2-digit',
+      hour12: true // Set to true for 12-hour format with AM/PM
     });
     
-    return `${formattedTime}`;
+    return `${formattedDate}, ${formattedTime}`;
   }
 
 const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
@@ -152,7 +153,6 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
   
 
 export default function TreeVersionHistory({changesList}) {
-  const navigate = useNavigate();
 
   const [displayVersions, setDisplayVersions] = React.useState('all');
 
@@ -162,6 +162,8 @@ export default function TreeVersionHistory({changesList}) {
     changes: changesList,
   }));
 
+  const changesWithName = filterItemsWithNonNullName(changesList)
+
   const handleDisplayVersionsChange = (event) => {
     setDisplayVersions(event.target.value);
   };
@@ -170,7 +172,7 @@ export default function TreeVersionHistory({changesList}) {
   console.log(groupedChangesArray);
 
   return (
-    <>
+    <React.Fragment>
         <Typography variant="h6" p={2} paddingBottom={0}>
             Version History
         </Typography>
@@ -184,30 +186,52 @@ export default function TreeVersionHistory({changesList}) {
             </Select>
         </FormControl>
         <TreeView
-            aria-label="tree navigator"
-            defaultCollapseIcon={<ArrowDropDownIcon />}
-            defaultExpandIcon={<ArrowRightIcon />}
-            defaultEndIcon={<div style={{ width: 24 }} />}
-            sx={{ flexGrow: 1, width: '100%', overflowY: 'auto' }}
-            >
-            {groupedChangesArray.map((entry) => (
-                <StyledTreeItem key={entry.id} nodeId={entry.id} labelText={entry.id}>
-                {entry.changes.map((change) => (
-                    <StyledTreeItem
-                        nodeId={change.id}
-                        key={change.id}
-                        labelText={change.name || toLocalTime(change.timestamp)}
-                        labelTime={change.name && toLocalTime(change.timestamp)}
-                        isLeaf={true}
-                        color="#1a73e8"
-                        bgColor="#e8f0fe"
-                        colorForDarkMode="#B8E7FB"
-                        bgColorForDarkMode="#071318"
-                    />
-                ))}
-                </StyledTreeItem>
+      aria-label="tree navigator"
+      defaultCollapseIcon={<ArrowDropDownIcon />}
+      defaultExpandIcon={<ArrowRightIcon />}
+      defaultEndIcon={<div style={{ width: 24 }} />}
+      sx={{ flexGrow: 1, width: '100%', overflowY: 'auto' }}
+    >
+      {displayVersions === "all" ? (
+        groupedChangesArray.map((entry) => (
+          <StyledTreeItem key={entry.id} nodeId={entry.id} labelText={entry.id}>
+            {entry.changes.map((change) => (
+              <StyledTreeItem
+                nodeId={change.id}
+                key={change.id}
+                labelText={change.name || toLocalTime(change.timestamp)}
+                labelTime={change.name && toLocalTime(change.timestamp)}
+                isLeaf={true}
+                color="#1a73e8"
+                bgColor="#e8f0fe"
+                colorForDarkMode="#B8E7FB"
+                bgColorForDarkMode="#071318"
+              />
             ))}
-        </TreeView>
-    </>
+          </StyledTreeItem>
+        ))
+      ) : changesWithName.length > 0 ? (
+        changesWithName.map((change) => (
+          <StyledTreeItem
+            nodeId={change.id}
+            key={change.id}
+            labelText={change.name || toLocalTime(change.timestamp)}
+            labelTime={change.name && toLocalTime(change.timestamp)}
+            isLeaf={true}
+            color="#1a73e8"
+            bgColor="#e8f0fe"
+            colorForDarkMode="#B8E7FB"
+            bgColorForDarkMode="#071318"
+          />
+        ))
+      ) : (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+          <Typography variant="body2">
+            There are no named versions
+          </Typography>
+        </Box>
+      )}
+    </TreeView>
+    </React.Fragment>
   );
 }
