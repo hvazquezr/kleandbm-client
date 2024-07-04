@@ -153,6 +153,8 @@ const VersionHistoryPage = () => {
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastChange, setLastChange] = useState(null);
+  const [changes, setChanges] = useState(null);
+
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -225,7 +227,24 @@ const VersionHistoryPage = () => {
             enqueueSnackbar(error.message, {variant: 'error'});
         }
     };
+
+    const fetchChangesList = async () => {
+      try {
+          const token = await getAccessTokenSilently();
+          const response = await axios.get(`${apiUrl}/projects/${id}/changes`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            const projectChanges = await response.data;
+            console.log(projectChanges);
+            setChanges(projectChanges);
+      } catch (error) {
+          enqueueSnackbar(error.message, {variant: 'error'});
+      }
+  };
     fetchProject();
+    fetchChangesList();
 }, [id]);
 
   return (
@@ -335,8 +354,8 @@ const VersionHistoryPage = () => {
               />}
           </Main>
           <Box id="versionHistoryTree" sx={{ display: 'flex', flexDirection: 'column', width: versionDrawerWidth}}>
-              <TreeVersionHistory  tableList={nodes} sx={{ flexGrow: 1, overflow: 'auto' }} />
-            </Box>
+              {changes && <TreeVersionHistory  changesList={changes} sx={{ flexGrow: 1, overflow: 'auto' }} />}
+          </Box>
         </ReactFlowProvider>
     </Box>
     </>

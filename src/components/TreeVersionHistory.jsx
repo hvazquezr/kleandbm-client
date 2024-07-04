@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { parseISO } from 'date-fns';
 import { styled, useTheme } from '@mui/material/styles';
-import {useReactFlow} from 'reactflow';
 import { TreeView } from '@mui/x-tree-view/TreeView';
 import { TreeItem, treeItemClasses} from '@mui/x-tree-view/TreeItem';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -16,12 +16,47 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
+const groupChangesByDate = (changes) => {
+    return changes.reduce((acc, change) => {
+        const localRawDate = new Date(change.timestamp + 'Z');
+        const localDate = localRawDate.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }); 
+      //const localDate = new Date(parseISO(change.timestamp)).toLocaleDateString();
+        if (!acc[localDate]) {
+            acc[localDate] = [];
+        }
+        acc[localDate].push(change);
+        return acc;
+    }, {});
+  };
+
+function toLocalTime(isoDate) {
+    const localDate = new Date(isoDate + 'Z');
+  
+    const formattedDate = localDate.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    
+    const formattedTime = localDate.toLocaleTimeString(undefined, {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true // Set to true if you want 12-hour format with AM/PM
+    });
+    
+    return `${formattedTime}`;
+  }
+
 const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
   color: theme.palette.text.secondary,
   [`& .${treeItemClasses.content}`]: {
     color: theme.palette.text.secondary,
-    borderTopRightRadius: theme.spacing(2),
-    borderBottomRightRadius: theme.spacing(2),
+    paddingRight: theme.spacing(0),
     paddingRight: theme.spacing(1),
     fontWeight: theme.typography.fontWeightMedium,
     '&.Mui-expanded': {
@@ -52,9 +87,10 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     const {
       bgColor,
       color,
-      labelIcon: LabelIcon,
+      labelIcon,
       labelInfo,
       labelText,
+      labelTime = null,
       colorForDarkMode,
       bgColorForDarkMode,
       isLeaf = false, // Default to false if not provided
@@ -71,30 +107,36 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
       <StyledTreeItemRoot
         label={
           <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              p: 0.5,
-              pr: 0,
-            }}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            p: 0.5,
+            pr: 0,
+            pl: 0,
+            ...(isLeaf ? { height: 60 } : {})
+          }}
           >
-          <Box component={LabelIcon} color="inherit" sx={{ mr: 1 }} />
-            <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
-              {labelText}
-            </Typography>
-            <Typography variant="caption" color="inherit">
-              {labelInfo}
-            </Typography>
-            {isLeaf && (
-              <Tooltip title="More">
-                <IconButton
-                    size="small"
-                    sx={{ ml: 2, padding:0, marginLeft:0 }}
-                >
-                    <MoreVertIcon fontSize="small" sx={{color:'#DDD' }}/>
-                </IconButton>
-              </Tooltip>
-            )}
+                <Box component={labelIcon} color="inherit" sx={{ mr: 1 }} />
+                <Box m={0} p={0} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                    <Typography m={0} p={0} variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
+                        {labelText}
+                    </Typography>
+                    {labelTime && (
+                            <Typography m={0} p={0} variant="caption" sx={{ fontStyle: 'italic', fontWeight: 'regular', flexGrow: 1 }}>
+                                {labelTime}
+                            </Typography>
+                        )}
+                </Box>
+                {isLeaf && 
+                <Tooltip title="More">
+                    <IconButton
+                        size="small"
+                        sx={{ ml: 2, padding:0, marginLeft:0 }}
+                    >
+                        <MoreVertIcon fontSize="small" sx={{color:'#DDD' }}/>
+                    </IconButton>
+                </Tooltip> 
+                }
           </Box>
         }
         style={styleProps}
@@ -105,29 +147,23 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
   });
   
 
-export default function TreeNavigator({tableList}) {
-  const [sortedTables, setSortedTables] = useState([]);
+export default function TreeVersionHistory({changesList}) {
   const navigate = useNavigate();
-  const {fitView } = useReactFlow();
 
   const [displayVersions, setDisplayVersions] = React.useState('all');
+
+  const groupedChanges = groupChangesByDate(changesList);
+  const groupedChangesArray = Object.entries(groupedChanges).map(([date, changesList]) => ({
+    id: date,
+    changes: changesList,
+  }));
 
   const handleDisplayVersionsChange = (event) => {
     setDisplayVersions(event.target.value);
   };
 
-  //Use useEffect to update the sorted array whenever the passed array changes
-  useEffect(() => {
-    // Create a copy of the array and sort it to avoid modifying the original array
-    let sortedCopy = tableList.filter(element => element.type === 'tableNode');
-    sortedCopy.sort((a, b) => a.data.name.localeCompare(b.data.name));
-    // Update the component's state with the sorted array
-    setSortedTables(sortedCopy);
-  }, [tableList]); 
-
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
+  console.log(groupedChanges);
+  console.log(groupedChangesArray);
 
   return (
     <>
@@ -144,28 +180,29 @@ export default function TreeNavigator({tableList}) {
             </Select>
         </FormControl>
         <TreeView
-        aria-label="tree navigator"
-        defaultExpanded={['1']}
-        defaultCollapseIcon={<ArrowDropDownIcon />}
-        defaultExpandIcon={<ArrowRightIcon />}
-        defaultEndIcon={<div style={{ width: 24 }} />}
-        sx={{flexGrow: 1, width:'100%', overflowY: 'auto' }}
-        >
-            <StyledTreeItem nodeId="tables" labelText="Tables">
-            {sortedTables.map((table) => (
-                <StyledTreeItem
-                onClick={() => {fitView({nodes: [{id: table.id}], duration:500, maxZoom:1.5})}}
-                nodeId={table.id}
-                key = {table.id}
-                labelText={table.data.name}
-                color="#1a73e8"
-                bgColor="#e8f0fe"
-                colorForDarkMode="#B8E7FB"
-                bgColorForDarkMode="#071318"
-                isLeaf={true}
-                />
+            aria-label="tree navigator"
+            defaultCollapseIcon={<ArrowDropDownIcon />}
+            defaultExpandIcon={<ArrowRightIcon />}
+            defaultEndIcon={<div style={{ width: 24 }} />}
+            sx={{ flexGrow: 1, width: '100%', overflowY: 'auto' }}
+            >
+            {groupedChangesArray.map((entry) => (
+                <StyledTreeItem key={entry.id} nodeId={entry.id} labelText={entry.id}>
+                {entry.changes.map((change) => (
+                    <StyledTreeItem
+                        nodeId={change.id}
+                        key={change.id}
+                        labelText={change.name || toLocalTime(change.timestamp)}
+                        labelTime={change.name && toLocalTime(change.timestamp)}
+                        isLeaf={true}
+                        color="#1a73e8"
+                        bgColor="#e8f0fe"
+                        colorForDarkMode="#B8E7FB"
+                        bgColorForDarkMode="#071318"
+                    />
+                ))}
+                </StyledTreeItem>
             ))}
-            </StyledTreeItem>
         </TreeView>
     </>
   );
