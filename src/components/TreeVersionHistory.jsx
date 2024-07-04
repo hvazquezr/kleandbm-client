@@ -1,5 +1,4 @@
 import React from 'react';
-import { parseISO } from 'date-fns';
 import { styled, useTheme } from '@mui/material/styles';
 import { TreeView } from '@mui/x-tree-view/TreeView';
 import { TreeItem, treeItemClasses} from '@mui/x-tree-view/TreeItem';
@@ -8,6 +7,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { IconButton } from '@mui/material';
 import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import { useNavigate } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
@@ -56,7 +56,7 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
   color: theme.palette.text.secondary,
   [`& .${treeItemClasses.content}`]: {
     color: theme.palette.text.secondary,
-    paddingRight: theme.spacing(0),
+    paddingLeft: theme.spacing(0),
     paddingRight: theme.spacing(1),
     fontWeight: theme.typography.fontWeightMedium,
     '&.Mui-expanded': {
@@ -76,8 +76,9 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
   },
   [`& .${treeItemClasses.group}`]: {
     marginLeft: 0,
+    paddingLeft: 0,
     [`& .${treeItemClasses.content}`]: {
-      paddingLeft: theme.spacing(2),
+      paddingLeft: theme.spacing(0),
     },
   },
 }));
@@ -104,6 +105,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     };
   
     return (
+        <>
       <StyledTreeItemRoot
         label={
           <Box
@@ -143,6 +145,8 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
         {...other}
         ref={ref}
       />
+
+        </>
     );
   });
   
