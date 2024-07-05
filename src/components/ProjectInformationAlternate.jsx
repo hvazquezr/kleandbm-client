@@ -118,14 +118,15 @@ export default function ProjectInformation({
     projectId,
     projectName,
     projectDescription,
-    onProjectDescriptionChange,
-    onProjectDescriptionBlur,
-    onProjectNameChange,
-    onProjectNameBlur,
+    onProjectDescriptionChange = null,
+    onProjectDescriptionBlur = null,
+    onProjectNameChange = null,
+    onProjectNameBlur = null,
     lastChange,
     projectCreatorName,
     dbTechnology,
-    onSubmitChangeName
+    onSubmitChangeName = null,
+    isVersionHistory
     }) {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -258,32 +259,45 @@ export default function ProjectInformation({
         >
           <Stack p={.5} direction="column" sx={{ width: 450 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%" paddingRight={2}>
+            {!isVersionHistory ? (
               <TextField
                 sx={{
-                
-                width: 380,
-                "& .MuiOutlinedInput-root": {
+                  width: 380,
+                  "& .MuiOutlinedInput-root": {
                     "& > fieldset": {
-                    borderColor: "#ffffff"
+                      borderColor: "#ffffff"
                     }
-                },              
-                "& .MuiOutlinedInput-root:hover": {
+                  },
+                  "& .MuiOutlinedInput-root:hover": {
                     "& > fieldset": {
-                    border: "0.5px solid #AAAAAA",
+                      border: "0.5px solid #AAAAAA",
                     }
-                },
-                "& .MuiOutlinedInput-root.Mui-focused": {
+                  },
+                  "& .MuiOutlinedInput-root.Mui-focused": {
                     "& > fieldset": {
-                    border: "0.5px solid #AAAAAA",
+                      border: "0.5px solid #AAAAAA",
                     }
-                }
+                  }
                 }}
-                inputProps={{style: {fontWeight:"bold", fontSize: 18, color:"text.primary"}}} 
+                inputProps={{ style: { fontWeight: "bold", fontSize: 18, color: "text.primary" } }}
                 variant="outlined"
                 value={projectName}
-                onChange = {onProjectNameChange}
+                onChange={onProjectNameChange}
                 onBlur={onProjectNameBlur}
               />
+            ) : (
+              <Typography
+                sx={{
+                  width: 380,
+                  fontWeight: "bold",
+                  fontSize: 18,
+                  color: "text.primary",
+                  padding: "18px 14px" // Adjust padding to match TextField's internal padding
+                }}
+              >
+                {projectName}
+              </Typography>
+            )}
               <Tooltip title={lookupDbTechnology(dbTechnology)}>
                   <Avatar 
                       aria-label="Technology"
@@ -292,32 +306,46 @@ export default function ProjectInformation({
                   />
               </Tooltip>
             </Stack>
-            <TextField
-                  sx={{
+            {!isVersionHistory ? (
+              <TextField
+                sx={{
                   width: '100%',
                   "& .MuiOutlinedInput-root": {
-                      "& > fieldset": {
+                    "& > fieldset": {
                       borderColor: "#ffffff"
-                      }
-                  },              
+                    }
+                  },
                   "& .MuiOutlinedInput-root:hover": {
-                      "& > fieldset": {
+                    "& > fieldset": {
                       border: "0.5px solid #AAAAAA",
-                      }
+                    }
                   },
                   "& .MuiOutlinedInput-root.Mui-focused": {
-                      "& > fieldset": {
+                    "& > fieldset": {
                       border: "0.5px solid #AAAAAA",
-                      }
+                    }
                   }
-                  }}
-                  inputProps={{style: {color:"text.primary"}}} 
-                  variant="outlined"
-                  multiline
-                  value={projectDescription}
-                  onChange = {onProjectDescriptionChange}
-                  onBlur={onProjectDescriptionBlur}
+                }}
+                inputProps={{ style: { color: "text.primary" } }}
+                variant="outlined"
+                multiline
+                value={projectDescription}
+                onChange={onProjectDescriptionChange}
+                onBlur={onProjectDescriptionBlur}
               />
+            ) : (
+              <Typography
+                sx={{
+                  width: '100%',
+                  color: "text.primary",
+                  padding: "18px 14px", // Adjust padding to match TextField's internal padding
+                  whiteSpace: "pre-wrap" // Keeps multiline format
+                }}
+              >
+                {projectDescription}
+              </Typography>
+            )}
+
           </Stack>
           <Stack spacing={1} p={2.5} order='column' sx={{width:'100%'}} >
               <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
@@ -350,25 +378,29 @@ export default function ProjectInformation({
             </Stack>
           </Stack>
           <Divider />
-          <MenuItem>
-              <ListItemIcon>
-                  <HistoryIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>See version history</ListItemText>
-          </MenuItem> 
-          <MenuItem onClick={() => {setOpenVersionName(true)}}>
-              <ListItemIcon>
-                  <EmojiFlagsIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Name this version</ListItemText>
-          </MenuItem>
-          <Divider /> 
-          <MenuItem  onClick={() => {setOpenNamigRules(true)}}>
-              <ListItemIcon>
-                  <SpellcheckIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Edit naming conventions</ListItemText>
-          </MenuItem>
+          {!isVersionHistory && 
+          <React.Fragment>
+              <MenuItem>
+                  <ListItemIcon>
+                      <HistoryIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>See version history</ListItemText>
+              </MenuItem> 
+              <MenuItem onClick={() => {setOpenVersionName(true)}}>
+                  <ListItemIcon>
+                      <EmojiFlagsIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Name this version</ListItemText>
+              </MenuItem>
+              <Divider /> 
+              <MenuItem  onClick={() => {setOpenNamigRules(true)}}>
+                  <ListItemIcon>
+                      <SpellcheckIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Edit naming conventions</ListItemText>
+              </MenuItem>
+          </React.Fragment>
+          }
           <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
               <ListItemIcon>
                   <SourceIcon fontSize="small" />

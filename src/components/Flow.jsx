@@ -184,7 +184,7 @@ export default function Flow({
   const onPaneClick = useCallback(() => {setPaneMenu(null), setNodeMenu(null), setEdgeMenu(null)}, [setPaneMenu, setNodeMenu, setEdgeMenu]);
 
   // In order to support dynamic behavior
-  const eventHandlers = isVersionHistory ? {} : {
+  const reactFlowOptionalEventHandlers = isVersionHistory ? {} : {
     onConnect: onConnect,
     onEdgesChange: onEdgesChange,
     onNodesChange: onNodesChange,
@@ -194,7 +194,15 @@ export default function Flow({
     onEdgeContextMenu: onEdgeContextMenu,
     onNodeDragStop: onNodeDragStop,
     onNodeDragStart: onNodeDragStart,
-};
+  };
+
+  const projectInfoOptionalEventHandlers = isVersionHistory ? {} : {
+    onProjectNameChange: onProjectNameChange,
+    onProjectNameBlur: onProjectNameBlur,
+    onProjectDescriptionChange: onProjectDescriptionChange,
+    onProjectDescriptionBlur: onProjectDescriptionBlur,
+    onSubmitChangeName: onSubmitChangeName
+  };
 
   return (
     <div className='kalmdbm'>
@@ -226,7 +234,7 @@ export default function Flow({
     connectionLineComponent={connectionLineComponent}
     proOptions={proOptions}
     deleteKeyCode={[]} // This prevents deleting objects by pressing the delete key
-    {...eventHandlers} // Spread the conditional event handlers here
+    {...reactFlowOptionalEventHandlers} // Spread the conditional event handlers here
 >
             <Panel position="top-left">
               <DrawerControl
@@ -239,15 +247,13 @@ export default function Flow({
               <ProjectInformation
                 projectId = {projectId}
                 projectName = {projectName} 
-                onProjectNameChange = {onProjectNameChange}
-                onProjectNameBlur = {onProjectNameBlur}
                 projectDescription = {projectDescription}
-                onProjectDescriptionChange = {onProjectDescriptionChange}
-                onProjectDescriptionBlur = {onProjectDescriptionBlur}
                 lastChange = {lastChange}
                 projectCreatorName = {projectCreatorName}
                 dbTechnology={dbTechnology}
-                onSubmitChangeName = {onSubmitChangeName}
+                {... projectInfoOptionalEventHandlers}
+                isVersionHistory = {isVersionHistory}
+
               />
             </Panel>
             <Controls />

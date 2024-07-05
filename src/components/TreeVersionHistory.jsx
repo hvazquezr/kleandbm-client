@@ -57,7 +57,7 @@ const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
   color: theme.palette.text.secondary,
   [`& .${treeItemClasses.content}`]: {
     color: theme.palette.text.secondary,
-    paddingLeft: theme.spacing(0),
+    paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
     fontWeight: theme.typography.fontWeightMedium,
     '&.Mui-expanded': {
@@ -151,7 +151,6 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     );
   });
   
-
 export default function TreeVersionHistory({changesList}) {
 
   const [displayVersions, setDisplayVersions] = React.useState('all');
