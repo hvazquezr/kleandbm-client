@@ -98,6 +98,8 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
       colorForDarkMode,
       bgColorForDarkMode,
       isLeaf = false, // Default to false if not provided
+      handleClick,
+      changeId,
       ...other
     } = props;
   
@@ -137,6 +139,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
                     <IconButton
                         size="small"
                         sx={{ ml: 2, padding:0, marginLeft:0 }}
+                        onClick={(event) => handleClick(event, changeId)}
                     >
                         <MoreVertIcon fontSize="small" sx={{color:'#DDD' }}/>
                     </IconButton>
@@ -156,6 +159,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
 export default function TreeVersionHistory({changesList}) {
 
   const [displayVersions, setDisplayVersions] = React.useState('all');
+  const [versionMenuOptions, setVersionMenuOptions] = React.useState(null);
 
   const groupedChanges = groupChangesByDate(changesList);
   const groupedChangesArray = Object.entries(groupedChanges).map(([date, changesList]) => ({
@@ -163,14 +167,20 @@ export default function TreeVersionHistory({changesList}) {
     changes: changesList,
   }));
 
+  const handleClick = (event, changeId) => {
+    const vmo = {anchorEl: event.currentTarget, changeId};
+    setVersionMenuOptions(vmo);
+  };
+  
+  const handleClose = () => {
+    setVersionMenuOptions(null);
+  };
+
   const changesWithName = filterItemsWithNonNullName(changesList)
 
   const handleDisplayVersionsChange = (event) => {
     setDisplayVersions(event.target.value);
   };
-
-  console.log(groupedChanges);
-  console.log(groupedChangesArray);
 
   return (
     <React.Fragment>
@@ -200,6 +210,7 @@ export default function TreeVersionHistory({changesList}) {
               <StyledTreeItem
                 nodeId={change.id}
                 key={change.id}
+                changeId={change.id}
                 labelText={change.name || toLocalTime(change.timestamp)}
                 labelTime={change.name && toLocalTime(change.timestamp)}
                 isLeaf={true}
@@ -207,6 +218,7 @@ export default function TreeVersionHistory({changesList}) {
                 bgColor="#e8f0fe"
                 colorForDarkMode="#B8E7FB"
                 bgColorForDarkMode="#071318"
+                handleClick = {handleClick}
               />
             ))}
           </StyledTreeItem>
@@ -216,6 +228,7 @@ export default function TreeVersionHistory({changesList}) {
           <StyledTreeItem
             nodeId={change.id}
             key={change.id}
+            changeId={change.id}
             labelText={change.name || toLocalTime(change.timestamp)}
             labelTime={change.name && toLocalTime(change.timestamp)}
             isLeaf={true}
@@ -223,6 +236,7 @@ export default function TreeVersionHistory({changesList}) {
             bgColor="#e8f0fe"
             colorForDarkMode="#B8E7FB"
             bgColorForDarkMode="#071318"
+            handleClick = {handleClick}
           />
         ))
       ) : (
@@ -233,6 +247,10 @@ export default function TreeVersionHistory({changesList}) {
         </Box>
       )}
     </TreeView>
+    <VersionMenu 
+        versionMenuOptions={versionMenuOptions}
+        onClose={handleClose}
+    />
     </React.Fragment>
   );
 }

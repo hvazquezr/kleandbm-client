@@ -3,30 +3,45 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { ListItemIcon, ListItemText } from '@mui/material';
 
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
+import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import FormatClearIcon from '@mui/icons-material/FormatClear';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 
-export default function VersionMenu({anchorEl, onClick, menuOptions, onEditTable, onDeleteTable}){
-    const open = Boolean(anchorEl);
+export default function VersionMenu({versionMenuOptions, onClose}){
+    const open = Boolean(versionMenuOptions);
+    console.log(versionMenuOptions);
 
     return (
         <Menu
             open={open}
-            anchorEl={anchorEl}
-            onClick={onClick} 
+            anchorEl={versionMenuOptions?.anchorEl}
+            onClose={onClose}
         >   
             <MenuItem >
                 <ListItemIcon>
-                    <EditIcon fontSize="small" />
+                    <SettingsBackupRestoreIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Restore</ListItemText>
+                <ListItemText>Restore this version</ListItemText>
             </MenuItem>
             <MenuItem >
                 <ListItemIcon>
-                    <DeleteIcon fontSize="small" />
+                    <DriveFileRenameOutlineIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>Rename</ListItemText>
+            </MenuItem>
+            <MenuItem >
+                <ListItemIcon>
+                    <FormatClearIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Remove name</ListItemText>
+            </MenuItem>
+            <MenuItem >
+                <ListItemIcon>
+                    <ContentCopyIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Make a copy</ListItemText>
             </MenuItem>
         </Menu>
     );
