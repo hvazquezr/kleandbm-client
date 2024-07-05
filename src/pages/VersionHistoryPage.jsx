@@ -189,6 +189,18 @@ const VersionHistoryPage = () => {
     }
 }
 
+const updateChangeName = (changeId, value) => {
+  updateRequest(`projects/${id}/change/${changeId}`, {'name': value}, false);
+  setChanges(changes => {
+    return changes.map(change => {
+      if (change.id === changeId) {
+        return {...change, name: value}; // Creates a new object with updated name
+      }
+      return change; // Returns existing item if not the target
+    });
+  });
+}
+
   // Interactivity
   const theme = useTheme();
   const [openDrawer, setOpenDrawer] = React.useState(false);
@@ -237,7 +249,6 @@ const VersionHistoryPage = () => {
               },
             });
             const projectChanges = await response.data;
-            console.log(projectChanges);
             setChanges(projectChanges);
       } catch (error) {
           enqueueSnackbar(error.message, {variant: 'error'});
@@ -354,7 +365,7 @@ const VersionHistoryPage = () => {
               />}
           </Main>
           <Box id="versionHistoryTree" sx={{ display: 'flex', flexDirection: 'column', width: versionDrawerWidth}}>
-              {changes && <TreeVersionHistory  changesList={changes} sx={{ flexGrow: 1, overflow: 'auto' }} />}
+              {changes && <TreeVersionHistory  changesList={changes} updateChangeName = {updateChangeName} sx={{ flexGrow: 1, overflow: 'auto' }} />}
           </Box>
         </ReactFlowProvider>
     </Box>

@@ -156,7 +156,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     );
   });
   
-export default function TreeVersionHistory({changesList}) {
+export default function TreeVersionHistory({changesList, updateChangeName}) {
 
   const [displayVersions, setDisplayVersions] = React.useState('all');
   const [versionMenuOptions, setVersionMenuOptions] = React.useState(null);
@@ -168,7 +168,8 @@ export default function TreeVersionHistory({changesList}) {
   }));
 
   const handleClick = (event, changeId) => {
-    const vmo = {anchorEl: event.currentTarget, changeId};
+    const change = changesList.find(change => change.id === changeId);
+    const vmo = {anchorEl: event.currentTarget, change};
     setVersionMenuOptions(vmo);
   };
   
@@ -247,10 +248,12 @@ export default function TreeVersionHistory({changesList}) {
         </Box>
       )}
     </TreeView>
-    <VersionMenu 
+    {versionMenuOptions && <VersionMenu 
         versionMenuOptions={versionMenuOptions}
         onClose={handleClose}
+        onUpdateChangeName = {updateChangeName}
     />
+}
     </React.Fragment>
   );
 }
