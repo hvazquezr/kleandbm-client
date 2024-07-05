@@ -254,8 +254,8 @@ export default function ProjectInformation({
         open={open}
         onClose={handleClose}
         arrow="true"
-        transformOrigin={{ horizontal: 'center', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
           <Stack p={.5} direction="column" sx={{ width: 450 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" width="100%" paddingRight={2}>

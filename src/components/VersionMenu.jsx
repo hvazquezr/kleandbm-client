@@ -7,33 +7,26 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 
 
-export default function VersionMenu({onClick, menuOptions, onEditTable, onDeleteTable}){
-    const handleEdit = useCallback(() => {
-        onEditTable(menuOptions.id);
-    }, [menuOptions]);
-
-    const handleDelete = useCallback(() => {
-        onDeleteTable(menuOptions);
-    }, [menuOptions]);
+export default function VersionMenu({anchorEl, onClick, menuOptions, onEditTable, onDeleteTable}){
+    const open = Boolean(anchorEl);
 
     return (
         <Menu
-            open={true}
-            anchorReference="anchorPosition"
-            anchorPosition={{top: menuOptions.top, left: menuOptions.left}}
+            open={open}
+            anchorEl={anchorEl}
             onClick={onClick} 
-        >   {menuOptions.type === 'tableNode' &&
-            <MenuItem onClick={handleEdit} >
+        >   
+            <MenuItem >
                 <ListItemIcon>
                     <EditIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Edit</ListItemText>
-            </MenuItem>}
-            <MenuItem onClick={handleDelete} >
+                <ListItemText>Restore</ListItemText>
+            </MenuItem>
+            <MenuItem >
                 <ListItemIcon>
                     <DeleteIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Delete</ListItemText>
+                <ListItemText>Rename</ListItemText>
             </MenuItem>
         </Menu>
     );
