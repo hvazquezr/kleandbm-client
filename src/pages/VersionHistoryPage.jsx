@@ -147,19 +147,17 @@ const VersionHistoryPage = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
-  const previousProjectNameRef = useRef();
-  const previousProjectDescriptionRef = useRef();
   const [dbTechnology, setDbTechnology] = useState(0);
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
   const [lastChange, setLastChange] = useState(null);
   const [changes, setChanges] = useState(null);
-
+  const [selectedChange, setSelectedChange] = useState(null);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
 
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   //Helper functions
   async function updateRequest(path, payload, update_lastchange = true) {
@@ -226,11 +224,8 @@ const updateChangeName = (changeId, value) => {
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
               const nodesAndEdges = readyNodesAndEdges(project);
               setProjectName(project.name);
-              previousProjectNameRef.current = project.name;
               setProjectDescription(project.description);
-              previousProjectDescriptionRef.current = project.description;
               setProjectCreatorName(project.owner.name);
-              console.log(project.lastChange)
               setLastChange(project.lastChange);
               setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
