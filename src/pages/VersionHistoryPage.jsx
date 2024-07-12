@@ -34,7 +34,7 @@ import LoadingPage from './LoadingPage.jsx';
 
 import 'reactflow/dist/style.css';
 import '../components/css/kalmdbm.css';
-import { getCurrentIsoTime} from '../components/utils.jsx';
+import { getCurrentIsoTime, deepCopyObject } from '../components/utils.jsx';
 
 const drawerWidth = 240;
 const versionDrawerWidth = 240;
@@ -144,8 +144,8 @@ import {apiUrl} from '../config/UrlConfig.jsx'
 const VersionHistoryPage = () => {
   const {id} = useParams();
   const {user, logout, getAccessTokenSilently} = useAuth0();
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
   const [projectName, setProjectName] = useState("");
   const [dbTechnology, setDbTechnology] = useState(0);
   const [projectDescription, setProjectDescription] = useState("");
@@ -153,6 +153,7 @@ const VersionHistoryPage = () => {
   const [lastChange, setLastChange] = useState(null);
   const [changes, setChanges] = useState(null);
   const [selectedChange, setSelectedChange] = useState(null);
+  const [isUpdatingDiagram, setIsUpdatingDiagram] = useState(true);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -210,30 +211,45 @@ const updateChangeName = (changeId, value) => {
   const handleDrawerClose = () => {
     setOpenDrawer(false);
   };
-  
+
   useEffect(() => {
     const fetchProject = async () => {
-        try {
+        //try {
+            console.log(`Project id: ${id}`);
+            console.log(`Selected change state: ${selectedChange}`);
+            setIsUpdatingDiagram(true);
             const token = await getAccessTokenSilently();
-            const response = await axios.get(`${apiUrl}/projects/${id}`, {
+            let url = selectedChange !== null ? `${apiUrl}/projects/${id}/bychange/${selectedChange}` : `${apiUrl}/projects/${id}`;
+            const response = await axios.get(url, {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
               });
               const project = await response.data;
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
+              console.log(project);
               const nodesAndEdges = readyNodesAndEdges(project);
+              console.log(nodesAndEdges);
               setProjectName(project.name);
               setProjectDescription(project.description);
               setProjectCreatorName(project.owner.name);
               setLastChange(project.lastChange);
+              if (selectedChange == null) {setSelectedChange(project.lastChange.id)}
+              //const deepCopiedNodes = nodesAndEdges.updatedNodes.map(node => deepCopyObject(node));
+              //setNodes(deepCopiedNodes);
               setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
-        } catch (error) {
-            enqueueSnackbar(error.message, {variant: 'error'});
-        }
+              setIsUpdatingDiagram(false);
+        //} catch (error) {
+            //enqueueSnackbar(error.message, {variant: 'error'});
+        //}
     };
+    fetchProject();
+}, [selectedChange, id]);
+
+
+  useEffect(() => {
 
     const fetchChangesList = async () => {
       try {
@@ -248,8 +264,8 @@ const updateChangeName = (changeId, value) => {
       } catch (error) {
           enqueueSnackbar(error.message, {variant: 'error'});
       }
-  };
-    fetchProject();
+    };
+
     fetchChangesList();
 }, [id]);
 
@@ -323,7 +339,7 @@ const updateChangeName = (changeId, value) => {
             </Box>
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
-              {lastChange && <Flow
+              {(lastChange && !isUpdatingDiagram) && <Flow
                 nodes = {nodes}
                 edges = {edges}
                 onConnect = {null}
@@ -360,7 +376,12 @@ const updateChangeName = (changeId, value) => {
               />}
           </Main>
           <Box id="versionHistoryTree" sx={{ display: 'flex', flexDirection: 'column', width: versionDrawerWidth}}>
-              {changes && <TreeVersionHistory  changesList={changes} updateChangeName = {updateChangeName} sx={{ flexGrow: 1, overflow: 'auto' }} />}
+              {changes && <TreeVersionHistory 
+                selectedChange={selectedChange}
+                setSelectedChange={setSelectedChange}
+                changesList={changes}
+                updateChangeName = {updateChangeName}
+                sx={{ flexGrow: 1, overflow: 'auto' }} />}
           </Box>
         </ReactFlowProvider>
     </Box>

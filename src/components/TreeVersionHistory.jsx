@@ -98,7 +98,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
       colorForDarkMode,
       bgColorForDarkMode,
       isLeaf = false, // Default to false if not provided
-      handleClick,
+      handleVersionMoreClick,
       changeId,
       ...other
     } = props;
@@ -139,7 +139,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
                     <IconButton
                         size="small"
                         sx={{ ml: 2, padding:0, marginLeft:0 }}
-                        onClick={(event) => handleClick(event, changeId)}
+                        onClick={(event) => handleVersionMoreClick(event, changeId)}
                     >
                         <MoreVertIcon fontSize="small" sx={{color:'#DDD' }}/>
                     </IconButton>
@@ -156,7 +156,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     );
   });
   
-export default function TreeVersionHistory({changesList, updateChangeName}) {
+export default function TreeVersionHistory({changesList, updateChangeName, selectedChange, setSelectedChange}) {
 
   const [displayVersions, setDisplayVersions] = React.useState('all');
   const [versionMenuOptions, setVersionMenuOptions] = React.useState(null);
@@ -167,7 +167,7 @@ export default function TreeVersionHistory({changesList, updateChangeName}) {
     changes: changesList,
   }));
 
-  const handleClick = (event, changeId) => {
+  const handleVersionMoreClick = (event, changeId) => {
     const change = changesList.find(change => change.id === changeId);
     const vmo = {anchorEl: event.currentTarget, change};
     setVersionMenuOptions(vmo);
@@ -183,6 +183,7 @@ export default function TreeVersionHistory({changesList, updateChangeName}) {
     setDisplayVersions(event.target.value);
   };
 
+
   return (
     <React.Fragment>
         <Typography variant="h6" p={2} paddingBottom={0}>
@@ -197,13 +198,16 @@ export default function TreeVersionHistory({changesList, updateChangeName}) {
                 <MenuItem value="named">Named versions</MenuItem>
             </Select>
         </FormControl>
+        {groupedChangesArray &&
         <TreeView
-      aria-label="tree navigator"
-      defaultCollapseIcon={<ArrowDropDownIcon />}
-      defaultExpandIcon={<ArrowRightIcon />}
-      defaultEndIcon={<div style={{ width: 24 }} />}
-      sx={{ flexGrow: 1, width: '100%', overflowY: 'auto' }}
-    >
+        aria-label="tree navigator"
+        defaultCollapseIcon={<ArrowDropDownIcon />}
+        defaultExpandIcon={<ArrowRightIcon />}
+        defaultEndIcon={<div style={{ width: 24 }} />}
+        sx={{ flexGrow: 1, width: '100%', overflowY: 'auto' }}
+        expanded={[groupedChangesArray[0].id]}
+        selected={[selectedChange]}
+        >
       {displayVersions === "all" ? (
         groupedChangesArray.map((entry) => (
           <StyledTreeItem key={entry.id} nodeId={entry.id} labelText={entry.id}>
@@ -214,12 +218,13 @@ export default function TreeVersionHistory({changesList, updateChangeName}) {
                 changeId={change.id}
                 labelText={change.name || toLocalTime(change.timestamp)}
                 labelTime={change.name && toLocalTime(change.timestamp)}
+                onClick={() => {setSelectedChange(change.id)}}
                 isLeaf={true}
                 color="#1a73e8"
                 bgColor="#e8f0fe"
                 colorForDarkMode="#B8E7FB"
                 bgColorForDarkMode="#071318"
-                handleClick = {handleClick}
+                handleVersionMoreClick = {handleVersionMoreClick}
               />
             ))}
           </StyledTreeItem>
@@ -232,12 +237,13 @@ export default function TreeVersionHistory({changesList, updateChangeName}) {
             changeId={change.id}
             labelText={change.name || toLocalTime(change.timestamp)}
             labelTime={change.name && toLocalTime(change.timestamp)}
+            onClick={() => {setSelectedChange(change.id)}}
             isLeaf={true}
             color="#1a73e8"
             bgColor="#e8f0fe"
             colorForDarkMode="#B8E7FB"
             bgColorForDarkMode="#071318"
-            handleClick = {handleClick}
+            handleVersionMoreClick = {handleVersionMoreClick}
           />
         ))
       ) : (
@@ -247,7 +253,7 @@ export default function TreeVersionHistory({changesList, updateChangeName}) {
           </Typography>
         </Box>
       )}
-    </TreeView>
+    </TreeView>}
     {versionMenuOptions && <VersionMenu 
         versionMenuOptions={versionMenuOptions}
         onClose={handleClose}

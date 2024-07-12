@@ -206,7 +206,7 @@ export default function Flow({
 
   return (
     <div className='kalmdbm'>
-      <Joyride
+      { !isVersionHistory && <Joyride
         callback={handleJoyrideCallback}
         tooltipComponent={TourToolTip}
         continuous
@@ -222,7 +222,7 @@ export default function Flow({
             zIndex: 1000,
           },
         }}
-      />
+      /> }
 <ReactFlow
     ref={ref}
     nodes={nodes}
