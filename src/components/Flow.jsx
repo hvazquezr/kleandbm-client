@@ -241,6 +241,9 @@ export default function Flow({
                 handleDrawerOpen = {handleDrawerOpen}
                 openDrawer = {openDrawer}
                 targetClass = "drawer-icon"
+                isVersionHistory = {isVersionHistory}
+                lastChange = {lastChange}
+                projectId = {projectId}
               />
             </Panel>
             <Panel position="top-right" className='more-icon'>

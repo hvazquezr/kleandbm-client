@@ -193,7 +193,9 @@ const updateChangeName = (changeId, value) => {
   setChanges(changes => {
     return changes.map(change => {
       if (change.id === changeId) {
-        return {...change, name: value}; // Creates a new object with updated name
+        const updatedChange = { ...change, name: value }; // Creates a new object with updated name
+        setLastChange(updatedChange); // Set the updated change object to lastChange
+        return updatedChange; // Return the updated change object
       }
       return change; // Returns existing item if not the target
     });
@@ -366,7 +368,6 @@ const updateChangeName = (changeId, value) => {
                 onProjectDescriptionChange = {null}
                 onProjectDescriptionBlur = {null}
                 lastChange = {lastChange}
-
                 projectCreatorName = {user.name}
                 dbTechnology={dbTechnology}
                 undo = {null}

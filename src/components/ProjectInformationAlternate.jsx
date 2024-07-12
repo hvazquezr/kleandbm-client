@@ -22,6 +22,7 @@ import { AccessTime as AccessTimeIcon } from '@mui/icons-material';
 import Popover from '@mui/material/Popover';
 import { TextField , Avatar} from '@mui/material';
 import { useSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
 
 import SQLCodeDisplay from './SQLCodeDisplay';
 import NamingRulesEditor from './NamingRulesEditor';
@@ -153,6 +154,8 @@ export default function ProjectInformation({
   const countTables = getNodes().filter(node => node.type === 'tableNode').length;
   const countColumns = totalCountOfColumns(getNodes());
   const countRels = getEdges().length;
+
+  const navigate = useNavigate();
 
   const handleDialogSubmit = () => {
     closeSnackbar();
@@ -379,7 +382,7 @@ export default function ProjectInformation({
           <Divider />
           {!isVersionHistory && 
           <React.Fragment>
-              <MenuItem>
+              <MenuItem onClick={() => {navigate(`/versionhistory/${projectId}`)}}> 
                   <ListItemIcon>
                       <HistoryIcon fontSize="small" />
                   </ListItemIcon>
