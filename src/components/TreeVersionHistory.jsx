@@ -205,7 +205,7 @@ export default function TreeVersionHistory({changesList, updateChangeName, selec
         defaultExpandIcon={<ArrowRightIcon />}
         defaultEndIcon={<div style={{ width: 24 }} />}
         sx={{ flexGrow: 1, width: '100%', overflowY: 'auto' }}
-        expanded={[groupedChangesArray[0].id]}
+        defaultExpanded={[groupedChangesArray[0].id]}
         selected={[selectedChange]}
         >
       {displayVersions === "all" ? (
