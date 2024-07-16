@@ -765,6 +765,7 @@ const ProjectPage = () => {
                 },
               });
               const project = await response.data;
+              console.log(project)
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
               const nodesAndEdges = readyNodesAndEdges(project);
               setProjectName(project.name);

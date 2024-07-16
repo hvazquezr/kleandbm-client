@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { nanoid } from 'nanoid';
+import { useNavigate } from 'react-router-dom';
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -159,6 +161,7 @@ const VersionHistoryPage = () => {
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
 
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   //Helper functions
   async function updateRequest(path, payload, update_lastchange = true) {
@@ -187,6 +190,30 @@ const VersionHistoryPage = () => {
         throw error;
     }
 }
+
+async function putRequest(path, payload) {
+  try {
+      const token = await getAccessTokenSilently();
+      const response = await axios.put(`${apiUrl}/${path}`, payload, {
+          headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+          },
+      });
+
+      return response;
+  } catch (error) {
+      console.error("Error putting data", error);
+      throw error;
+  }
+}
+
+async function makeACopy(changeId){
+  const newProject = await putRequest(`projects/${id}/bychange/${changeId}`, {'changeId': nanoid(21)});
+  const newProjectId = newProject.data.id;
+  console.log(newProjectId);
+  navigate(`/project/${newProjectId}`);
+};
 
 const updateChangeName = (changeId, value) => {
   updateRequest(`projects/${id}/change/${changeId}`, {'name': value}, false);
@@ -382,6 +409,7 @@ const updateChangeName = (changeId, value) => {
                 setSelectedChange={setSelectedChange}
                 changesList={changes}
                 updateChangeName = {updateChangeName}
+                makeACopy = {makeACopy}
                 sx={{ flexGrow: 1, overflow: 'auto' }} />}
           </Box>
         </ReactFlowProvider>

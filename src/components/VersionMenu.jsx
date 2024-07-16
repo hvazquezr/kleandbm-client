@@ -18,7 +18,7 @@ import { useSnackbar } from 'notistack';
 
 
 
-export default function VersionMenu({versionMenuOptions, onClose, onUpdateChangeName}){
+export default function VersionMenu({versionMenuOptions, onClose, onUpdateChangeName, onMakeACopy}){
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [openVersionName, setOpenVersionName] = React.useState(false);
@@ -33,6 +33,11 @@ export default function VersionMenu({versionMenuOptions, onClose, onUpdateChange
         //setVersionName(versionMenuOptions.change.name || "");
         setOpenVersionName(true);
     }, [versionMenuOptions]);
+
+    const handleMakeACopy = () => {
+        onMakeACopy(versionMenuOptions.change.id);
+        onClose();
+    }
 
     const handleRenameSubmit = () => {
         closeSnackbar();
@@ -80,7 +85,7 @@ export default function VersionMenu({versionMenuOptions, onClose, onUpdateChange
                     <ListItemText>Remove name</ListItemText>
                 </MenuItem>
                 }
-                <MenuItem >
+                <MenuItem onClick={handleMakeACopy}>
                     <ListItemIcon>
                         <ContentCopyIcon fontSize="small" />
                     </ListItemIcon>
