@@ -210,13 +210,23 @@ async function putRequest(path, payload) {
   }
 }
 
-async function makeACopy(changeId){
+async function makeACopy(changeId) {
   setIsCopyingModel(true);
-  const newProject = await putRequest(`projects/${id}/bychange/${changeId}`, {'changeId': nanoid(21)});
+  const newProject = await putRequest(`projects/${id}/bychange/${changeId}`, { 'changeId': nanoid(21) });
   const newProjectId = newProject.data.id;
-  console.log(newProjectId);
-  navigate(`/project/${newProjectId}`);
-};
+
+  // Function to check if the project is ready
+  const checkIfProjectReady = async () => {
+    const isReady = await isProjectReady(newProjectId);
+    if (isReady) {
+      navigate(`/project/${newProjectId}`);
+    } else {
+      setTimeout(checkIfProjectReady, 2000);
+    }
+  };
+  // Start the check
+  checkIfProjectReady();
+}
 
 const updateChangeName = (changeId, value) => {
   updateRequest(`projects/${id}/change/${changeId}`, {'name': value}, false);
@@ -244,11 +254,23 @@ const updateChangeName = (changeId, value) => {
     setOpenDrawer(false);
   };
 
+  const isProjectReady = async (projectId) => {
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await axios.get(`${apiUrl}/projects/${projectId}/heartbeat`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return true;
+    } catch (error) {
+        return false;
+    }
+  }
+
   useEffect(() => {
     const fetchProject = async () => {
-        //try {
-            console.log(`Project id: ${id}`);
-            console.log(`Selected change state: ${selectedChange}`);
+        try {
             setIsUpdatingDiagram(true);
             const token = await getAccessTokenSilently();
             let url = selectedChange !== null ? `${apiUrl}/projects/${id}/bychange/${selectedChange}` : `${apiUrl}/projects/${id}`;
@@ -273,9 +295,9 @@ const updateChangeName = (changeId, value) => {
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
               setIsUpdatingDiagram(false);
-        //} catch (error) {
-            //enqueueSnackbar(error.message, {variant: 'error'});
-        //}
+        } catch (error) {
+            enqueueSnackbar(error.message, {variant: 'error'});
+        }
     };
     fetchProject();
 }, [selectedChange, id]);
@@ -417,7 +439,7 @@ const updateChangeName = (changeId, value) => {
           </Box>
         </ReactFlowProvider>
     </Box>
-    {isCopyingModel && <ProcessingModal />}
+    {isCopyingModel && <ProcessingModal text="Creating new project from selected version." />}
     </>
   );
 };
