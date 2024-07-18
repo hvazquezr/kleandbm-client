@@ -167,6 +167,7 @@ const ProjectPage = () => {
   const [showAITableCreator, setShowAITableCreator] = useState(false);
   const [paneContextMenuPosition, setPaneContextMenuPosition] = useState(null);
   const [isCompleteAITable, setIsCompleteAITable] = useState(false);
+  const [isLoadingProject, setIsLoadingProject] = useState(true);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -773,16 +774,18 @@ const ProjectPage = () => {
               setProjectDescription(project.description);
               previousProjectDescriptionRef.current = project.description;
               setProjectCreatorName(project.owner.name);
-              console.log(project.lastChange)
               setLastChange(project.lastChange);
               setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
+              console.log('Nodes and edges loaded.');
+              setIsLoadingProject(false);
         } catch (error) {
             enqueueSnackbar(error.message, {variant: 'error'});
         }
     };
     fetchProject();
+    
 }, [id]);
 
   return (
@@ -856,7 +859,7 @@ const ProjectPage = () => {
           </Drawer>
           <Main open={openDrawer} sx={{p:0}}>
             <UndoContext.Provider value={{ addToUndoStack, updateNotePartial, restoreNotePartial }}>
-              {lastChange && <Flow
+              {!isLoadingProject && <Flow
                 nodes = {nodes}
                 edges = {edges}
                 onConnect = {addRelationship}

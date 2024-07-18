@@ -28,6 +28,7 @@ import NoteNode from '../components/NoteNode.jsx';
 import FloatingEdge from '../components/FloatingEdge.jsx';
 import FloatingConnectionLine from '../components/FloatingConnectionLine.jsx'
 import UserAvatar from '../components/UserAvatar.jsx';
+import ProcessingModal from '../components/ProcessingModal.jsx';
 
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import { useSnackbar } from 'notistack';
@@ -156,6 +157,7 @@ const VersionHistoryPage = () => {
   const [changes, setChanges] = useState(null);
   const [selectedChange, setSelectedChange] = useState(null);
   const [isUpdatingDiagram, setIsUpdatingDiagram] = useState(true);
+  const [isCopyingModel, setIsCopyingModel] = useState(false);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -209,6 +211,7 @@ async function putRequest(path, payload) {
 }
 
 async function makeACopy(changeId){
+  setIsCopyingModel(true);
   const newProject = await putRequest(`projects/${id}/bychange/${changeId}`, {'changeId': nanoid(21)});
   const newProjectId = newProject.data.id;
   console.log(newProjectId);
@@ -414,6 +417,7 @@ const updateChangeName = (changeId, value) => {
           </Box>
         </ReactFlowProvider>
     </Box>
+    {isCopyingModel && <ProcessingModal />}
     </>
   );
 };
