@@ -18,7 +18,7 @@ import { useSnackbar } from 'notistack';
 
 
 
-export default function VersionMenu({versionMenuOptions, onClose, onUpdateChangeName, onMakeACopy}){
+export default function VersionMenu({versionMenuOptions, onClose, onUpdateChangeName, onMakeACopy, restore}){
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [openVersionName, setOpenVersionName] = React.useState(false);
@@ -36,6 +36,11 @@ export default function VersionMenu({versionMenuOptions, onClose, onUpdateChange
 
     const handleMakeACopy = () => {
         onMakeACopy(versionMenuOptions.change.id);
+        onClose();
+    }
+
+    const handleRestore = () => {
+        restore(versionMenuOptions.change.id);
         onClose();
     }
 
@@ -65,7 +70,7 @@ export default function VersionMenu({versionMenuOptions, onClose, onUpdateChange
                 anchorEl={versionMenuOptions?.anchorEl}
                 onClose={onClose}
             >   
-                <MenuItem >
+                <MenuItem onClick={handleRestore}>
                     <ListItemIcon>
                         <SettingsBackupRestoreIcon fontSize="small" />
                     </ListItemIcon>

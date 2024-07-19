@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 import { nanoid } from 'nanoid';
 import { styled, useTheme } from '@mui/material/styles';
@@ -171,6 +171,10 @@ const ProjectPage = () => {
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
+
+  const { snackText } = location.state || {}; // Default to an empty object if location.state is undefined
+  console.log(`Snack Text: ${snackText}`);
+
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 

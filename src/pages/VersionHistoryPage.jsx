@@ -158,6 +158,7 @@ const VersionHistoryPage = () => {
   const [selectedChange, setSelectedChange] = useState(null);
   const [isUpdatingDiagram, setIsUpdatingDiagram] = useState(true);
   const [isCopyingModel, setIsCopyingModel] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
@@ -212,14 +213,33 @@ async function putRequest(path, payload) {
 
 async function makeACopy(changeId) {
   setIsCopyingModel(true);
-  const newProject = await putRequest(`projects/${id}/bychange/${changeId}`, { 'changeId': nanoid(21) });
+  const newChangeId = nanoid(21);
+  const newProject = await putRequest(`projects/${id}/copy/${changeId}`, { 'changeId': newChangeId });
   const newProjectId = newProject.data.id;
 
   // Function to check if the project is ready
   const checkIfProjectReady = async () => {
-    const isReady = await isProjectReady(newProjectId);
+    const isReady = await isProjectReady(newProjectId, newChangeId);
     if (isReady) {
-      navigate(`/project/${newProjectId}`);
+      navigate(`/project/${newProjectId}`, { state: { snackText: "Version succesfully copied." } });
+    } else {
+      setTimeout(checkIfProjectReady, 2000);
+    }
+  };
+  // Start the check
+  checkIfProjectReady();
+}
+
+async function restoreProject(changeId) {
+  setIsRestoring(true);
+  const newChangeId = nanoid(21);
+  await putRequest(`projects/${id}/restore/${changeId}`, { 'changeId': newChangeId });
+
+  // Function to check if the project is ready
+  const checkIfProjectReady = async () => {
+    const isReady = await isProjectReady(id, newChangeId);
+    if (isReady) {
+      navigate(`/project/${id}`, { state: { snackText: "Version succesfully restored." } });
     } else {
       setTimeout(checkIfProjectReady, 2000);
     }
@@ -254,10 +274,10 @@ const updateChangeName = (changeId, value) => {
     setOpenDrawer(false);
   };
 
-  const isProjectReady = async (projectId) => {
+  const isProjectReady = async (projectId, changeId) => {
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.get(`${apiUrl}/projects/${projectId}/heartbeat`, {
+      const response = await axios.get(`${apiUrl}/projects/${projectId}/heartbeat/${changeId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -435,11 +455,14 @@ const updateChangeName = (changeId, value) => {
                 changesList={changes}
                 updateChangeName = {updateChangeName}
                 makeACopy = {makeACopy}
+                restore = {restoreProject}
                 sx={{ flexGrow: 1, overflow: 'auto' }} />}
           </Box>
         </ReactFlowProvider>
     </Box>
-    {isCopyingModel && <ProcessingModal text="Creating new project from selected version." />}
+    {(isCopyingModel || isRestoring) && (
+      <ProcessingModal text={isCopyingModel ? "Creating new project from selected version" : "Restoring selected version"} />
+    )}
     </>
   );
 };

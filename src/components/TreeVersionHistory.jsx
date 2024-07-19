@@ -156,7 +156,7 @@ const StyledTreeItem = React.forwardRef(function StyledTreeItem(props, ref) {
     );
   });
   
-export default function TreeVersionHistory({changesList, updateChangeName, selectedChange, setSelectedChange, makeACopy}) {
+export default function TreeVersionHistory({changesList, updateChangeName, selectedChange, setSelectedChange, makeACopy, restore}) {
 
   const [displayVersions, setDisplayVersions] = React.useState('all');
   const [versionMenuOptions, setVersionMenuOptions] = React.useState(null);
@@ -259,6 +259,7 @@ export default function TreeVersionHistory({changesList, updateChangeName, selec
         onClose={handleClose}
         onUpdateChangeName = {updateChangeName}
         onMakeACopy = {makeACopy}
+        restore = {restore}
     />
 }
     </React.Fragment>
