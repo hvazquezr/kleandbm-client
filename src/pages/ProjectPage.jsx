@@ -172,8 +172,16 @@ const ProjectPage = () => {
   const nodeTypes = useMemo(() => ({tableNode: TableNode, noteNode: NoteNode }), []);
   const edgeTypes = useMemo(() => ({floating: FloatingEdge,}), []);
 
-  const { snackText } = location.state || {}; // Default to an empty object if location.state is undefined
+  //const { snackText } = location.state || {}; // Default to an empty object if location.state is undefined
+  const location = useLocation();
+  const { snackText } = location.state || {};
   console.log(`Snack Text: ${snackText}`);
+
+  useEffect(() => {
+    if (snackText) {
+      enqueueSnackbar(snackText, { variant: 'success' });
+    }
+  }, [snackText]);
 
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
