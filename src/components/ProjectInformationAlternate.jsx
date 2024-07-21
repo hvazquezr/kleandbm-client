@@ -126,6 +126,8 @@ export default function ProjectInformation({
     projectCreatorName,
     dbTechnology,
     onSubmitChangeName = null,
+    namingRules,
+    onNamingRulesUpdated = null,
     isVersionHistory
     }) {
 
@@ -144,9 +146,16 @@ export default function ProjectInformation({
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleNamingRulesUpdated = (results) => {
+    onNamingRulesUpdated(results);
+    handleClose();
+  };
+
 
   const open = Boolean(anchorEl);
 
@@ -421,8 +430,9 @@ export default function ProjectInformation({
           />}
           {openNamingRules && <NamingRulesEditor 
               projectId={projectId}
-              onDone={() => {setOpenNamigRules(false), handleClose()}}
+              onDone={handleNamingRulesUpdated}
               onCancel={() => {setOpenNamigRules(false), handleClose()}}
+              originalNamingRules={namingRules}
           />}
       <Dialog
         open={openVersionName}

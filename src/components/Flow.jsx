@@ -47,6 +47,8 @@ export default function Flow({
   undo,
   undoStack,
   onSubmitChangeName,
+  namingRules,
+  onNamingRulesUpdated,
   isVersionHistory = false
 }) {
 
@@ -201,7 +203,8 @@ export default function Flow({
     onProjectNameBlur: onProjectNameBlur,
     onProjectDescriptionChange: onProjectDescriptionChange,
     onProjectDescriptionBlur: onProjectDescriptionBlur,
-    onSubmitChangeName: onSubmitChangeName
+    onSubmitChangeName: onSubmitChangeName,
+    onNamingRulesUpdated: onNamingRulesUpdated
   };
 
   return (
@@ -255,6 +258,7 @@ export default function Flow({
                 projectCreatorName = {projectCreatorName}
                 dbTechnology={dbTechnology}
                 {... projectInfoOptionalEventHandlers}
+                namingRules = {namingRules}
                 isVersionHistory = {isVersionHistory}
 
               />

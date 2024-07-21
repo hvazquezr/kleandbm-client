@@ -13,6 +13,10 @@ import TextField from '@mui/material/TextField';
 import CircularWithValueLabel from './CircularProgressWithLabel';
 import {apiUrl} from '../config/UrlConfig'
 
+import { useSnackbar } from 'notistack';
+import '../components/css/kalmdbm.css';
+import { nanoid } from 'nanoid';
+
 
 
 const boxStyle = {
@@ -36,10 +40,10 @@ const buttonStyle = {
 };
 
 
-export default function NamingRulesEditor({onDone, onCancel, projectId}) {
+export default function NamingRulesEditor({onDone, onCancel, projectId, originalNamingRules}) {
     const {getAccessTokenSilently} = useAuth0();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [namingRules, setNamingRules] = useState("");
+    const [namingRules, setNamingRules] = useState(originalNamingRules);
     const [isComplete, setIsComplete] = useState(false);
 
     async function handleSubmit() {
@@ -49,7 +53,7 @@ export default function NamingRulesEditor({onDone, onCancel, projectId}) {
         try {
             const token = await getAccessTokenSilently();
             // Initial request to start the job and get jobId
-            const startResponse = await axios.post(`${apiUrl}/projects/${projectId}/apply_naming_rules`, { prompt: namingRules }, {
+            const startResponse = await axios.post(`${apiUrl}/projects/${projectId}/apply_naming_rules`, { namingRules: namingRules, changeId: nanoid(21) }, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
@@ -71,7 +75,9 @@ export default function NamingRulesEditor({onDone, onCancel, projectId}) {
                     if (statusResponse.data && statusResponse.data.result !== null) {
                         clearInterval(pollingInterval);
                         // setIsComplete(true);
-                        onDone(statusResponse.data.result);
+                        const results = {'namingRules': namingRules, 'updatedTables': statusResponse.data.result};
+                        console.log(results);
+                        onDone(results);
                     }
                 } catch (pollError) {
                     console.error("Error polling job status", pollError);
@@ -105,11 +111,19 @@ export default function NamingRulesEditor({onDone, onCancel, projectId}) {
                                     label="Naming Conventions"
                                     variant="outlined" 
                                     onChange={() => {setNamingRules(event.target.value)}}
+                                    placeholder='List naming conventions that need to be observed.
+For example:
+Fact Table Prefix: All fact tables start with the prefix "FACT_" to distinguish them from dimension tables.
+Dimension Table Prefix: All dimension tables start with the prefix "DIM_" for clear identification.
+Table Naming Convention: Use descriptive, uppercase names for tables, such as "CUSTOMER_DIM" or "PRODUCT_FACT".
+Column Naming Convention: Use lowercase names for columns, separated by underscores, ensuring readability and consistency.
+Primary Key Naming: Primary keys should be named with the format "table_name_ID" to denote uniqueness, such as "customer_id" in the "CUSTOMER_DIM" table.
+Numeric Columns: Numeric columns should have clear and concise names, such as "quantity_sold" or "unit_price", to convey their purpose effectively.'
                                     multiline 
                                     minRows={10}
                                     maxRows={10} 
                                     sx={{width:'100%'}}
-                                    value = {namingRules}
+                                    value = {namingRules?namingRules:""}
                                 /> 
                     <div sx={{width:'100%'}}>
                         <Box sx={{display:'flex', justifyContent:'space-between'}}>
@@ -124,14 +138,14 @@ export default function NamingRulesEditor({onDone, onCancel, projectId}) {
                             width: '100%',
                             backgroundColor: '#fff',
                             top: 0,
-                            bottom: '60px',
+                            bottom: '75px',
                             alignItems: 'center',
                             display: 'flex',
                             justifyContent: 'space-around',
                             zIndex: 1,
                         }}>
                             <CircularWithValueLabel 
-                                totalTime={40}
+                                totalTime={20}
                                 isComplete={ isComplete}
                                 animatedSequence={
                                     [

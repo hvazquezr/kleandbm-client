@@ -163,6 +163,7 @@ const ProjectPage = () => {
   const [Message, setWarningMessage]= useState(null);
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
+  const [namingRules, setNamingRules] = useState("");
   const [lastChange, setLastChange] = useState(null);
   const [showAITableCreator, setShowAITableCreator] = useState(false);
   const [paneContextMenuPosition, setPaneContextMenuPosition] = useState(null);
@@ -175,14 +176,12 @@ const ProjectPage = () => {
   //const { snackText } = location.state || {}; // Default to an empty object if location.state is undefined
   const location = useLocation();
   const { snackText } = location.state || {};
-  console.log(`Snack Text: ${snackText}`);
 
   useEffect(() => {
     if (snackText) {
       enqueueSnackbar(snackText, { variant: 'success' });
     }
   }, [snackText]);
-
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -247,6 +246,60 @@ const ProjectPage = () => {
       throw error;
     }
   };  
+
+
+  const updateNamingRules = (updateNamingRulesResult) => {
+    const newNamingRules = updateNamingRulesResult.namingRules;
+    const updatedTables = updateNamingRulesResult.updatedTables;
+    const originalNodeData = [];
+    let tableCount = 0;
+    let columnCount = 0;
+    console.log(newNamingRules);
+    console.log(updatedTables);
+
+    // Step 1: Create a Map for quick lookup
+    const tablesMap = new Map(updatedTables.map(table => [table.id, table]));
+
+    // Step 2: Iterate over nodes
+    nodes.forEach(node => {
+      originalNodeData.push({...node.data});
+      const table = tablesMap.get(node.data.id);
+      if (table) {
+        // Step 3: Update node data
+        if (table.name != node.data.name || table.description != node.data.description) {
+          node.data.name = table.name;
+          node.data.description = table.description;
+          tableCount++;
+        }
+
+        // Step 4: Update columns if they exist
+        if (node.data.columns && table.columns) {
+          node.data.columns.forEach(column => {
+            const matchingColumn = table.columns.find(c => c.id === column.id);
+            if (matchingColumn) {
+              if (matchingColumn.name != column.name || matchingColumn.description != column.description) {
+                column.name = matchingColumn.name;
+                column.description = matchingColumn.description;
+                columnCount++;
+              }
+            }
+          });
+        }
+
+        // Updating in Flow
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id === node.id) {
+              n = deepCopyObject(node);
+            }
+            return n;
+          }
+        ));
+      }
+    });
+    setNamingRules(newNamingRules);
+    enqueueSnackbar(`Naming Conventions updated. ${tableCount} Table(s) and ${columnCount} Column(s) updated.`, { variant: 'success' });
+  };
 
   const addRelationship = useCallback(
       (params, addUndo = true) => {
@@ -767,6 +820,21 @@ const ProjectPage = () => {
       }
     ));
   }, []);
+
+  const refreshProjectState = (project) => {
+    const nodesAndEdges = readyNodesAndEdges(project);
+    setProjectName(project.name);
+    previousProjectNameRef.current = project.name;
+    setProjectDescription(project.description);
+    previousProjectDescriptionRef.current = project.description;
+    setProjectCreatorName(project.owner.name);
+    setLastChange(project.lastChange);
+    setNodes(nodesAndEdges.updatedNodes);
+    setEdges(nodesAndEdges.edges);
+    setDbTechnology(project.dbTechnology);
+    setNamingRules(project.namingRules);
+    setIsLoadingProject(false);
+  };
   
   useEffect(() => {
     const fetchProject = async () => {
@@ -778,20 +846,7 @@ const ProjectPage = () => {
                 },
               });
               const project = await response.data;
-              console.log(project)
-              //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
-              const nodesAndEdges = readyNodesAndEdges(project);
-              setProjectName(project.name);
-              previousProjectNameRef.current = project.name;
-              setProjectDescription(project.description);
-              previousProjectDescriptionRef.current = project.description;
-              setProjectCreatorName(project.owner.name);
-              setLastChange(project.lastChange);
-              setNodes(nodesAndEdges.updatedNodes);
-              setEdges(nodesAndEdges.edges);
-              setDbTechnology(project.dbTechnology);
-              console.log('Nodes and edges loaded.');
-              setIsLoadingProject(false);
+              refreshProjectState(project);
         } catch (error) {
             enqueueSnackbar(error.message, {variant: 'error'});
         }
@@ -898,7 +953,8 @@ const ProjectPage = () => {
                 onProjectDescriptionChange = {updateProjecDescription}
                 onProjectDescriptionBlur = {saveProjectDescription}
                 lastChange = {lastChange}
-
+                namingRules={namingRules}
+                onNamingRulesUpdated={updateNamingRules}
                 projectCreatorName = {user.name}
                 dbTechnology={dbTechnology}
                 undo = {undo}
