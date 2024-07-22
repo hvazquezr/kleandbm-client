@@ -40,13 +40,31 @@ const buttonStyle = {
 };
 
 
-export default function NamingRulesEditor({onDone, onCancel, projectId, originalNamingRules}) {
+export default function NamingRulesEditor({onDone, onCancel, projectId, originalNamingRules, isVersionHistory}) {
     const {getAccessTokenSilently} = useAuth0();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [namingRules, setNamingRules] = useState(originalNamingRules);
+    const [validationError, setValidationError] = useState("");
     const [isComplete, setIsComplete] = useState(false);
 
+    const validateNamingRules = (value) => {
+        if (!value || value.length < 50) {
+            return 'Updated naming conventions must be at least 100 characters.';
+        }
+        return '';
+    }
+
     async function handleSubmit() {
+        closeSnackbar();
+        let error = validateNamingRules(namingRules);
+
+        if (error !== "") {
+            enqueueSnackbar(error, {variant: 'error'});  
+            setValidationError(error);
+            return;
+        }
+
         setIsSubmitting(true);
         let pollingInterval; // Declare the variable in an accessible scope
     
@@ -76,7 +94,7 @@ export default function NamingRulesEditor({onDone, onCancel, projectId, original
                         clearInterval(pollingInterval);
                         // setIsComplete(true);
                         const results = {'namingRules': namingRules, 'updatedTables': statusResponse.data.result};
-                        console.log(results);
+                        //console.log(results);
                         onDone(results);
                     }
                 } catch (pollError) {
@@ -110,7 +128,7 @@ export default function NamingRulesEditor({onDone, onCancel, projectId, original
                                     id="desc"
                                     label="Naming Conventions"
                                     variant="outlined" 
-                                    onChange={() => {setNamingRules(event.target.value)}}
+                                    onChange={isVersionHistory ? null : () => {setNamingRules(event.target.value)}}
                                     placeholder='List naming conventions that need to be observed.
 For example:
 Fact Table Prefix: All fact tables start with the prefix "FACT_" to distinguish them from dimension tables.
@@ -122,14 +140,22 @@ Numeric Columns: Numeric columns should have clear and concise names, such as "q
                                     multiline 
                                     minRows={10}
                                     maxRows={10} 
+                                    required
+                                    error={validationError !== ""}
                                     sx={{width:'100%'}}
                                     value = {namingRules?namingRules:""}
                                 /> 
                     <div sx={{width:'100%'}}>
-                        <Box sx={{display:'flex', justifyContent:'space-between'}}>
-                            <Button variant="outlined" sx={buttonStyle} onClick={onCancel} >Cancel</Button>
+                    {isVersionHistory ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button variant="contained" sx={buttonStyle} onClick={onCancel}>Done</Button>
+                        </Box>
+                        ) : (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Button variant="outlined" sx={buttonStyle} onClick={onCancel}>Cancel</Button>
                             <LoadingButton variant="contained" sx={buttonStyle} loading={isSubmitting} onClick={handleSubmit}>Submit</LoadingButton>
                         </Box>
+                        )}
                     </div>
                 </Stack>
                 {isSubmitting && 

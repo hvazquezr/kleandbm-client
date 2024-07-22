@@ -153,6 +153,7 @@ const VersionHistoryPage = () => {
   const [dbTechnology, setDbTechnology] = useState(0);
   const [projectDescription, setProjectDescription] = useState("");
   const [projectCreatorName, setProjectCreatorName] = useState("");
+  const [namingRules, setNamingRules] = useState("");
   const [lastChange, setLastChange] = useState(null);
   const [changes, setChanges] = useState(null);
   const [selectedChange, setSelectedChange] = useState(null);
@@ -169,7 +170,7 @@ const VersionHistoryPage = () => {
   //Helper functions
   async function updateRequest(path, payload, update_lastchange = true) {
     try {
-        console.log(update_lastchange);
+        //console.log(update_lastchange);
         const token = await getAccessTokenSilently();
         const response = await axios.patch(`${apiUrl}/${path}`, payload, {
             headers: {
@@ -179,7 +180,7 @@ const VersionHistoryPage = () => {
         });
 
         if (update_lastchange) {
-            console.log('Updating state with new change info.')
+            //console.log('Updating state with new change info.')
             setLastChange({
                 'projectId': id,
                 'id': payload.changeId,
@@ -301,9 +302,9 @@ const updateChangeName = (changeId, value) => {
               });
               const project = await response.data;
               //const nodesAndEdges = getNodesAndEdges(project.tables, project.nodes, project.relationships)
-              console.log(project);
+              //console.log(project);
               const nodesAndEdges = readyNodesAndEdges(project);
-              console.log(nodesAndEdges);
+              //console.log(nodesAndEdges);
               setProjectName(project.name);
               setProjectDescription(project.description);
               setProjectCreatorName(project.owner.name);
@@ -314,6 +315,7 @@ const updateChangeName = (changeId, value) => {
               setNodes(nodesAndEdges.updatedNodes);
               setEdges(nodesAndEdges.edges);
               setDbTechnology(project.dbTechnology);
+              setNamingRules(project.namingRules);
               setIsUpdatingDiagram(false);
         } catch (error) {
             enqueueSnackbar(error.message, {variant: 'error'});
@@ -442,6 +444,7 @@ const updateChangeName = (changeId, value) => {
                 lastChange = {lastChange}
                 projectCreatorName = {user.name}
                 dbTechnology={dbTechnology}
+                namingRules = {namingRules}
                 undo = {null}
                 undoStack = {null}
                 onSubmitChangeName = {null}

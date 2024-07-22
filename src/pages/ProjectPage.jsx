@@ -200,7 +200,7 @@ const ProjectPage = () => {
   //Helper functions
   async function updateRequest(path, payload, update_lastchange = true) {
     try {
-        console.log(update_lastchange);
+        //console.log(update_lastchange);
         const token = await getAccessTokenSilently();
         const response = await axios.patch(`${apiUrl}/${path}`, payload, {
             headers: {
@@ -210,7 +210,7 @@ const ProjectPage = () => {
         });
 
         if (update_lastchange) {
-            console.log('Updating state with new change info.')
+            //console.log('Updating state with new change info.')
             setLastChange({
                 'projectId': id,
                 'id': payload.changeId,
@@ -228,7 +228,7 @@ const ProjectPage = () => {
   async function deleteRequest(path, changeId = null) {
     try {
       const token = await getAccessTokenSilently();
-      console.log(`changeId: ${changeId}`);
+      //console.log(`changeId: ${changeId}`);
       const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -248,14 +248,16 @@ const ProjectPage = () => {
   };  
 
 
-  const updateNamingRules = (updateNamingRulesResult) => {
+  const updateNamingRules = (updateNamingRulesResult, withUndo = true) => {
     const newNamingRules = updateNamingRulesResult.namingRules;
     const updatedTables = updateNamingRulesResult.updatedTables;
+    const originalNamingRules = namingRules;
     const originalNodeData = [];
     let tableCount = 0;
     let columnCount = 0;
-    console.log(newNamingRules);
-    console.log(updatedTables);
+    let isChanged = false;
+    //console.log(newNamingRules);
+    //console.log(updatedTables);
 
     // Step 1: Create a Map for quick lookup
     const tablesMap = new Map(updatedTables.map(table => [table.id, table]));
@@ -263,6 +265,7 @@ const ProjectPage = () => {
     // Step 2: Iterate over nodes
     nodes.forEach(node => {
       originalNodeData.push({...node.data});
+      isChanged = false;
       const table = tablesMap.get(node.data.id);
       if (table) {
         // Step 3: Update node data
@@ -270,6 +273,7 @@ const ProjectPage = () => {
           node.data.name = table.name;
           node.data.description = table.description;
           tableCount++;
+          isChanged = true;
         }
 
         // Step 4: Update columns if they exist
@@ -281,24 +285,31 @@ const ProjectPage = () => {
                 column.name = matchingColumn.name;
                 column.description = matchingColumn.description;
                 columnCount++;
+                isChanged = true;
               }
             }
           });
         }
 
+        if (isChanged) {
         // Updating in Flow
-        setNodes((nds) =>
-          nds.map((n) => {
-            if (n.id === node.id) {
-              n = deepCopyObject(node);
+          setNodes((nds) =>
+            nds.map((n) => {
+              if (n.id === node.id) {
+                n = deepCopyObject(node);
+              }
+              return n;
             }
-            return n;
-          }
-        ));
+          ));
+        }
       }
     });
+
     setNamingRules(newNamingRules);
     enqueueSnackbar(`Naming Conventions updated. ${tableCount} Table(s) and ${columnCount} Column(s) updated.`, { variant: 'success' });
+    if (withUndo){
+      addToUndoStack(() => updateNamingRules({'namingRules': originalNamingRules, 'updatedTables':originalNodeData}, false));
+    }
   };
 
   const addRelationship = useCallback(

@@ -64,7 +64,7 @@ export function DashboardPage() {
         try {
             newProject["changeId"] = nanoid(21);
             const token = await getAccessTokenSilently();
-            console.log(newProject);
+            //console.log(newProject);
             let response = await axios.post(`${apiUrl}/projects`, newProject, {
                 headers: {
                     'Content-Type': 'application/json',

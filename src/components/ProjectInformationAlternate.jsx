@@ -404,14 +404,15 @@ export default function ProjectInformation({
                   <ListItemText>Name this version</ListItemText>
               </MenuItem>
               <Divider /> 
-              <MenuItem  onClick={() => {setOpenNamigRules(true)}}>
-                  <ListItemIcon>
-                      <SpellcheckIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Edit naming conventions</ListItemText>
-              </MenuItem>
           </React.Fragment>
           }
+            <MenuItem  onClick={() => {setOpenNamigRules(true)}}>
+                <ListItemIcon>
+                    <SpellcheckIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>{isVersionHistory?"See":"Edit"} naming conventions</ListItemText>
+            </MenuItem>
+          <Divider /> 
           <MenuItem  onClick={() => {setOpenSqlWindow(true)}}>
               <ListItemIcon>
                   <SourceIcon fontSize="small" />
@@ -433,6 +434,7 @@ export default function ProjectInformation({
               onDone={handleNamingRulesUpdated}
               onCancel={() => {setOpenNamigRules(false), handleClose()}}
               originalNamingRules={namingRules}
+              isVersionHistory={isVersionHistory}
           />}
       <Dialog
         open={openVersionName}
