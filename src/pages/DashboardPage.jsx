@@ -11,7 +11,12 @@ import AddIcon from '@mui/icons-material/Add';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CssBaseline from '@mui/material/CssBaseline';
+import { InputLabel } from '@mui/material';
 import { TypeAnimation } from 'react-type-animation';
+
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 
 import NewProjectInfo from '../components/NewProjectInfo.jsx';
@@ -34,6 +39,7 @@ export function DashboardPage() {
     const [projectsLoaded, setProjectsLoaded] = React.useState(false);
     const [showStartButton, setShowStartButton] = React.useState(false);
     const [isComplete, setIsComplete] = React.useState(false);
+    const [sortOrder, setSortOrder] = React.useState('name asc');
 
     const handleNewProjectOpen = () => setNewProjectOpen(true);
     const handleNewProjectClose = () => setNewProjectOpen(false);
@@ -41,6 +47,35 @@ export function DashboardPage() {
     const [projects, setProjects] = useState([]);
 
     const navigate = useNavigate();
+
+    function sortProjects(projects, sortOrder){
+        let sortedProjects = [...projects]; // Assuming 'projects' is your array of projects
+      
+        switch (sortOrder) {
+          case 'name asc':
+            sortedProjects.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+          case 'name desc':
+            sortedProjects.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+          case 'date desc':
+            sortedProjects.sort((a, b) => new Date(b.lastChange.timestamp) - new Date(a.lastChange.timestamp));
+            break;
+          case 'date asc':
+            sortedProjects.sort((a, b) => new Date(a.lastChange.timestamp) - new Date(b.lastChange.timestamp));
+            break;
+          default:
+            // Handle default case or error
+            console.log('Invalid sort order');
+        }
+        return sortedProjects
+    }
+
+    function handleSortChange(event) {
+        const sortOrder = event.target.value;
+        setProjects(sortProjects(projects, sortOrder)); // Replace this with your actual method to update the projects list in your state or props
+        setSortOrder(sortOrder);
+    };
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -51,7 +86,7 @@ export function DashboardPage() {
                       Authorization: `Bearer ${token}`,
                     },
                   });
-                setProjects(await response.data);
+                setProjects(sortProjects(await response.data, sortOrder));
                 setProjectsLoaded(true);
             } catch (error) {
                 console.error("Error fetching projects", error);
@@ -113,14 +148,34 @@ export function DashboardPage() {
         <Box component="main" sx={{p: 8}}>
             {(projects.length !== 0)?
             (
-            <Grid container spacing={4} alignItems="center">
-                <Grid item xs={6} sm={8} md={9} lg={10} xl={10}>
-                    <Typography variant="h4">Projects</Typography>
+            <Grid container alignItems="center" justifyContent="space-between">
+                <Grid item style={{ flexGrow: 1 }}>
+                    <Grid container alignItems="center" spacing={2}>
+                        <Grid item>
+                            <Typography variant="h4">Projects</Typography>
+                        </Grid>
+                        <Grid item>
+                            <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                            <InputLabel id="display-order-label">Display Order</InputLabel>
+                                <Select
+                                    labelId="display-order-label"
+                                    value={sortOrder}
+                                    onChange={handleSortChange}
+                                    label="Display Order"
+                                >
+                                    <MenuItem value="name asc">Name Ascending</MenuItem>
+                                    <MenuItem value="name desc">Name Descending</MenuItem>
+                                    <MenuItem value="date desc">Most recently modified</MenuItem>
+                                    <MenuItem value="date asc">Least recently modified</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
                 </Grid>
-                <Grid item xs={6} sm={4} md={3} lg={2} xl={2} style={{ textAlign: 'right' }}>
+                <Grid item>
                     <Button onClick={handleNewProjectOpen} variant="contained" startIcon={<AddIcon/>}>New Project</Button>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} mt={2}>
                     <Grid container spacing={2}>
                         {projects.map(project => (
                             <Grid item xs={12} sm={12} md={6} lg={6} xl={4} key={project.id}>
