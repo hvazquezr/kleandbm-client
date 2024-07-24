@@ -70,7 +70,18 @@ export default function Flow({
     },
     {
       title: 'More Options',
-      content: 'Rename the diagram, see version history, generate DDL SQL, and download an image from this menu.',
+      content: (
+        <div>
+          <p>Access the following functionality:</p>
+          <ul>
+            <li>Rename the diagram</li>
+            <li>See version history</li>
+            <li>Update naming conventions</li>
+            <li>Generate DDL SQL</li>
+            <li>Download an image from this menu</li>
+          </ul>
+        </div>
+      ),
       event: 'hover',
       disableBeacon: true,
       placement: 'auto',

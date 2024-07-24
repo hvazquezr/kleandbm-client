@@ -85,9 +85,11 @@ export function DashboardPage() {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
-                  });
-                setProjects(sortProjects(await response.data, sortOrder));
+                });
+                const resultProjects = response.data;
+                setProjects(sortProjects(await resultProjects, sortOrder));
                 setProjectsLoaded(true);
+                setNewProjectOpen(resultProjects.length === 0);
             } catch (error) {
                 console.error("Error fetching projects", error);
             }
