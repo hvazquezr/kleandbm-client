@@ -49,7 +49,7 @@ const buttonStyle = {
     width: 200
 };
 
-export default function SQLCodeDisplay({projectId, handleClose}) {
+export default function SQLCodeDisplay({projectId, changeId, handleClose}) {
     const [sql, setSql] = useState(null);
     const {getAccessTokenSilently} = useAuth0();
 
@@ -57,7 +57,7 @@ export default function SQLCodeDisplay({projectId, handleClose}) {
         const fetchSql = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await axios.get(`${apiUrl}/projects/${projectId}/sql`, {
+                const response = await axios.get(`${apiUrl}/projects/${projectId}/sql/${changeId}`, {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },

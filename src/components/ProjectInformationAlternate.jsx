@@ -428,6 +428,7 @@ export default function ProjectInformation({
           </MenuItem>
           {openSqlWindow && <SQLCodeDisplay 
               projectId={projectId}
+              changeId={lastChange.id}
               handleClose={() => {setOpenSqlWindow(false), handleClose()}}
           />}
           {openNamingRules && <NamingRulesEditor 
