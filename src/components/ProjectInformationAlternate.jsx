@@ -153,6 +153,7 @@ export default function ProjectInformation({
 
   const handleNamingRulesUpdated = (results) => {
     onNamingRulesUpdated(results);
+    setOpenNamigRules(false);
     handleClose();
   };
 
